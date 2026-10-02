@@ -7,7 +7,7 @@ export function NeuralMapVisualization() {
     { id: 1, x: 20, y: 50, label: "Data Input", icon: Database },
     { id: 2, x: 40, y: 30, label: "GA Engine", icon: Zap },
     { id: 3, x: 40, y: 70, label: "Markov Chain", icon: Activity },
-    { id: 4, x: 60, y: 50, label: "Neural Fusion", icon: BrainCircuit },
+    { id: 4, x: 60, y: 50, label: "Análise Multicritério", icon: BrainCircuit },
     { id: 5, x: 80, y: 30, label: "Entropy Check", icon: ShieldCheck },
     { id: 6, x: 80, y: 70, label: "Audit Protocol", icon: ShieldCheck },
     { id: 7, x: 100, y: 50, label: "Alpha Output", icon: Cpu },
@@ -81,7 +81,7 @@ export function NeuralMapVisualization() {
       <div className="absolute bottom-6 left-6 flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Neural Stream Active</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary">Análise ativa</span>
         </div>
         <p className="text-[8px] text-muted-foreground uppercase font-medium tracking-[0.2em]">Institutional Processing Bridge v5.3</p>
       </div>

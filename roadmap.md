@@ -11,4 +11,4 @@
 - [ ] Fase 9 — Landing comercial
 - [ ] Fase 10 — Release (RELEASE_READINESS.md)
 - [x] Cópia antiga `read-create-play-main/` mantida (usuário pediu para não apagar)
-- [ ] Remover textos 'neural' restantes (Dashboard, Lotofácil Premium, painéis IA autônoma)
+- [x] Remover textos "neural" visíveis restantes + aviso permanente no rodapé

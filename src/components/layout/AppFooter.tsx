@@ -9,7 +9,7 @@ export function AppFooter() {
         </div>
         <div className="h-px w-16 bg-border/40" />
         <p className="text-[9px] text-muted-foreground/30 max-w-sm text-center leading-loose font-medium uppercase tracking-widest italic">
-          As loterias são eventos aleatórios. Nossas análises utilizam heurísticas matemáticas avançadas, mas não constituem garantia de resultado financeiro. Use com responsabilidade.
+          As loterias são eventos aleatórios. Análises estatísticas não garantem resultados. Sorteios são eventos aleatórios. Use com responsabilidade.
         </p>
       </div>
     </footer>

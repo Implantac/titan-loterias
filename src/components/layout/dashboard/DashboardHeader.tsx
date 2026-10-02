@@ -12,7 +12,7 @@ export function DashboardHeader({ statsCount, drawsCount }: DashboardHeaderProps
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Neural Core • v7.5 Alpha</span>
+            <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Motor Estatístico • v7.5</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
             <Activity className="w-3 h-3 text-muted-foreground animate-pulse" />

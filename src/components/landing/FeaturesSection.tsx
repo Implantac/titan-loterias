@@ -54,7 +54,7 @@ export function FeaturesSection({ featuresRef, featuresRotateX, fadeUp }: Featur
     {
       icon: MessageSquare,
       title: "Sincronização Oficial",
-      description: "Resultados oficiais atualizados em tempo real direto da fonte, garantindo 100% de precisão em cada análise que você fizer.",
+      description: "Resultados oficiais atualizados em tempo real direto da fonte, com verificação de integridade (concursos ausentes, duplicados e inconsistências) visível em cada análise.",
       color: "cyan" as const,
     },
   ];

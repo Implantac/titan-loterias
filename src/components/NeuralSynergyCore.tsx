@@ -33,7 +33,7 @@ export const NeuralSynergyCore = ({ analytics }: NeuralSynergyCoreProps) => {
         <div>
           <h3 className="text-lg font-black text-foreground flex items-center gap-2 tracking-tighter italic uppercase">
             <Share2 className="w-5 h-5 text-primary" />
-            Neural Synergy Core
+            Sinergia de Indicadores
           </h3>
           <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest mt-0.5">
             Engine Fusion • v5.3 Synergy Protocol
