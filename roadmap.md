@@ -1,7 +1,7 @@
 # Roadmap — Evolução comercial Titan
 
 - [x] Fase 1 — Auditoria (docs/TITAN_AUDIT.md) + remoção de rótulos enganosos
-- [ ] Fase 2 — Core: LotteryDefinition única, Data Health Check (P0), seeds nos geradores
+- [x] Fase 2 — Core: LotteryDefinition única, Data Health Check (P0), seeds nos geradores
 - [ ] Fase 3 — Produto: Comando do Apostador como cockpit, Gerador, Estatísticas, Fechamentos, Histórico, Jogos salvos
 - [ ] Fase 4 — IA: validar e corrigir
 - [ ] Fase 5 — Monetização: planos, checkout, webhook, entitlement no backend
