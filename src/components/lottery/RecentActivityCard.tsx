@@ -7,7 +7,7 @@ import { useSavedBets } from "@/hooks/useSavedBets";
 /** Últimos jogos salvos do usuário na loteria atual (dados reais, RLS por dono). */
 export function RecentActivityCard({ lotteryId }: { lotteryId: string }) {
   const navigate = useNavigate();
-  const { savedBets, loading, error } = useSavedBets(lotteryId) as ReturnType<typeof useSavedBets> & { error?: unknown };
+  const { savedBets, loading, error } = useSavedBets(lotteryId);
   const recent = savedBets.slice(0, 3);
 
   return (
