@@ -53,7 +53,7 @@ export function GuidedOnboarding() {
     },
     {
       title: "Escolha sua estratégia",
-      description: `Combinamos tendências quentes e dezenas atrasadas da ${config.name} para criar jogos com maior probabilidade matemática de acerto.`,
+      description: `Combinamos tendências quentes e dezenas atrasadas da ${config.name} para montar jogos dentro dos critérios que você escolher. Estatística não garante prêmio: sorteios são aleatórios.`,
       icon: Target,
       actionLabel: "Gerar Aposta Elite"
     },
