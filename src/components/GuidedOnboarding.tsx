@@ -40,26 +40,26 @@ export function GuidedOnboarding() {
 
   const steps: Step[] = [
     {
-      title: "Bem-vindo ao Titan IA",
-      description: `Sou seu analista neural. Vou te guiar para gerar sua primeira aposta inteligente na ${config.name} em menos de 60 segundos.`,
+      title: "Bem-vindo ao Titan Loterias",
+      description: `Vou te guiar para gerar seus primeiros jogos com análise estatística na ${config.name} em menos de 60 segundos.`,
       icon: Brain,
       actionLabel: "Começar Agora"
     },
     {
       title: `Análise da ${config.name}`,
-      description: `Nossos algoritmos processaram os últimos sorteios da ${config.name} e identificaram padrões de alta frequência específicos para esta modalidade.`,
+      description: `Nossos algoritmos processaram os últimos sorteios da ${config.name} e calcularam frequência e atraso de cada dezena desta modalidade.`,
       icon: Zap,
       actionLabel: "Ver Recomendação"
     },
     {
-      title: "Estratégia Neural",
-      description: `Combinamos tendências quentes e dezenas atrasadas da ${config.name} para criar jogos com maior probabilidade matemática de acerto.`,
+      title: "Escolha sua estratégia",
+      description: `Combinamos tendências quentes e dezenas atrasadas da ${config.name} para montar jogos dentro dos critérios que você escolher. Estatística não garante prêmio: sorteios são aleatórios.`,
       icon: Target,
       actionLabel: "Gerar Aposta Elite"
     },
     {
       title: "Sua Aposta Está Pronta",
-      description: `Clique abaixo para ir ao Gerador Neural e ver as sugestões que preparei para o próximo concurso da ${config.name}.`,
+      description: `Clique abaixo para ir ao Gerador e montar seus jogos para o próximo concurso da ${config.name}.`,
       icon: Trophy,
       actionLabel: "Ir para o Gerador"
     }
@@ -163,7 +163,7 @@ export function GuidedOnboarding() {
         <div className="px-10 py-6 bg-secondary/20 border-t border-border/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Neural Sync Ativo</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dados oficiais da Caixa</span>
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passo {currentStep + 1} de {steps.length}</span>
         </div>
