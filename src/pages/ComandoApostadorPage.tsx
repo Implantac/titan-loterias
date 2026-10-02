@@ -21,6 +21,7 @@ import { useLotteryContext } from "@/contexts/LotteryContext";
 import { CycleThermometer } from "@/components/lottery/analysis/CycleThermometer";
 import { DataHealthPanel } from "@/components/lottery/analysis/DataHealthPanel";
 import { CockpitShortcuts } from "@/components/lottery/CockpitShortcuts";
+import { RecentActivityCard } from "@/components/lottery/RecentActivityCard";
 import { WinnerProfilePanel } from "@/components/lottery/analysis/WinnerProfilePanel";
 import { QuickCompareBet } from "@/components/lottery/QuickCompareBet";
 import { EnginePerformancePanel } from "@/components/dashboards/EnginePerformancePanel";
@@ -149,7 +150,10 @@ export default function ComandoApostadorPage() {
 
       <CockpitShortcuts />
 
-      <DataHealthPanel draws={draws} lottery={lotteryConfig} />
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2"><DataHealthPanel draws={draws} lottery={lotteryConfig} /></div>
+        <RecentActivityCard lotteryId={selectedLottery} />
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 grid md:grid-cols-2 gap-4">

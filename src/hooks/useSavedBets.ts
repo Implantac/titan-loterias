@@ -21,7 +21,7 @@ export function useSavedBets(lotteryId: string) {
   const { currentPlan } = usePlanAccess();
   const limit = PLAN_LIMITS[currentPlan].savedBetsPerLottery;
 
-  const { data: savedBets = [], isLoading: loading, refetch } = useQuery({
+  const { data: savedBets = [], isLoading: loading, error, refetch } = useQuery({
     queryKey: ["saved-bets", lotteryId],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -103,5 +103,5 @@ export function useSavedBets(lotteryId: string) {
   const remaining = Math.max(0, limit - savedBets.length);
   const isAtLimit = remaining === 0 && limit !== Infinity;
 
-  return { savedBets, loading, saveBet, deleteBet, refetch, limit, remaining, isAtLimit };
+  return { savedBets, loading, error, saveBet, deleteBet, refetch, limit, remaining, isAtLimit };
 }
