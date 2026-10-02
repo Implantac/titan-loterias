@@ -19,8 +19,9 @@ export function DataOriginIndicator() {
     { id: "official", label: "Oficial", icon: Server, color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
     { id: "cache", label: "Cache Local", icon: Database, color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
     { id: "import", label: "Importação", icon: FileJson, color: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
-    { id: "mock", label: "Simulado", icon: FlaskConical, color: "text-purple-500 bg-purple-500/10 border-purple-500/20" },
   ];
+  // "Simulado" removido da escolha do usuário: análises nunca devem rodar sobre dados fictícios.
+  void FlaskConical;
 
   const current = origins.find(o => o.id === dataOrigin) || origins[0];
 
