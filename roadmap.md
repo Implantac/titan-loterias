@@ -10,4 +10,4 @@
 - [ ] Fase 8 — Performance
 - [ ] Fase 9 — Landing comercial
 - [ ] Fase 10 — Release (RELEASE_READINESS.md)
-- [ ] Remover cópia antiga `read-create-play-main/` (aguarda confirmação do usuário)
+- [x] Cópia antiga `read-create-play-main/` mantida (usuário pediu para não apagar)
