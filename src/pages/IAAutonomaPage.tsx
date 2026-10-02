@@ -14,7 +14,7 @@ const IAAutonomaPage = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pt-4">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Neural Engine v6.0</span>
+            <span className="px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Motor estatístico</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter italic uppercase leading-tight">

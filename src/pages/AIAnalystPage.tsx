@@ -90,7 +90,7 @@ const AIAnalystPage = () => {
             Intelligence <span className="gradient-brand-text not-italic">Hub</span>
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto font-medium">
-            Seu assistente neural configurado para <span className="text-foreground font-bold">{config.name}</span>. 
+            Seu assistente configurado para <span className="text-foreground font-bold">{config.name}</span>. 
             Otimize seus resultados com inteligência de dados de última geração.
           </p>
         </div>
@@ -182,7 +182,7 @@ const AIAnalystPage = () => {
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                       <Sparkles className="h-5 w-5 text-primary" />
                     </div>
-                    Gerador Neural de Alta Performance
+                    Gerador de Jogos
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-8">

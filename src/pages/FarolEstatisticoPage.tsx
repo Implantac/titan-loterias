@@ -100,7 +100,7 @@ export default function FarolEstatisticoPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[9px] font-black text-primary uppercase tracking-[0.2em] italic">Titan Neural Core v5.3</span>
+            <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[9px] font-black text-primary uppercase tracking-[0.2em] italic">Análise estatística</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic leading-none">
@@ -158,7 +158,7 @@ export default function FarolEstatisticoPage() {
           <CardHeader className="pb-2 p-6 border-b border-white/5 bg-white/[0.01]">
             <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2 text-accent opacity-60 group-hover/ai:opacity-100 transition-opacity leading-none italic">
               <Brain className="w-3.5 h-3.5" />
-              Neural Briefing
+              Resumo da análise
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">

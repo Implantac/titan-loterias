@@ -68,7 +68,7 @@ import { NeuralHealthGauge } from "@/components/lottery/analysis/NeuralHealthGau
 const LazyFallback = () => (
   <div className="flex items-center justify-center py-12 text-muted-foreground bg-secondary/5 rounded-2xl border border-dashed border-border/40">
     <Loader2 className="h-5 w-5 animate-spin mr-2 text-primary" />
-    <span className="text-xs font-black uppercase tracking-widest italic">Iniciando Motor Neural...</span>
+    <span className="text-xs font-black uppercase tracking-widest italic">Carregando análise...</span>
   </div>
 );
 
@@ -303,7 +303,7 @@ export default function LotofacilPremiumPage() {
                 <div className="flex items-center justify-between px-1">
                   <h2 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60 flex items-center gap-2">
                     <TerminalIcon className="w-4 h-4" />
-                    Neural Feed System
+                    Análise do histórico
                   </h2>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -383,7 +383,7 @@ export default function LotofacilPremiumPage() {
                     <NeuralHealthGauge 
                       value={92.1} 
                       label="Estabilidade" 
-                      sublabel="Fluxo Preditivo" 
+                      sublabel="Tendência recente" 
                       color="hsl(var(--accent))" 
                     />
                   </div>
@@ -411,7 +411,7 @@ export default function LotofacilPremiumPage() {
                   </div>
 
                   <p className="text-sm text-muted-foreground leading-relaxed font-medium italic border-l-2 border-primary/40 pl-4 py-1">
-                    "O modelo neural identificou uma saturação no quadrante 3. Recomendamos jogos com foco em equilíbrio de moldura e dezenas primas."
+                    "Dica geral: jogos com moldura e miolo equilibrados aparecem com mais frequência no histórico."
                   </p>
 
                   <div className="flex flex-wrap gap-2">
@@ -445,7 +445,7 @@ export default function LotofacilPremiumPage() {
                 <CardHeader>
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     <Brain className="w-4 h-4 text-accent" />
-                    Análise Preditiva Neural
+                    Análise Estatística
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -649,7 +649,7 @@ export default function LotofacilPremiumPage() {
                 <div className="flex gap-2">
                   <Button onClick={autoSelectWorksheet} className="gap-2 flex-1 rounded-xl h-11 gradient-brand font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">
                     <Sparkles className="w-4 h-4" />
-                    Auto-seleção Neural
+                    Seleção automática
                   </Button>
                   <Button variant="outline" className="rounded-xl h-11 px-5 border-border/40 text-[10px] font-black uppercase tracking-widest" onClick={() => setWorksheetNumbers([])}>
                     Limpar
@@ -837,7 +837,7 @@ export default function LotofacilPremiumPage() {
                       <Table2 className="w-5 h-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Distribuição Neural</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Distribuição das dezenas</p>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {Object.entries(worksheetAnalysis.hitDistribution)
                           .sort(([a], [b]) => Number(b) - Number(a))

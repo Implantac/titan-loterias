@@ -30,7 +30,7 @@ export function LotteryContextBanner() {
           <div className="flex items-center gap-1.5">
             <div className={`w-1.5 h-1.5 rounded-full ${loading ? "bg-amber-400 animate-pulse" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"}`} />
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-80">
-              {loading ? "Sincronizando Core..." : draws.length > 0 ? "Neural Sync Verified" : "Aguardando Data"}
+              {loading ? "Sincronizando Core..." : draws.length > 0 ? "Dados sincronizados" : "Aguardando Data"}
             </p>
           </div>
           <span className="w-1 h-1 rounded-full bg-border" />

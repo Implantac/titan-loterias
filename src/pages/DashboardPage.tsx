@@ -162,7 +162,7 @@ const DashboardPage = () => {
             <div className="space-y-3">
               {[
                 { title: "Tendência de Pares", value: "Premium", desc: "Titan Score 91/100 detectado." },
-                { title: "Soma Ideal", value: "IA Preditiva", desc: "Intervalo de alta probabilidade." },
+                { title: "Soma Ideal", value: "Faixa histórica", desc: "Intervalo de soma mais comum nos sorteios." },
                 { title: "Alerta de Ciclo", value: "Ativo", desc: "Dezenas em convergência estatística." },
               ].map((insight, i) => (
                 <div key={i} className="p-3 rounded-lg bg-muted/30 border border-border/40 space-y-1">

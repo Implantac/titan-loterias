@@ -133,7 +133,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="inline-flex items-center px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] bg-primary/10 text-primary border border-primary/20 mb-8 italic drop-shadow-md"
             >
-              Potencial Neural de Elite
+              Análise estatística completa
             </motion.div>
             <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
@@ -192,7 +192,7 @@ export default function LandingPage() {
               Sincronização em Tempo Real
             </div>
             <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-[1] mb-10 drop-shadow-2xl text-white">
-              Central <span className="gradient-brand-text drop-shadow-[0_0_20px_rgba(201,168,76,0.3)]">Neural Titan</span>
+              Central <span className="gradient-brand-text drop-shadow-[0_0_20px_rgba(201,168,76,0.3)]">de Análise Titan</span>
             </h2>
             <p className="text-muted-foreground max-w-3xl mx-auto font-medium text-xl opacity-70 italic leading-relaxed px-4">
               Acompanhe em tempo real o processamento dos concursos oficiais e a detecção de padrões estatísticos pela nossa inteligência de elite.
