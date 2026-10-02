@@ -28,7 +28,7 @@ interface BriefingProps {
 
 export const AIAnalystBriefing = ({ game, score, confidence, strategy, reasons, lotteryName, onClose }: BriefingProps) => {
   const finalScore = score ?? confidence ?? 85;
-  const displayStrategy = strategy ?? "Análise Neural";
+  const displayStrategy = strategy ?? "Análise Multicritério";
   
   return (
     <m.div 
@@ -46,7 +46,7 @@ export const AIAnalystBriefing = ({ game, score, confidence, strategy, reasons, 
         <div className="space-y-3 relative z-10">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary font-mono text-[9px] uppercase tracking-widest px-2">
-              Neural Analysis
+              Análise Estatística
             </Badge>
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>

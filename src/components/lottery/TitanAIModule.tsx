@@ -70,7 +70,7 @@ export function TitanAIModule() {
 
       <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 relative z-10">
         {[
-          { label: "Sugestão da IA", value: "Frequência Neural", icon: TrendingUp },
+          { label: "Sugestão da IA", value: "Frequência Histórica", icon: TrendingUp },
           { label: "Confiança do Sinal", value: "Moderada (71%)", icon: Sparkles },
           { label: "Padrão Detectado", value: "Cíclico Ativo", icon: BrainCircuit },
           { label: "Vantagem Est.", value: "Alta Fidelity", icon: TrendingUp },

@@ -103,7 +103,7 @@ export function GameAnalysisBlock({ numbers, stats, config, draws, defaultOpen =
           >
             <div className="mt-3 p-4 rounded-xl bg-background/60 border border-border/40 space-y-4 shadow-inner">
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 opacity-60">
-                <Target className="w-3.5 h-3.5 text-primary" /> Matrix Analysis (Neural Data)
+                <Target className="w-3.5 h-3.5 text-primary" /> Análise da Matriz (dados históricos)
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">

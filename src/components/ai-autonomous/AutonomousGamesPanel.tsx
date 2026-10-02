@@ -71,7 +71,7 @@ export function AutonomousGamesPanel({ config, draws, stats }: Props) {
         const result = runIntelligentPipeline(stats, draws, config.id, "ml", count);
         const generated: GeneratedGame[] = result.games.map((g) => ({
           numbers: g,
-          strategy: "Neural ML Autônomo",
+          strategy: "Motor Estatístico Autônomo",
         }));
         setGames(generated);
         toast({
@@ -144,7 +144,7 @@ export function AutonomousGamesPanel({ config, draws, stats }: Props) {
                 Gerador Autônomo de Jogos
               </CardTitle>
               <CardDescription className="text-xs">
-                A IA usa o pipeline neural completo para criar combinações e testá-las contra todo o histórico de sorteios.
+                A IA usa o motor estatístico multicritério para criar combinações e testá-las contra todo o histórico de sorteios.
               </CardDescription>
             </div>
             <div className="flex items-end gap-3">
