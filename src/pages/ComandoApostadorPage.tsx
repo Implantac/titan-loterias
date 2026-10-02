@@ -20,6 +20,7 @@ import { Command, Trophy, Wallet, Target, TrendingUp, Info as InfoIcon, Loader2,
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { CycleThermometer } from "@/components/lottery/analysis/CycleThermometer";
 import { DataHealthPanel } from "@/components/lottery/analysis/DataHealthPanel";
+import { CockpitShortcuts } from "@/components/lottery/CockpitShortcuts";
 import { WinnerProfilePanel } from "@/components/lottery/analysis/WinnerProfilePanel";
 import { QuickCompareBet } from "@/components/lottery/QuickCompareBet";
 import { EnginePerformancePanel } from "@/components/dashboards/EnginePerformancePanel";
@@ -145,6 +146,8 @@ export default function ComandoApostadorPage() {
           </p>
         </div>
       </div>
+
+      <CockpitShortcuts />
 
       <DataHealthPanel draws={draws} lottery={lotteryConfig} />
 
