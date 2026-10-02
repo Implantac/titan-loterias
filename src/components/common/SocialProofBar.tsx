@@ -6,7 +6,7 @@ export function SocialProofBar() {
     { icon: Users, label: "4.8K+ Usuários Ativos", detail: "Comunidade Profissional" },
     { icon: TrendingUp, label: "24.5K+ Concursos", detail: "Big Data Oficial" },
     { icon: ShieldCheck, label: "Rigor Estatístico", detail: "Matemática Aplicada" },
-    { icon: Zap, label: "Neural Core v7.5", detail: "Elite Processing" },
+    { icon: Zap, label: "Análise Estatística", detail: "Dados oficiais" },
   ];
 
   return (

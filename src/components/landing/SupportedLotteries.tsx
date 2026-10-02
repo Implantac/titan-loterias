@@ -22,13 +22,13 @@ export function SupportedLotteries() {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-32 space-y-8">
           <Badge variant="outline" className="px-5 py-2 text-[10px] font-black tracking-[0.4em] uppercase border-primary/20 text-primary bg-primary/5 italic">
-            Ecossistema Neural v7.5
+            Loterias suportadas
           </Badge>
           <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.85] drop-shadow-2xl">
             LOTERIAS <span className="gradient-brand-text drop-shadow-[0_0_20px_rgba(201,168,76,0.3)]">SUPORTADAS</span>
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto font-medium text-lg italic opacity-70 px-4">
-            Cada modalidade opera em um ambiente isolado com processamento neural dedicado e algoritmos otimizados para sua mecânica específica.
+            Cada modalidade opera em um ambiente isolado com regras e análises próprias para sua mecânica específica.
           </p>
         </div>
 

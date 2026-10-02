@@ -29,7 +29,7 @@ export function ComplianceDisclaimer({ compact = false }: Props) {
           Aviso de Transparência Profissional
         </p>
         <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed italic font-medium">
-          O Titan utiliza processamento neural e rigor estatístico baseado em evidências históricas reais. 
+          O Titan utiliza rigor estatístico baseado em evidências históricas reais. 
           <strong className="text-foreground font-black"> Não há garantia de premiação.</strong> Este sistema é uma ferramenta de suporte à decisão de elite. Jogue com responsabilidade.
         </p>
       </div>

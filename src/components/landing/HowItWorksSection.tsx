@@ -37,7 +37,7 @@ export function HowItWorksSection() {
                 <div className="flex gap-8 items-start group">
                   <span className="text-6xl font-black text-primary/5 group-hover:text-primary/20 transition-colors italic leading-none select-none">02</span>
                   <div className="space-y-2">
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Processamento Neural</h3>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Análise Estatística</h3>
                     <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">O Titan AI Core v7.5 cruza milhões de combinações em busca de padrões estatísticos e anomalias de frequência.</p>
                   </div>
                 </div>

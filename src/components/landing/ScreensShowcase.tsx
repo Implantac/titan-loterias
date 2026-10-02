@@ -26,7 +26,7 @@ function DashboardMock() {
           { label: "Concursos", val: "14.502", icon: BarChart3, c: "text-primary" },
           { label: "IA Models", val: "48", icon: Brain, c: "text-neon-blue" },
           { label: "Predictive", val: "89%", icon: TrendingUp, c: "text-primary" },
-          { label: "Status", val: "Neural", icon: Zap, c: "text-accent" },
+          { label: "Status", val: "Ativo", icon: Zap, c: "text-accent" },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-border/20 bg-card/50 p-2 text-center">
             <s.icon className={`w-3.5 h-3.5 mx-auto mb-1 ${s.c}`} />
@@ -72,7 +72,7 @@ function GeradorMock() {
         <div className="mt-3"><span className="text-[8px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-3 py-1 italic font-black">Titan Score: 94/100 — Excelente Oportunidade</span></div>
       </div>
       <div className="grid grid-cols-4 gap-2">
-        {[{ l: "Padrão", v: 87 }, { l: "Neural", v: 74 }, { l: "Genético", v: 91 }, { l: "MC", v: 82 }].map((i) => (
+        {[{ l: "Padrão", v: 87 }, { l: "Tendência", v: 74 }, { l: "Genético", v: 91 }, { l: "MC", v: 82 }].map((i) => (
           <div key={i.l} className="rounded-lg border border-border/20 bg-card/30 p-2 text-center">
             <div className="text-[7px] text-muted-foreground font-mono mb-1">{i.l}</div>
             <div className="text-xs font-bold font-mono text-primary">{i.v}%</div>
