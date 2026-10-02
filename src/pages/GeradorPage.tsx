@@ -102,7 +102,7 @@ const GeradorPage = () => {
     { id: "dispersion", name: "Dispersão no Volante", desc: "Espalha as dezenas por todas as faixas do volante." },
     { id: "anti_pattern", name: "Anti-Padrões", desc: "Evita sequências e padrões visuais óbvios (baixa concorrência em rateio)." },
     { id: "coverage", name: "Cobertura Máxima", desc: "Combina frequência, atraso, primos e Fibonacci para cobrir mais faixas." },
-    { id: "predictive", name: "Estatística Preditiva", desc: "Foco em tendências de alta probabilidade baseadas em IA." },
+    { id: "predictive", name: "Tendência Recente", desc: "Prioriza dezenas que saíram mais nos últimos concursos." },
     { id: "aggressive", name: "Aposta IA Premium", desc: "Modelos avançados para busca de convergência máxima." },
     { id: "conservative", name: "Aposta Conservadora", desc: "Baseada em frequência histórica estável e ciclos de retorno." },
   ];

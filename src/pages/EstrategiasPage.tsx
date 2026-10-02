@@ -18,7 +18,7 @@ const HPEnginePanel = lazy(() => import("@/components/HPEnginePanel").then(m => 
 const LazyFallback = () => (
   <div className="flex flex-col items-center justify-center py-20 text-muted-foreground animate-pulse">
     <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
-    <span className="text-sm font-black uppercase tracking-widest italic">Iniciando Motor Neural...</span>
+    <span className="text-sm font-black uppercase tracking-widest italic">Carregando análise...</span>
   </div>
 );
 
@@ -62,7 +62,7 @@ const EstrategiasPage = () => {
                 <Zap className="h-4 w-4" /> Otimizadores
               </TabsTrigger>
               <TabsTrigger value="preditivos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl py-3 px-6 font-black uppercase tracking-widest text-[10px] transition-all gap-2 italic">
-                <Sparkles className="h-4 w-4" /> Preditivos
+                <Sparkles className="h-4 w-4" /> Tendências
               </TabsTrigger>
             </TabsList>
           </div>
@@ -102,7 +102,7 @@ const EstrategiasPage = () => {
           </TabsContent>
 
           <TabsContent value="preditivos" className="m-0 focus-visible:ring-0 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-            <PlanGate feature="estrategias_ml" fallbackMessage="Machine Learning Preditivo">
+            <PlanGate feature="estrategias_ml" fallbackMessage="Estratégias Avançadas">
               <Suspense fallback={<LazyFallback />}>
                 <MLPanel stats={stats} config={config} draws={draws} />
               </Suspense>

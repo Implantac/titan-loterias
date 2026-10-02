@@ -383,7 +383,7 @@ export default function LotofacilPremiumPage() {
                     <NeuralHealthGauge 
                       value={92.1} 
                       label="Estabilidade" 
-                      sublabel="Fluxo Preditivo" 
+                      sublabel="Tendência recente" 
                       color="hsl(var(--accent))" 
                     />
                   </div>

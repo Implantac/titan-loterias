@@ -67,7 +67,7 @@ const AnaliseCentralPage = () => {
           <TabsList>
             <TabsTrigger value="farol" className="gap-2.5">
               <Zap className="w-4 h-4" />
-              Farol Neural
+              Farol Estatístico
             </TabsTrigger>
             <TabsTrigger value="estatisticas" className="gap-2.5">
               <PieChart className="w-4 h-4" />
@@ -113,7 +113,7 @@ const AnaliseCentralPage = () => {
                           <Brain className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-black uppercase tracking-tighter">Motor Neural Autônomo</h3>
+                          <h3 className="text-lg font-black uppercase tracking-tighter">Análise Automática</h3>
                           <p className="text-xs text-muted-foreground">Detecção de anomalias e padrões de alta frequência</p>
                         </div>
                       </div>
