@@ -19,6 +19,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Command, Trophy, Wallet, Target, TrendingUp, Info as InfoIcon, Loader2, ShieldCheck, AlertCircle, Search } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { CycleThermometer } from "@/components/lottery/analysis/CycleThermometer";
+import { DataHealthPanel } from "@/components/lottery/analysis/DataHealthPanel";
 import { WinnerProfilePanel } from "@/components/lottery/analysis/WinnerProfilePanel";
 import { QuickCompareBet } from "@/components/lottery/QuickCompareBet";
 import { EnginePerformancePanel } from "@/components/dashboards/EnginePerformancePanel";
@@ -144,6 +145,8 @@ export default function ComandoApostadorPage() {
           </p>
         </div>
       </div>
+
+      <DataHealthPanel draws={draws} lottery={lotteryConfig} />
 
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 grid md:grid-cols-2 gap-4">
