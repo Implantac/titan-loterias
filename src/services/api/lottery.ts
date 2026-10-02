@@ -98,6 +98,16 @@ export async function syncLottery(lotteryId?: string, fullSync = false) {
   return data;
 }
 
+/** Busca na fonte oficial apenas os concursos que faltam no banco. */
+export async function fillLotteryGaps(lotteryId: string): Promise<{ inserted: number; errors: number; missing: number }> {
+  const { data, error } = await supabase.functions.invoke("sync-lottery-draws", {
+    body: { lottery_id: lotteryId, fill_gaps: true },
+  });
+  if (error) throw error;
+  const r = data?.results?.[0] ?? {};
+  return { inserted: r.inserted ?? 0, errors: r.errors ?? 0, missing: r.missing ?? 0 };
+}
+
 export function checkBetAgainstDraws(bet: number[], draws: DrawResult[]): MatchResult[] {
   return draws.map(draw => {
     const matched = bet.filter(n => draw.numbers.includes(n));

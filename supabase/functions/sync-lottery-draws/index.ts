@@ -191,6 +191,39 @@ serve(async (req) => {
           }
         }
 
+        // Modo fill_gaps: busca apenas os concursos que faltam no meio da sequência.
+        if (body.fill_gaps === true) {
+          const stored: number[] = [];
+          for (let off = 0; off < 20000; off += 1000) {
+            const { data: page, error: pErr } = await supabase
+              .from("lottery_draws").select("concurso").eq("lottery_id", lottery.id)
+              .order("concurso", { ascending: true }).range(off, off + 999);
+            if (pErr) throw pErr;
+            stored.push(...(page ?? []).map((p: { concurso: number }) => p.concurso));
+            if (!page || page.length < 1000) break;
+          }
+          const have = new Set(stored);
+          const top = Math.max(latestConcurso, stored[stored.length - 1] ?? 0);
+          const missing: number[] = [];
+          for (let c = 1; c <= top && missing.length < 300; c++) if (!have.has(c)) missing.push(c);
+          for (let i = 0; i < missing.length; i += 15) {
+            if (Date.now() - startedAt > TIME_BUDGET_MS) break;
+            const chunk = missing.slice(i, i + 15);
+            const got = await Promise.all(chunk.map((c) =>
+              fetchWithRetry(`${API_BASE}/${lottery.apiName}/${c}`).then((r) => r ? r.json() : null).catch(() => null)));
+            const rows = got.filter((r): r is CaixaResult => !!r?.concurso)
+              .map((r) => ({ lottery_id: lottery.id, concurso: r.concurso, draw_date: r.data || null, numbers: extractNumbers(r), prize_tiers: extractPrizeTiers(r) }))
+              .filter((r) => r.numbers.length > 0);
+            if (rows.length) {
+              const { error } = await supabase.from("lottery_draws").upsert(rows, { onConflict: "lottery_id,concurso" });
+              if (error) errors += rows.length; else inserted += rows.length;
+            }
+            errors += chunk.length - rows.length;
+          }
+          results.push({ lottery: lottery.id, inserted, errors, latest: latestConcurso, missing: missing.length } as any);
+          continue;
+        }
+
         const { data: existing } = await supabase
           .from("lottery_draws")
           .select("concurso")
