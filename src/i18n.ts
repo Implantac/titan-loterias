@@ -34,7 +34,7 @@ const resources = {
         "hero": {
           "badge": "TITAN INTEL • INTELIGÊNCIA ESTATÍSTICA APLICADA",
           "title": "CIÊNCIA DE DADOS REAL",
-          "subtitle": "Neural Core v7.5 Alpha • Acesso de Elite",
+          "subtitle": "Análise Estatística • Acesso de Elite",
           "description": "Analise mais de 24 mil concursos oficiais, revele padrões que passam despercebidos e monte apostas com base em estatística, probabilidade e IA — não em achismo.",
           "cta_primary": "Testar Gratuitamente",
           "cta_secondary": "Conhecer os Recursos"
