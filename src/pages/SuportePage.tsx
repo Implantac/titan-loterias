@@ -36,7 +36,7 @@ const faqCategories = [
     title: "Funcionalidades",
     icon: Zap,
     faqs: [
-      { q: "Como funcionam as previsões da IA?", a: "Nossa IA analisa padrões estatísticos, frequências, atrasos e tendências dos sorteios históricos para gerar combinações otimizadas. Importante: não garantimos resultados." },
+      { q: "Como funcionam as análises da IA?", a: "Nossa IA analisa padrões estatísticos, frequências, atrasos e tendências dos sorteios históricos para gerar combinações otimizadas. Importante: não garantimos resultados." },
       { q: "Quais loterias são suportadas?", a: "Suportamos Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena, Timemania, Dia de Sorte e +Milionária, com dados atualizados automaticamente." },
       { q: "O que são fechamentos?", a: "Fechamentos são sistemas matemáticos que garantem uma cobertura mínima de acertos se determinados números forem sorteados, otimizando suas apostas." },
       { q: "Posso salvar e gerenciar minhas apostas?", a: "Sim! Você pode salvar apostas geradas, adicionar rótulos, conferir resultados e acompanhar seu histórico completo na plataforma." },

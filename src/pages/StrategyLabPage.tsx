@@ -479,7 +479,7 @@ export default function StrategyLabPage() {
                       <div className="space-y-2">
                         <p className="text-[10px] uppercase tracking-[0.4em] text-primary font-black italic opacity-60 leading-none">Alpha Winner v4.0</p>
                         <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter italic leading-none">{result.bestStrategy.strategyName}</h2>
-                        <p className="text-xs text-muted-foreground font-medium italic opacity-60 leading-relaxed max-w-md">Estratégia de elite detectada pela rede neural com alta taxa de convergência estatística.</p>
+                        <p className="text-xs text-muted-foreground font-medium italic opacity-60 leading-relaxed max-w-md">Estratégia com melhor desempenho nos testes históricos (não garante resultados futuros).</p>
 
                       </div>
                     </div>

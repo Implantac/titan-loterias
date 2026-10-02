@@ -55,7 +55,7 @@ export default function PlanosPage() {
           Acesso Vitalício <span className="gradient-brand-text block mt-2">Zero Mensalidade</span>
         </h1>
         <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70">
-          Trave seu acesso permanente à rede de inteligência neural Titan hoje mesmo por um investimento único e irrepetível.
+          Trave seu acesso permanente às ferramentas de análise estatística Titan hoje mesmo por um investimento único e irrepetível.
         </p>
 
       </motion.div>
@@ -125,7 +125,7 @@ export default function PlanosPage() {
                 <div className="w-full space-y-4">
                   <div className="w-full py-5 rounded-2xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center gap-3 text-primary font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/10 italic">
                     <ShieldCheck className="w-5 h-5" />
-                    Neural Node Active
+                    Acesso ativo
                   </div>
 
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">

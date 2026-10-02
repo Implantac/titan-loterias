@@ -94,7 +94,7 @@ const GeradorPage = () => {
       ? [{ id: "lotomania_jackpot", name: "🔥 Lotomania Jackpot (20 acertos)", desc: "Exclusiva Lotomania: pool amplo de 65 dezenas distribuído pelas 10 dezenas do volante 100, viés oficial e boost de repetição alta (média 20-30)." }]
       : []),
 
-    { id: "balance", name: "Aposta Equilibrada", desc: "Distribuição estatística otimizada por rede neural." },
+    { id: "balance", name: "Aposta Equilibrada", desc: "Equilibra pares, ímpares, soma e faixas de dezenas com base no histórico." },
     { id: "hot_cold", name: "Quente-Frio", desc: "Combina viés oficial, atraso e frequência recente. Ideal para qualquer loteria." },
     { id: "repetition", name: "Repetição do Anterior", desc: "Aproveita o viés de repetição do último sorteio (ex.: 8-10 dezenas na Lotofácil)." },
     { id: "frequency", name: "Frequência Histórica", desc: "Prioriza números mais sorteados, com boost por frequência recente." },
