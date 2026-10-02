@@ -201,7 +201,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
               </Button>
               <Button size="sm" onClick={runAIAnalysis} disabled={aiLoading} className="h-12 px-8 rounded-2xl gradient-brand text-primary-foreground font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex-1 lg:flex-initial gap-2">
                 {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Deep Neural Probe
+                Análise Profunda
               </Button>
             </div>
           </div>
@@ -216,7 +216,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
           { label: "Anomalias Matrix", value: report.shifts.length, icon: TriangleAlert, color: "text-rose-400", bg: "bg-rose-500/5", border: "hover:border-rose-500/40", desc: "Shift Detected" },
           { label: "Entropia Flux", value: report.entropyAnalysis.normalizedEntropy.toFixed(2), icon: Dice1, color: "text-emerald-400", bg: "bg-emerald-500/5", border: "hover:border-emerald-500/40", desc: "Stability Index" },
           { label: "χ² Verificado", value: report.chiSquareResult.pValue.toFixed(3), icon: FlaskConical, color: "text-yellow-400", bg: "bg-yellow-500/5", border: "hover:border-yellow-500/40", desc: "P-Value Pure" },
-          { label: "Titan Confiança", value: `${report.confidenceScore}%`, icon: Gauge, color: "text-purple-400", bg: "bg-purple-500/5", border: "hover:border-purple-500/40", desc: "Neural Weight" },
+          { label: "Titan Confiança", value: `${report.confidenceScore}%`, icon: Gauge, color: "text-purple-400", bg: "bg-purple-500/5", border: "hover:border-purple-500/40", desc: "Aderência heurística" },
         ].map((item, idx) => (
           <m.div 
             key={item.label}
@@ -247,7 +247,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                 <Zap className="h-6 w-6 text-primary animate-pulse" />
               </div>
               <div>
-                <span>Configuração Neural Alpha</span>
+                <span>Configuração do Motor</span>
                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-40 mt-2">Aposta Sugerida para Ciclo #{report.drawsAnalyzed + 1}</p>
               </div>
             </CardTitle>
@@ -324,7 +324,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
               <CardHeader className="pb-8 p-8 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg font-black uppercase tracking-tight italic">Top 20 Neural Ranking</CardTitle>
+                    <CardTitle className="text-lg font-black uppercase tracking-tight italic">Top 20 por Score Estatístico</CardTitle>
                     <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">Weighted Consensus across 6 Prediction Models</CardDescription>
                   </div>
                   <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-black italic">Consensus Model v5.3</Badge>
@@ -348,7 +348,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                         contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border) / 0.5)", borderRadius: 16, color: "hsl(var(--foreground))", boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)' }} 
                       />
                       <Legend iconType="circle" wrapperStyle={{ paddingTop: 30, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
-                      <Bar dataKey="score" name="Neural Score" fill="url(#barGradient)" radius={[6, 6, 0, 0]} barSize={24} />
+                      <Bar dataKey="score" name="Score Estatístico" fill="url(#barGradient)" radius={[6, 6, 0, 0]} barSize={24} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -366,7 +366,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                   <thead className="sticky top-0 bg-background/95 backdrop-blur z-20 shadow-sm">
                     <tr className="border-b border-white/5">
                       <th className="text-left py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">#</th>
-                      <th className="text-left py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">Neural Node</th>
+                      <th className="text-left py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">Número</th>
                       <th className="text-center py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">Composite</th>
                       <th className="text-center py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">Freq</th>
                       <th className="text-center py-4 px-6 font-black text-[9px] uppercase tracking-widest text-muted-foreground">Markov</th>
@@ -705,7 +705,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
               ) : (
                 <div className="text-center py-20 opacity-30">
                   <GitBranch className="w-12 h-12 mx-auto mb-4" />
-                  <p className="text-xs font-black uppercase tracking-widest">Nenhum trio neural detectado neste ciclo</p>
+                  <p className="text-xs font-black uppercase tracking-widest">Nenhum trio relevante detectado neste ciclo</p>
                 </div>
               )}
             </CardContent>
@@ -975,7 +975,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                     <Sparkles className="h-6 w-6 text-primary animate-pulse" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl font-black uppercase tracking-tight italic">Relatório Neural Profundo</CardTitle>
+                    <CardTitle className="text-xl font-black uppercase tracking-tight italic">Relatório Estatístico Detalhado</CardTitle>
                     <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-40">Síntese de Redes Neurais e Probabilidade Bayesiana</CardDescription>
                   </div>
                 </div>

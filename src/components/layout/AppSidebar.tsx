@@ -46,7 +46,7 @@ const workflowGroups: { label: string; items: { title: string; url: string; icon
         { title: "Estratégias ML", url: "/estrategias", icon: Brain, tooltip: "Painel de modelos e simulações clássicas." },
         { title: "Strategy Lab", url: "/strategy-lab", icon: FlaskConical, tooltip: "Laboratório evolutivo com teste de integridade temporal (Shuffled).", badge: "NEW" },
         { title: "IA Autônoma", url: "/ia-autonoma", icon: Zap, tooltip: "Predição preditiva baseada em redes neurais." },
-        { title: "Central Analítica", url: "/analise", icon: PieChart, tooltip: "Estatísticas avançadas, tendências e farol neural." },
+        { title: "Central Analítica", url: "/analise", icon: PieChart, tooltip: "Estatísticas avançadas, tendências e indicadores." },
         { title: "Fechamentos", url: "/fechamentos", icon: Grid3X3, requiredFeature: "fechamentos", tooltip: "Fechamentos matemáticos de alta performance." },
         { title: "Gestão de Banca", url: "/banca", icon: Wallet, tooltip: "Kelly defensivo, alocação por ROI e stops operacionais.", badge: "PRO" },
         { title: "Histórico Unificado", url: "/historico", icon: History, tooltip: "Seus jogos, resultados e auditoria de apostas." },
@@ -103,7 +103,7 @@ export function AppSidebar() {
                 )}
               </div>
               <p className="text-[9px] text-muted-foreground font-black tracking-[0.3em] uppercase opacity-40 mt-0.5">
-                Neural Core • v7.5 Alpha
+                Motor Estatístico • v7.5
               </p>
             </div>
           )}

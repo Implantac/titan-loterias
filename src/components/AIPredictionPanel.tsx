@@ -85,7 +85,7 @@ export function AIPredictionPanel({ config, stats, draws, onSaveBet }: Props) {
             <div>
               <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic flex items-center gap-2">
                 IA Nativa v5.3
-                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-primary/40 text-primary bg-primary/5">Neural Node</Badge>
+                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-primary/40 text-primary bg-primary/5">Heurística</Badge>
               </h3>
               <p className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-widest opacity-60">
                 Frequência + Markov + Entropia • Sem Créditos
@@ -144,7 +144,7 @@ export function AIPredictionPanel({ config, stats, draws, onSaveBet }: Props) {
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Executar Predição Neural
+                Executar Análise Estatística
               </>
             )}
           </Button>

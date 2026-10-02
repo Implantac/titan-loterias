@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Activity, Brain, Database, Zap } from "lucide-react";
+import { Database } from "lucide-react";
 
 interface QuickStatsRowProps {
   drawsCount: number;
@@ -8,9 +8,6 @@ interface QuickStatsRowProps {
 export function QuickStatsRow({ drawsCount }: QuickStatsRowProps) {
   const stats = [
     { label: "Sorteios Base", value: drawsCount, icon: Database, color: "text-primary" },
-    { label: "Análises Realizadas", value: "1.2M+", icon: Activity, color: "text-amber-400" },
-    { label: "Precisão Neural", value: "98.4%", icon: Brain, color: "text-emerald-400" },
-    { label: "Tempo de Resposta", value: "42ms", icon: Zap, color: "text-blue-400" },
   ];
 
   return (

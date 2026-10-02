@@ -44,7 +44,7 @@ export function StrategyBriefingPanel({ config, stats, draws, compact = false }:
                 Briefing Estratégico
               </CardTitle>
               <p className="mt-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">
-                Análise Neural • {config.name}
+                Análise Estatística • {config.name}
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@ export function StrategyBriefingPanel({ config, stats, draws, compact = false }:
         {!compact && (
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(var(--primary),0.05),transparent)] pointer-events-none" />
-            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary relative">Plano de Execução Neural</p>
+            <p className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary relative">Plano de Execução</p>
             <div className="grid gap-4 md:grid-cols-3 relative">
               {briefing.operatingPlan.map((step, index) => (
                 <div key={step} className="flex gap-3 text-xs text-muted-foreground leading-relaxed font-medium group/step">
