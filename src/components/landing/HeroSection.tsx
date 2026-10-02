@@ -64,7 +64,7 @@ export function HeroSection({
               {t('landing.hero.title')}
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto font-medium italic opacity-70 leading-relaxed px-4 md:px-0">
-              Processamento neural de elite aplicado a loterias oficiais. Decisões baseadas em evidências históricas, não em palpites.
+              Análise estatística dos resultados oficiais das loterias. Decisões baseadas em evidências históricas, não em palpites.
             </p>
           </motion.div>
 

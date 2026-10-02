@@ -46,7 +46,7 @@ export function Navbar() {
                 Titan<span className="text-primary/70">Loterias</span>
               </span>
               <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-primary/50 italic leading-none mt-1">
-                Neural Core v7.5 Alpha
+                Análise Estatística
               </span>
             </div>
           </Link>
