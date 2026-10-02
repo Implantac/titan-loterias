@@ -46,7 +46,7 @@ export function PricingSection() {
       features: [
         "Pagamento único · sem mensalidade · sem renovação",
         "Jogos e simulações ilimitadas em todas as loterias",
-        "Titan AI Core, Neural Alpha e Motor Adaptativo",
+        "Assistente de IA e Motor Adaptativo",
         "Fechamentos matemáticos, matrizes e cobertura extrema",
         "Backtests massivos, ROI real e comparador de estratégias",
         "Exportações profissionais (PDF, Excel e planilhas)",
@@ -164,7 +164,7 @@ export function PricingSection() {
            </div>
            <div className="flex flex-col items-center gap-2">
              <Brain className="w-8 h-8" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-center">Neural Core Alpha</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-center">Acesso completo</p>
            </div>
         </div>
       </div>

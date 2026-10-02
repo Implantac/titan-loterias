@@ -94,7 +94,7 @@ export function AutoUpdater({ lotteryId, onNewDraw, latestConcurso, syncDraws }:
           </div>
           <div>
             <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic flex items-center gap-2">
-              Sincronizador Neural
+              Sincronizador de Resultados
             </h3>
             {lastCheck && (
               <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 mt-1 font-bold uppercase tracking-widest opacity-60">
