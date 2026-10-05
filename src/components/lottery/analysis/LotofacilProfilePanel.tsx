@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const f1 = (v: number) => v.toFixed(1);
 
-export function LotofacilProfilePanel({ draws }: { draws: DrawResult[] }) {
+export function LotofacilProfilePanel({ draws, name = "Lotofácil", totalNumbers = 25, pick = 15 }: { draws: DrawResult[]; name?: string; totalNumbers?: number; pick?: number }) {
   const profile = useMemo(() => {
-    try { return buildLotofacilProfile(draws, 8); } catch { return null; }
-  }, [draws]);
+    try { return buildLotofacilProfile(draws, 8, totalNumbers, pick); } catch { return null; }
+  }, [draws, totalNumbers, pick]);
 
   if (!profile || profile.sampleSize < 30) {
     return (
@@ -32,14 +32,14 @@ export function LotofacilProfilePanel({ draws }: { draws: DrawResult[] }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Perfil histórico da Lotofácil</CardTitle>
+        <CardTitle className="text-base">Perfil histórico da {name}</CardTitle>
         <p className="text-xs text-muted-foreground">
           Descrição de {profile.sampleSize} concursos. Não é previsão: o sorteio seguinte é independente.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Band label="Soma das 15 dezenas" d={profile.sum} />
+          <Band label={`Soma das ${pick} dezenas`} d={profile.sum} />
           <Band label="Repetidas do concurso anterior" d={profile.repeat} />
         </div>
 
