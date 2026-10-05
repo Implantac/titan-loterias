@@ -33,9 +33,6 @@ const HowItWorksSection = lazy(() =>
 const SupportedLotteries = lazy(() =>
   import("@/components/landing/SupportedLotteries").then((m) => ({ default: m.SupportedLotteries }))
 );
-const Testimonials = lazy(() =>
-  import("@/components/common/Testimonials").then((m) => ({ default: m.Testimonials }))
-);
 const PricingSection = lazy(() =>
   import("@/components/common/PricingSection").then((m) => ({ default: m.PricingSection }))
 );
@@ -217,9 +214,6 @@ export default function LandingPage() {
         <SupportedLotteries />
       </Suspense>
 
-      <Suspense fallback={<SectionFallback />}>
-        <Testimonials />
-      </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <PricingSection />
       </Suspense>
