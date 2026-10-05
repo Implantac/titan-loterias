@@ -1,6 +1,7 @@
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { generateRandomGames, buildBenchmarkReport, BenchmarkReport } from "@/engine/stats/baseline-benchmark";
 import { analyzeEvidence } from "@/engine/stats/evidence-engine";
+import { createXorshift32, hashStringToSeed } from "@/ai/core/rng";
 
 export interface StrategyBenchmarkResult {
   strategyId: string;
@@ -39,7 +40,9 @@ export class BenchmarkEngine {
     const sampleSize = generatedGames.length;
     
     // 1. Random Baseline (Monte Carlo para baseline neutra)
-    const randomGames = generateRandomGames(lotteryConfig, 2000);
+    // Baseline com seed fixa (loteria + último concurso) => reproduzível.
+    const baselineSeed = hashStringToSeed(`${lotteryConfig.id}:${draws[0]?.concurso ?? 0}:baseline`);
+    const randomGames = generateRandomGames(lotteryConfig, 2000, createXorshift32(baselineSeed));
     // Usamos draws aleatórios para baseline para evitar qualquer viés
     const randomResults = this.calculateAverageHits(randomGames, draws.slice(0, 50));
     const randomAvg = randomResults.average;

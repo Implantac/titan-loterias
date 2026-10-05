@@ -13,3 +13,4 @@
 - [x] Cópia antiga `read-create-play-main/` mantida (usuário pediu para não apagar)
 - [x] Remover textos "neural" visíveis restantes + aviso permanente no rodapé
 - [x] Landing: números inventados e depoimentos não verificados removidos
+- [x] Comando: Edge reproduzível (seed fixa) e avaliado só em concursos não usados na geração

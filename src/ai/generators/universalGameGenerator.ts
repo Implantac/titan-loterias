@@ -308,7 +308,7 @@ export function generateGames(config: GeneratorConfig): ScoredGame[] {
         const used = new Set<number>();
         let hits = 0;
         while (used.size < rules.pick) {
-          const n = 1 + Math.floor(Math.random() * rules.totalNumbers);
+          const n = 1 + Math.floor((config.rng ? config.rng.next() : Math.random()) * rules.totalNumbers);
           if (used.has(n)) continue;
           used.add(n);
           if (set.has(n)) hits++;
