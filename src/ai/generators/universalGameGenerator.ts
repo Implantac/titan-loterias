@@ -1,3 +1,4 @@
+import { buildLotofacilProfile } from "@/engine/lotofacil/profile";
 /**
  * Native AI — Universal Game Generator
  * Generates optimized games for any lottery using statistical engines
@@ -76,10 +77,13 @@ export function generateGames(config: GeneratorConfig): ScoredGame[] {
   const rng = config.rng;
 
   // Pré-computações p/ rejeição rápida
-  const [sumLo, sumHi] = rules.idealSumRange;
+  // Lotofácil: faixas empíricas (P10–P90) do histórico real em vez de faixa fixa.
+  const lfProfile = config.lotteryId === "lotofacil" && config.draws.length >= 30
+    ? buildLotofacilProfile(config.draws.slice(0, 500)) : null;
+  const [sumLo, sumHi] = lfProfile ? [lfProfile.sum.p10, lfProfile.sum.p90] : rules.idealSumRange;
   const sumSlack = (sumHi - sumLo) * 0.25; // tolera 25% além da faixa ideal
   const [parityLo, parityHi] = rules.idealParityRange;
-  const [repLo, repHi] = rules.avgRepeatFromPrevious;
+  const [repLo, repHi] = lfProfile ? [Math.floor(lfProfile.repeat.p10), Math.ceil(lfProfile.repeat.p90)] : rules.avgRepeatFromPrevious;
   const prevSet = prevDraw ? new Set(prevDraw) : null;
   // assinaturas dos últimos sorteios (evita reproduzir resultado já saído)
   const recentSignatures = new Set(
