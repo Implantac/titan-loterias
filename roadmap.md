@@ -3,7 +3,7 @@
 - [x] Fase 1 — Auditoria (docs/TITAN_AUDIT.md) + remoção de rótulos enganosos
 - [x] Fase 2 — Core: LotteryDefinition única, Data Health Check (P0), seeds nos geradores
 - [ ] Fase 3 — Produto: (feito: atalhos, jogos recentes e plano no cockpit)  Gerador, Estatísticas, Fechamentos, Histórico, Jogos salvos
-- [ ] Fase 4 — IA: validar e corrigir
+- [ ] Fase 4 — IA: validar e corrigir (feito: perfil estatístico Lotofácil — frequência, atraso, repetição, 5×5, pares, soma, paridade)
 - [ ] Fase 5 — Monetização: planos, checkout, webhook, entitlement no backend
 - [ ] Fase 6 — UX/UI: Modo Simples / Profissional, linguagem humana
 - [ ] Fase 7 — QA: unit, integração, E2E
