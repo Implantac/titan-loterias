@@ -3,8 +3,8 @@ import { Users, TrendingUp, ShieldCheck, Zap } from "lucide-react";
 
 export function SocialProofBar() {
   const socialItems = [
-    { icon: Users, label: "4.8K+ Usuários Ativos", detail: "Comunidade Profissional" },
-    { icon: TrendingUp, label: "24.5K+ Concursos", detail: "Big Data Oficial" },
+    { icon: Users, label: "Acesso por Conta", detail: "Criada pelo administrador" },
+    { icon: TrendingUp, label: "Histórico Oficial", detail: "Resultados da Caixa" },
     { icon: ShieldCheck, label: "Rigor Estatístico", detail: "Matemática Aplicada" },
     { icon: Zap, label: "Análise Estatística", detail: "Dados oficiais" },
   ];
