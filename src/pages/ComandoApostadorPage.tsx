@@ -33,6 +33,8 @@ import { toast } from "sonner";
 import { QuantitativeDecisionPipeline } from "@/engine/decision/QuantitativeDecisionPipeline";
 import { QuantitativeDecisionResult } from "@/engine/contracts/quant";
 import { generateGames } from "@/ai/generators/universalGameGenerator";
+import { computeFrequencyStats } from "@/engine/stats/statistics";
+import { createXorshift32, hashStringToSeed } from "@/ai/core/rng";
 
 
 
@@ -64,8 +66,15 @@ export default function ComandoApostadorPage() {
       
       setIsAnalyzing(true);
       try {
-        // Generate sample games to feed the pipeline
+        // Jogos de amostra gerados SOMENTE com concursos anteriores aos 50 mais recentes,
+        // que ficam reservados para avaliação (sem usar dados "do futuro").
+        // Seed fixa por loteria + último concurso => mesmo resultado a cada abertura.
+        const HOLDOUT = 50;
+        const trainDraws = draws.slice(HOLDOUT);
+        const trainStats = computeFrequencyStats(trainDraws, lotteryConfig.numbers);
+        const seed = hashStringToSeed(`${selectedLottery}:${draws[0]?.concurso ?? 0}:comando`);
         const sampleGames = generateGames({
+          rng: createXorshift32(seed),
           lotteryId: selectedLottery,
           count: 5,
           riskProfile: "balanced",
@@ -78,8 +87,8 @@ export default function ComandoApostadorPage() {
             frameCenter: true,
             limitRepetition: true,
           },
-          stats,
-          draws,
+          stats: trainStats,
+          draws: trainDraws,
         });
 
         const result = await QuantitativeDecisionPipeline.execute({

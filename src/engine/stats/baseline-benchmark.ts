@@ -7,12 +7,13 @@
 import type { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { getLotteryRules } from "@/ai/knowledge/lotteriesKnowledge";
 
-export function generateRandomGames(config: LotteryConfig, count: number): number[][] {
+export function generateRandomGames(config: LotteryConfig, count: number, rng?: { next(): number }): number[][] {
+  const rnd = rng ?? { next: () => Math.random() };
   const games: number[][] = [];
   for (let i = 0; i < count; i++) {
     const game: number[] = [];
     while (game.length < config.pick) {
-      const n = Math.floor(Math.random() * config.numbers) + 1;
+      const n = Math.floor(rnd.next() * config.numbers) + 1;
       if (!game.includes(n)) game.push(n);
     }
     games.push(game.sort((a, b) => a - b));
