@@ -77,10 +77,10 @@ export function HeroSection({
           >
             <Button 
               size="lg" 
-              onClick={(e) => handleCtaClick(e, "/signup")}
+              onClick={(e) => handleCtaClick(e, "/login")}
               className="group h-16 md:h-20 px-10 md:px-16 rounded-[2rem] text-lg md:text-xl font-black uppercase tracking-widest gradient-brand text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-[1.05] active:scale-[0.98] transition-all duration-500 w-full sm:w-auto"
             >
-              Entrar na Rede Titan
+              Entrar na Plataforma
               <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </Button>
             <Button 
@@ -89,7 +89,7 @@ export function HeroSection({
               onClick={(e) => handleCtaClick(e, "/planos")}
               className="h-16 md:h-20 px-10 md:px-16 rounded-[2rem] text-lg md:text-xl font-black uppercase tracking-widest border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 italic transition-all duration-500 w-full sm:w-auto"
             >
-              Ver Planos Elite
+              Ver Planos
             </Button>
           </motion.div>
 
@@ -102,15 +102,15 @@ export function HeroSection({
           >
             <div className="flex items-center gap-3">
               <Shield className="w-6 h-6 text-primary" />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Segurança Bancária</span>
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Acesso Protegido</span>
             </div>
             <div className="flex items-center gap-3">
               <Zap className="w-6 h-6 text-primary" />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Tempo Real</span>
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Dados Oficiais</span>
             </div>
             <div className="flex items-center gap-3">
               <Brain className="w-6 h-6 text-primary" />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">IA Preditiva</span>
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Score Explicado</span>
             </div>
           </motion.div>
         </div>
