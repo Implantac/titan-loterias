@@ -40,6 +40,7 @@ const item = {
 const CycleThermometer = lazy(() => import("@/components/lottery/analysis/CycleThermometer").then(m => ({ default: m.CycleThermometer })));
 const CoOccurrencePanel = lazy(() => import("@/components/lottery/analysis/CoOccurrencePanel").then(m => ({ default: m.CoOccurrencePanel })));
 const WinnerProfilePanel = lazy(() => import("@/components/lottery/analysis/WinnerProfilePanel").then(m => ({ default: m.WinnerProfilePanel })));
+const LotofacilProfilePanel = lazy(() => import("@/components/lottery/analysis/LotofacilProfilePanel").then(m => ({ default: m.LotofacilProfilePanel })));
 
 const EstatisticasPage = () => {
   const { config, draws, syncing, syncDraws, syncAllLotteries, selectedLottery } = useLotteryContext();
@@ -131,6 +132,7 @@ const EstatisticasPage = () => {
       {selectedLottery === "lotofacil" && (
         <Suspense fallback={<Skeleton className="h-[280px] w-full" />}>
           <CycleThermometer draws={draws} totalNumbers={config.numbers} window={12} />
+          <div className="mt-6"><LotofacilProfilePanel draws={draws} /></div>
         </Suspense>
       )}
 
