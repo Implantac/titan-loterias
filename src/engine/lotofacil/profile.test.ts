@@ -6,7 +6,7 @@ function fakeDraws(count: number, seed = 1) {
   const rng = createXorshift32(seed);
   return Array.from({ length: count }, (_, i) => {
     const pool = Array.from({ length: 25 }, (_, k) => k + 1);
-    for (let j = pool.length - 1; j > 0; j--) { const r = Math.floor(rng() * (j + 1)); [pool[j], pool[r]] = [pool[r], pool[j]]; }
+    for (let j = pool.length - 1; j > 0; j--) { const r = Math.floor(rng.next() * (j + 1)); [pool[j], pool[r]] = [pool[r], pool[j]]; }
     return { concurso: count - i, date: "", numbers: pool.slice(0, 15).sort((a, b) => a - b) };
   });
 }
