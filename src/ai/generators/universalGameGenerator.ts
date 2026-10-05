@@ -1,4 +1,4 @@
-import { buildLotofacilProfile } from "@/engine/lotofacil/profile";
+import { buildLotofacilProfile, distStats } from "@/engine/lotofacil/profile";
 /**
  * Native AI — Universal Game Generator
  * Generates optimized games for any lottery using statistical engines
@@ -80,10 +80,22 @@ export function generateGames(config: GeneratorConfig): ScoredGame[] {
   // Lotofácil: faixas empíricas (P10–P90) do histórico real em vez de faixa fixa.
   const lfProfile = config.lotteryId === "lotofacil" && config.draws.length >= 30
     ? buildLotofacilProfile(config.draws.slice(0, 500)) : null;
-  const [sumLo, sumHi] = lfProfile ? [lfProfile.sum.p10, lfProfile.sum.p90] : rules.idealSumRange;
+  // Quina / Mega-Sena: mesmas faixas empíricas (P10–P90) calculadas do histórico.
+  const genericBands = !lfProfile && (config.lotteryId === "quina" || config.lotteryId === "megasena")
+    ? (() => {
+        const valid = config.draws.slice(0, 500).filter(d => d.numbers?.length === rules.pick);
+        if (valid.length < 30) return null;
+        const sums = distStats(valid.map(d => d.numbers.reduce((a, b) => a + b, 0)));
+        const reps = distStats(valid.slice(0, -1).map((d, i) => d.numbers.filter(n => valid[i + 1].numbers.includes(n)).length));
+        return { sums, reps };
+      })()
+    : null;
+  const [sumLo, sumHi] = lfProfile ? [lfProfile.sum.p10, lfProfile.sum.p90]
+    : genericBands ? [genericBands.sums.p10, genericBands.sums.p90] : rules.idealSumRange;
   const sumSlack = (sumHi - sumLo) * 0.25; // tolera 25% além da faixa ideal
   const [parityLo, parityHi] = rules.idealParityRange;
-  const [repLo, repHi] = lfProfile ? [Math.floor(lfProfile.repeat.p10), Math.ceil(lfProfile.repeat.p90)] : rules.avgRepeatFromPrevious;
+  const [repLo, repHi] = lfProfile ? [Math.floor(lfProfile.repeat.p10), Math.ceil(lfProfile.repeat.p90)]
+    : genericBands ? [Math.floor(genericBands.reps.p10), Math.ceil(genericBands.reps.p90)] : rules.avgRepeatFromPrevious;
   const prevSet = prevDraw ? new Set(prevDraw) : null;
   // assinaturas dos últimos sorteios (evita reproduzir resultado já saído)
   const recentSignatures = new Set(
