@@ -21,6 +21,7 @@ import { useLotteryContext } from "@/contexts/LotteryContext";
 import { CycleThermometer } from "@/components/lottery/analysis/CycleThermometer";
 import { DataHealthPanel } from "@/components/lottery/analysis/DataHealthPanel";
 import { CockpitShortcuts } from "@/components/lottery/CockpitShortcuts";
+import { PlanStatusBadge } from "@/components/lottery/PlanStatusBadge";
 import { RecentActivityCard } from "@/components/lottery/RecentActivityCard";
 import { WinnerProfilePanel } from "@/components/lottery/analysis/WinnerProfilePanel";
 import { QuickCompareBet } from "@/components/lottery/QuickCompareBet";
@@ -140,7 +141,7 @@ export default function ComandoApostadorPage() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight flex items-center gap-2">
             Painel de Comando
-            <Badge variant="outline" className="text-[10px]">Apostador Pro</Badge>
+            <PlanStatusBadge />
           </h1>
           <p className="text-xs text-muted-foreground">
             Todos os sinais críticos consolidados para você decidir em segundos, {lotteryConfig.name}.
