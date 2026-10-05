@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ComplianceDisclaimer } from "@/components/common/ComplianceDisclaimer";
+import { LOTTERIES } from "@/data/lotteries";
 
 import { burstConfetti } from "@/lib/confetti";
 import { prefetchRoute } from "@/lib/routePrefetch";
@@ -140,10 +141,10 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-12 mb-32">
             {[
-              { label: "Concursos Analisados", value: "24.500+" },
-              { label: "Apostas Geradas", value: "1,2M+" },
-              { label: "Loterias Suportadas", value: "09" },
-              { label: "Apostadores Ativos", value: "4.800+" },
+              { label: "Loterias Suportadas", value: String(LOTTERIES.length).padStart(2, "0") },
+              { label: "Fonte dos Resultados", value: "Caixa" },
+              { label: "Verificação de Dados", value: "Lacunas e duplicados" },
+              { label: "Score", value: "Explicado" },
             ].map((stat, i) => (
               <motion.div 
                 key={i} 
