@@ -92,7 +92,7 @@ export default function ComandoApostadorPage() {
           strategyId: "universal-pro",
           strategyLabel: "TITAN Universal Pro",
           generatedGames: sampleGames.map(g => g.numbers),
-          historicalPerformance: 1.05 // Baseline improvement
+          historicalPerformance: 0 // medido no BenchmarkEngine a partir dos acertos reais
         });
 
         if (!cancelled) setDecision(result);
@@ -172,7 +172,7 @@ export default function ComandoApostadorPage() {
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
               <div className="text-center">
                 <p className="text-sm font-bold uppercase italic tracking-tighter">Processando Pipeline</p>
-                <p className="text-[10px] text-muted-foreground">Executando 10k Monte Carlo & Stress Test...</p>
+                <p className="text-[10px] text-muted-foreground">Comparando com jogos aleatórios e testando estabilidade...</p>
               </div>
             </Card>
           ) : decision ? (

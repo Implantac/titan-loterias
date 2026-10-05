@@ -59,13 +59,18 @@ export class BenchmarkEngine {
       100000 // Aumentado para 100k conforme Plano Mestre
     );
 
-    const advantage = historicalPerformance - randomAvg;
+    // Desempenho observado = média REAL de acertos dos jogos nos mesmos concursos do baseline.
+    // `historicalPerformance` só é usado se for um valor em acertos/jogo informado pelo chamador
+    // (>= 1 acerto médio); valores-placeholder (ex.: 1.05) não são mais aceitos.
+    const measured = this.calculateAverageHits(generatedGames, draws.slice(0, 50)).average;
+    const observed = Number.isFinite(measured) && sampleSize > 0 ? measured : historicalPerformance;
+    const advantage = observed - randomAvg;
     const lift = (advantage / (randomAvg || 1)) * 100;
 
     return {
       strategyId,
       strategyLabel,
-      titanPerformance: historicalPerformance,
+      titanPerformance: observed,
       randomBaseline: randomAvg,
       uniformBaseline: randomAvg, 
       outOfSamplePerformance: oosPerformance,
