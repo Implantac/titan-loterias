@@ -5,3 +5,4 @@
 - Every external call goes through try/catch with loading, success and error states — the UI must never freeze or fail silently.
 - Every score shown to users exposes a breakdown of its components — results must be explainable.
 - Randomized engines accept a seed — tests and audits need reproducible output.
+- Benchmarks compare games against held-out recent draws not used to generate them, with seeded RNG (lottery + latest contest) — prevents lookahead bias and makes results reproducible.
