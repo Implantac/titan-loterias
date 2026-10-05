@@ -5,7 +5,6 @@
  */
 import type { DrawResult } from "@/data/lotteries";
 
-const N = 25;
 const WINDOWS = [10, 20, 30, 50, 100, 200] as const;
 
 export interface DistStats { mean: number; median: number; stdDev: number; p10: number; p25: number; p50: number; p75: number; p90: number; }
@@ -48,8 +47,8 @@ export function distStats(values: number[]): DistStats {
 
 const FRAME = new Set([1, 2, 3, 4, 5, 6, 10, 11, 15, 16, 20, 21, 22, 23, 24, 25]);
 
-export function buildLotofacilProfile(draws: DrawResult[], topPairsCount = 20): LotofacilProfile {
-  const valid = draws.filter(d => Array.isArray(d.numbers) && d.numbers.length === 15);
+export function buildLotofacilProfile(draws: DrawResult[], topPairsCount = 20, N = 25, PICK = 15): LotofacilProfile {
+  const valid = draws.filter(d => Array.isArray(d.numbers) && d.numbers.length === PICK);
   const T = valid.length;
   const sets = valid.map(d => new Set(d.numbers));
 
@@ -93,17 +92,17 @@ export function buildLotofacilProfile(draws: DrawResult[], topPairsCount = 20): 
   const rows = valid.map(() => [0, 0, 0, 0, 0]);
   const cols = valid.map(() => [0, 0, 0, 0, 0]);
   const frame: Record<number, number> = {};
-  const pair = new Map<number, number[]>(); // key a*26+b -> hit indices
+  const pair = new Map<number, number[]>(); // key a*(N+1)+b -> hit indices
   valid.forEach((d, i) => {
     const ev = d.numbers.filter(x => x % 2 === 0).length;
-    const key = `${ev}/${15 - ev}`;
+    const key = `${ev}/${PICK - ev}`;
     parity[key] = (parity[key] ?? 0) + 1;
     let f = 0;
-    for (const x of d.numbers) { rows[i][Math.floor((x - 1) / 5)]++; cols[i][(x - 1) % 5]++; if (FRAME.has(x)) f++; }
+    for (const x of d.numbers) { if (N === 25) { rows[i][Math.floor((x - 1) / 5)]++; cols[i][(x - 1) % 5]++; } if (FRAME.has(x)) f++; }
     frame[f] = (frame[f] ?? 0) + 1;
     const s = [...d.numbers].sort((a, b) => a - b);
     for (let a = 0; a < s.length; a++) for (let b = a + 1; b < s.length; b++) {
-      const k = s[a] * 26 + s[b];
+      const k = s[a] * (N + 1) + s[b];
       const arr = pair.get(k); if (arr) arr.push(i); else pair.set(k, [i]);
     }
   });
@@ -112,7 +111,7 @@ export function buildLotofacilProfile(draws: DrawResult[], topPairsCount = 20): 
   const half = Math.floor(T / 2);
   const pairs: PairStat[] = [];
   pair.forEach((idx, k) => {
-    const a = Math.floor(k / 26), b = k % 26;
+    const a = Math.floor(k / (N + 1)), b = k % (N + 1);
     const expected = freq[a - 1] * freq[b - 1] * T;
     const recent = idx.filter(i => i < half).length / Math.max(half, 1);
     const older = idx.filter(i => i >= half).length / Math.max(T - half, 1);

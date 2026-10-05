@@ -136,6 +136,12 @@ const EstatisticasPage = () => {
         </Suspense>
       )}
 
+      {(selectedLottery === "quina" || selectedLottery === "megasena") && (
+        <Suspense fallback={<Skeleton className="h-[280px] w-full" />}>
+          <LotofacilProfilePanel draws={draws} name={config.name} totalNumbers={config.numbers} pick={config.pick} />
+        </Suspense>
+      )}
+
       <Suspense fallback={<Skeleton className="h-[320px] w-full" />}>
         <CoOccurrencePanel draws={draws} totalNumbers={config.numbers} window={100} />
       </Suspense>
