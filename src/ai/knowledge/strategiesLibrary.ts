@@ -1,3 +1,5 @@
+import { createXorshift32, hashStringToSeed } from "../core/rng";
+import { distStats } from "@/engine/lotofacil/profile";
 /**
  * Biblioteca de Estratégias Profissionais
  * Módulo completo com 6 estratégias avançadas para geração de apostas
@@ -1144,7 +1146,9 @@ export function runIntelligentPipeline(
   pipeline.push({ step: "Candidatos", detail: `${strategy.candidateNumbers.length} números selecionados`, count: strategy.candidateNumbers.length });
 
   // Etapa 4 — Criar combinações com filtros (pool ampliado p/ filtro histórico)
-  const rawGames = generateFilteredCombinations(strategy, rules.pick, Math.max(gameCount * 30, gameCount + 10), rules, draws);
+  // Seed fixa (loteria + estratégia + último concurso + quantidade) => mesmo resultado para a mesma entrada.
+  const seeded = createXorshift32(hashStringToSeed(`${lotteryId}:${strategyId}:${draws[0]?.concurso ?? 0}:${gameCount}`));
+  const rawGames = generateFilteredCombinations(strategy, rules.pick, Math.max(gameCount * 30, gameCount + 10), rules, draws, () => seeded.next());
   pipeline.push({ step: "Combinações", detail: `${rawGames.length} jogos brutos`, count: rawGames.length });
 
   // Etapa 5 — Ranking por score estrutural + validação histórica (hit-rate real)
@@ -1304,8 +1308,15 @@ function generateFilteredCombinations(
   pick: number,
   count: number,
   rules: LotteryRules,
-  draws: DrawResult[] = []
+  draws: DrawResult[] = [],
+  rng: () => number = Math.random
 ): number[][] {
+  // Faixa de soma empírica (P10–P90 dos últimos 500 concursos) quando houver histórico suficiente.
+  const validHist = draws.slice(0, 500).filter(d => d.numbers?.length === pick);
+  const empiricalSum: [number, number] | null = validHist.length >= 30
+    ? (() => { const d = distStats(validHist.map(x => x.numbers.reduce((a, b) => a + b, 0))); return [d.p10, d.p90] as [number, number]; })()
+    : null;
+  const sumRange = empiricalSum ?? rules.idealSumRange;
 
   // Pool primário: candidatos da estratégia. Se for pequeno demais,
   // completa com o universo inteiro para nunca retornar zero jogos.
@@ -1329,7 +1340,7 @@ function generateFilteredCombinations(
 
     for (let i = 0; i < pick && remaining.length > 0; i++) {
       const totalW = remaining.reduce((s, n) => s + (strategy.weights.get(n) || 1), 0);
-      let r = Math.random() * totalW;
+      let r = rng() * totalW;
       let idx = 0;
       for (; idx < remaining.length; idx++) {
         r -= (strategy.weights.get(remaining[idx]) || 1);
@@ -1360,8 +1371,8 @@ function generateFilteredCombinations(
       }
 
       const sum = game.reduce((a, b) => a + b, 0);
-      if (rules.idealSumRange) {
-        const [lo, hi] = rules.idealSumRange;
+      if (sumRange) {
+        const [lo, hi] = sumRange;
         const margin = (hi - lo) * 0.4;
         if (sum < lo - margin || sum > hi + margin) continue;
       }
@@ -1417,7 +1428,7 @@ function generateFilteredCombinations(
   while (games.length < count) {
     const universe = Array.from({ length: rules.totalNumbers }, (_, i) => i + 1);
     for (let i = universe.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rng() * (i + 1));
       [universe[i], universe[j]] = [universe[j], universe[i]];
     }
     const game = universe.slice(0, pick).sort((a, b) => a - b);
