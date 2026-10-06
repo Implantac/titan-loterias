@@ -1317,6 +1317,13 @@ function generateFilteredCombinations(
     ? (() => { const d = distStats(validHist.map(x => x.numbers.reduce((a, b) => a + b, 0))); return [d.p10, d.p90] as [number, number]; })()
     : null;
   const sumRange = empiricalSum ?? rules.idealSumRange;
+  // Paridade e repetição empíricas (P10–P90), aplicadas a TODAS as estratégias/loterias.
+  const empiricalParity: [number, number] | null = validHist.length >= 30
+    ? (() => { const d = distStats(validHist.map(x => x.numbers.filter(n => n % 2 === 0).length)); return [Math.floor(d.p10), Math.ceil(d.p90)] as [number, number]; })()
+    : null;
+  const empiricalRepeat: [number, number] | null = validHist.length >= 31
+    ? (() => { const reps: number[] = []; for (let i = 0; i < validHist.length - 1; i++) { const prev = new Set(validHist[i + 1].numbers); reps.push(validHist[i].numbers.filter(n => prev.has(n)).length); } const d = distStats(reps); return [Math.floor(d.p10), Math.ceil(d.p90)] as [number, number]; })()
+    : null;
 
   // Pool primário: candidatos da estratégia. Se for pequeno demais,
   // completa com o universo inteiro para nunca retornar zero jogos.
@@ -1362,7 +1369,9 @@ function generateFilteredCombinations(
       // Filtro de paridade: usa a faixa ideal por loteria (idealParityRange),
       // com tolerância de ±1. Cai no fallback proporcional se a loteria não definir.
       const evenCount = game.filter(n => n % 2 === 0).length;
-      if (rules.idealParityRange) {
+      if (empiricalParity) {
+        if (evenCount < empiricalParity[0] || evenCount > empiricalParity[1]) continue;
+      } else if (rules.idealParityRange) {
         const [evenLo, evenHi] = rules.idealParityRange;
         if (evenCount < evenLo - 1 || evenCount > evenHi + 1) continue;
       } else {
@@ -1383,6 +1392,14 @@ function generateFilteredCombinations(
         else curSeq = 1;
       }
       if (maxSeq > (rules.maxRecommendedSequence || 3)) continue;
+
+      // Repetição vs último concurso dentro da faixa empírica (todas as loterias)
+      const lastNums = draws[0]?.numbers;
+      if (empiricalRepeat && lastNums?.length) {
+        const ls = new Set(lastNums);
+        const rep = game.filter(n => ls.has(n)).length;
+        if (rep < empiricalRepeat[0] || rep > empiricalRepeat[1]) continue;
+      }
 
       // ═══ Filtros exclusivos LOTOFÁCIL (grade 5×5, pick 15) ═══
       if (pick === 15 && rules.totalNumbers === 25) {
