@@ -28,7 +28,7 @@ export interface DataHealthReport {
 }
 
 /** Loterias cujo formato de números não segue "pick dezenas de 1..numbers". */
-const NON_STANDARD = new Set(["federal", "loteca", "supersete"]);
+const NON_STANDARD = new Set(["federal", "supersete"]);
 
 function parseDate(raw: string): Date | null {
   if (!raw) return null;

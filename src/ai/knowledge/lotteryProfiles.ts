@@ -210,21 +210,6 @@ export const LOTTERY_PROFILES: Record<string, LotteryProfile> = {
     maxHistoricalSimilarity: 0.1,
     scoreWeights: { frequency: 20, recency: 20, distribution: 20, patterns: 10, robustness: 15, coverage: 15 },
   },
-  loteca: {
-    id: "loteca",
-    universe: 14,
-    pick: 14,
-    sum: { min: 14, ideal: 28, max: 42 },
-    parity: { minEvens: 4, maxEvens: 10 },
-    highLow: { minLow: 4, maxLow: 10 },
-    previousRepeat: { min: 2, ideal: 5, max: 8 },
-    maxConsecutive: 3,
-    gap: { minAvg: 1, maxAvg: 1 },
-    maxDelay: 10,
-    cycle: { min: 1, ideal: 2, max: 4 },
-    maxHistoricalSimilarity: 0.6,
-    scoreWeights: { frequency: 15, recency: 15, distribution: 25, patterns: 20, robustness: 15, coverage: 10 },
-  },
 };
 
 /** Perfil default para modalidades desconhecidas — nunca lança exceção. */

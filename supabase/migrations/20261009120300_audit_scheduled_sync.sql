@@ -13,30 +13,70 @@
 -- (autenticação é feita pela própria função via x-service-key).
 -- ============================================================================
 
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
-CREATE EXTENSION IF NOT EXISTS pg_net  WITH SCHEMA extensions;
+-- Defensivo: se pg_cron/pg_net não estiverem habilitados no projeto, a
+-- migration NÃO pode falhar — senão ela trava `supabase db push` inteiro e as
+-- migrations de billing/integridade (que são mais urgentes) não são aplicadas.
+DO $$
+BEGIN
+  CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA extensions;
+  CREATE EXTENSION IF NOT EXISTS pg_net  WITH SCHEMA extensions;
+EXCEPTION WHEN OTHERS THEN
+  RAISE WARNING 'pg_cron/pg_net indisponíveis (%). Sincronização agendada NÃO foi criada — configure na UI do Supabase (Database > Extensions) e rode novamente esta migration.', SQLERRM;
+END $$;
 
--- Remove agendamentos anteriores com o mesmo nome (idempotente).
-SELECT cron.unschedule(jobid)
-  FROM cron.job
- WHERE jobname IN ('sync-lottery-draws', 'sync-lottery-draws-alerts');
+DO $$
+BEGIN
+  -- Remove agendamentos anteriores com o mesmo nome (idempotente).
+  PERFORM cron.unschedule(jobid)
+    FROM cron.job
+   WHERE jobname IN ('sync-lottery-draws', 'sync-lottery-draws-alerts');
+EXCEPTION WHEN undefined_table OR undefined_function THEN
+  RAISE WARNING 'cron indisponível — agendamento pulado.';
+END $$;
+
+-- Função que o cron chama. Existe por dois motivos:
+--   1) Se `app.settings.supabase_url` não estiver definido, a concatenação
+--      antiga produzia NULL e o net.http_post falhava em SILÊNCIO — o sync
+--      simplesmente parava de rodar sem nenhum erro em lugar nenhum.
+--      Agora a função levanta exceção, e o pg_cron registra a falha em
+--      cron.job_run_details.
+--   2) Concentra a lógica de agendamento num lugar só.
+CREATE OR REPLACE FUNCTION public.invoke_edge_function(_path text)
+RETURNS bigint
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _base text := nullif(current_setting('app.settings.supabase_url', true), '');
+  _key  text := nullif(current_setting('app.settings.service_role_key', true), '');
+BEGIN
+  IF _base IS NULL THEN
+    RAISE EXCEPTION 'app.settings.supabase_url não está definido — não é possível chamar a Edge Function %.', _path;
+  END IF;
+  IF _key IS NULL THEN
+    RAISE EXCEPTION 'app.settings.service_role_key não está definido — a Edge Function % rejeitaria a chamada.', _path;
+  END IF;
+
+  RETURN net.http_post(
+    url := _base || '/functions/v1/' || _path,
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-service-key', _key
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 120000
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.invoke_edge_function(text) FROM PUBLIC, anon, authenticated;
 
 -- Sync dos resultados oficiais a cada 30 minutos.
 SELECT cron.schedule(
   'sync-lottery-draws',
   '*/30 * * * *',
-  $cron$
-    SELECT net.http_post(
-      url := current_setting('app.settings.supabase_url', true)
-             || '/functions/v1/sync-lottery-draws',
-      headers := jsonb_build_object(
-        'Content-Type', 'application/json',
-        'x-service-key', current_setting('app.settings.service_role_key', true)
-      ),
-      body := '{}'::jsonb,
-      timeout_milliseconds := 120000
-    );
-  $cron$
+  $cron$ SELECT public.invoke_edge_function('sync-lottery-draws'); $cron$
 );
 
 -- Varredura de alertas 10 minutos depois do sync, para que os avisos usem a
@@ -44,18 +84,7 @@ SELECT cron.schedule(
 SELECT cron.schedule(
   'sync-lottery-draws-alerts',
   '40 * * * *',
-  $cron$
-    SELECT net.http_post(
-      url := current_setting('app.settings.supabase_url', true)
-             || '/functions/v1/post-sync-notify',
-      headers := jsonb_build_object(
-        'Content-Type', 'application/json',
-        'x-service-key', current_setting('app.settings.service_role_key', true)
-      ),
-      body := '{}'::jsonb,
-      timeout_milliseconds := 120000
-    );
-  $cron$
+  $cron$ SELECT public.invoke_edge_function('post-sync-notify'); $cron$
 );
 
 -- ── Observabilidade: atraso da base ────────────────────────────────────────

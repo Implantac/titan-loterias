@@ -26,13 +26,15 @@ export function useLotteryDraws(lotteryId: string, origin: DataOrigin = "officia
   const { data, isLoading: loading, refetch } = useQuery({
     queryKey: ["lottery-draws", lotteryId, origin],
     queryFn: async () => {
-      const result = await DataProvider.fetchDraws(lotteryId, HISTORY_LIMIT);
-      
-      // If official, we use the full service logic for prizes
+      // Antes isto buscava DUAS vezes no caso "official": `DataProvider.fetchDraws`
+      // era chamado, o resultado descartado, e então `LotteryService.fetchDraws`
+      // buscava de novo (7.135 concursos da Quina = 16 requests, ~1 MB, metade
+      // jogada fora). Agora cada origem faz exatamente uma busca.
       if (origin === "official") {
         return LotteryService.fetchDraws(lotteryId, HISTORY_LIMIT);
       }
-      
+
+      const result = await DataProvider.fetchDraws(lotteryId, HISTORY_LIMIT);
       return {
         draws: result.draws,
         drawsWithPrizes: [],

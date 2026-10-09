@@ -15,6 +15,15 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 4173,
+    // `vite preview` só serve o build estático localmente. Sem isto, abrir o
+    // preview por um host diferente de localhost devolve 403. Não afeta o
+    // deploy: em produção o site é servido pelo host (Netlify/Vercel/CDN), não
+    // por este servidor.
+    allowedHosts: true,
+  },
   build: {
     // Alvos amplos: Safari/iOS 14+, Chrome 87+, Firefox 78+, Edge 88+
     target: ["es2020", "safari14", "chrome87", "firefox78", "edge88"],

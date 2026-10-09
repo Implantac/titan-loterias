@@ -38,37 +38,73 @@ export interface MatchResult {
  * Lottery API Service
  * Centralizes all communication with Supabase and external lottery APIs.
  */
-export async function fetchDraws(lotteryId: string, limitCount = 2000) {
-  let allData: any[] = [];
-  let from = 0;
-  const pageSize = 1000;
-  let totalCount = 0;
+/**
+ * Máximo de páginas buscadas ao mesmo tempo.
+ *
+ * A paginação era sequencial: 7.135 concursos da Quina = 8 requests um atrás do
+ * outro. No primeiro request já sabemos o total (`count: "exact"`), então dá
+ * para disparar o resto em paralelo. O teto de 4 evita estourar o limite de
+ * conexões HTTP/1.1 do navegador (6 por origem) junto com o resto da página.
+ */
+const PAGE_SIZE = 1000;
+const PAGE_CONCURRENCY = 4;
 
-  const { data, error, count } = await supabase
+async function fetchDrawPage(lotteryId: string, from: number, size: number, withCount = false) {
+  const query = supabase
     .from("lottery_draws")
-    .select("concurso, draw_date, numbers, prize_tiers", { count: "exact" })
+    .select("concurso, draw_date, numbers, prize_tiers", withCount ? { count: "exact" } : undefined)
     .eq("lottery_id", lotteryId)
     .order("concurso", { ascending: false })
-    .range(from, from + pageSize - 1);
+    .range(from, from + size - 1);
 
+  const { data, error, count } = await query;
   if (error) throw error;
-  if (count !== null) totalCount = count;
-  if (data) allData = data;
+  return { data: data ?? [], count };
+}
 
-  while (allData.length < limitCount && data && data.length === pageSize) {
-    from += pageSize;
-    const nextSize = Math.min(pageSize, limitCount - allData.length);
-    const { data: nextData, error: nextError } = await supabase
-      .from("lottery_draws")
-      .select("concurso, draw_date, numbers, prize_tiers")
-      .eq("lottery_id", lotteryId)
-      .order("concurso", { ascending: false })
-      .range(from, from + nextSize - 1);
+/** Dispara tarefas mantendo no máximo `concurrency` em voo. Preserva a ordem. */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let cursor = 0;
 
-    if (nextError) throw nextError;
-    if (!nextData || nextData.length === 0) break;
-    allData = allData.concat(nextData);
-    if (nextData.length < nextSize) break;
+  async function worker() {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await fn(items[index], index);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, () => worker()),
+  );
+  return results;
+}
+
+export async function fetchDraws(lotteryId: string, limitCount = 2000) {
+  const first = await fetchDrawPage(lotteryId, 0, PAGE_SIZE, true);
+  let allData: any[] = first.data;
+  const totalCount = first.count ?? allData.length;
+
+  // Quantas páginas faltam? Usa o total informado pelo PostgREST quando ele é
+  // confiável, e nunca passa do que o chamador pediu.
+  const knownTotal = Math.min(totalCount, limitCount);
+  if (allData.length < knownTotal) {
+    const offsets: number[] = [];
+    for (let from = PAGE_SIZE; from < knownTotal; from += PAGE_SIZE) offsets.push(from);
+
+    const pages = await mapWithConcurrency(offsets, PAGE_CONCURRENCY, async (from) => {
+      const size = Math.min(PAGE_SIZE, knownTotal - from);
+      return fetchDrawPage(lotteryId, from, size);
+    });
+
+    for (const page of pages) {
+      if (page.data.length === 0) break;
+      allData = allData.concat(page.data);
+    }
   }
 
   return {
@@ -152,11 +188,6 @@ export function getPrizeTiers(lotteryId: string): { hits: number; label: string;
         { hits: 1, label: "3º Prêmio", estimatedPrize: "Variável" },
         { hits: 1, label: "4º Prêmio", estimatedPrize: "Variável" },
         { hits: 1, label: "5º Prêmio", estimatedPrize: "Variável" },
-      ];
-    case "loteca":
-      return [
-        { hits: 14, label: "14 acertos", estimatedPrize: "Variável" },
-        { hits: 13, label: "13 acertos", estimatedPrize: "Variável" },
       ];
     default:
       return [

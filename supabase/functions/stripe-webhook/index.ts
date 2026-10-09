@@ -75,7 +75,23 @@ async function computePlanForCustomer(customerId: string): Promise<"free" | "pre
  * e-mail é frágil (usuário pode trocar de e-mail) e, quando o e-mail é nulo,
  * `stripe.customers.list({ email: undefined })` lista TODOS os clientes.
  */
-async function syncPlanByEmail(email: string, plan: string, customerId?: string | null) {
+/**
+ * Resultado da sincronização do plano. A distinção importa:
+ *   "error"   → falha de infraestrutura (rede, RLS, timeout). O Stripe DEVE
+ *               reenviar; responder 500 é o comportamento certo.
+ *   "missing" → a conta simplesmente não existe com esse e-mail. Reenviar não
+ *               muda nada: o evento seria reprocessado por 3 dias até o Stripe
+ *               desistir, gerando ruído sem recuperar nada.
+ *   "ok"      → plano aplicado.
+ */
+type PlanSyncResult = "ok" | "missing" | "error";
+
+async function syncPlanByEmail(
+  email: string,
+  plan: string,
+  customerId?: string | null,
+  eventId?: string,
+): Promise<PlanSyncResult> {
   const payload: Record<string, unknown> = { plan };
   if (customerId) payload.stripe_customer_id = customerId;
 
@@ -86,16 +102,30 @@ async function syncPlanByEmail(email: string, plan: string, customerId?: string 
 
   if (error) {
     log("profiles.update failed", { email, plan, error: error.message });
-    return false;
+    return "error";
   }
   if (!count) {
-    // Nenhum perfil com esse e-mail: não há o que atualizar. Não é falha de
-    // infraestrutura, então não vale forçar retry eterno do Stripe.
+    // Não é falha de infraestrutura: não vale forçar retry. Mas o pagamento
+    // existe e o plano NÃO foi aplicado — isso precisa ficar registrado para
+    // recuperação manual em vez de sumir num log.
     log("WARN no profile matched email — plan not applied", { email, plan });
-    return false;
+    if (eventId) {
+      // upsert com ignoreDuplicates: se o Stripe reenviar o mesmo evento, o
+      // unique(event_id) não estoura — o registro original é preservado.
+      const { error: recErr } = await admin.from("webhook_events").upsert(
+        {
+          event_id: `pending-plan:${eventId}`,
+          event_type: "plan_sync.missing_profile",
+          payload: { email, plan, customerId: customerId ?? null },
+        },
+        { onConflict: "event_id", ignoreDuplicates: true },
+      );
+      if (recErr) log("could not record pending plan sync", { error: recErr.message });
+    }
+    return "missing";
   }
   log("profile plan synced", { email, plan, rows: count });
-  return true;
+  return "ok";
 }
 
 serve(async (req) => {
@@ -168,7 +198,7 @@ serve(async (req) => {
           break;
         }
         const plan = customerId ? await computePlanForCustomer(customerId) : "free";
-        if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
+        if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
         break;
       }
 
@@ -183,7 +213,7 @@ serve(async (req) => {
           break;
         }
         const plan = event.type === "customer.subscription.deleted" ? "free" : await computePlanForCustomer(customerId);
-        if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
+        if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
         break;
       }
 
@@ -193,7 +223,7 @@ serve(async (req) => {
         const email = await getEmailForCustomer(customerId);
         if (email) {
           const plan = await computePlanForCustomer(customerId);
-          if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
+          if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
         }
         break;
       }
