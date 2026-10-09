@@ -14,7 +14,6 @@ import { useLotteryContext } from "@/contexts/LotteryContext";
 import { formatCurrency } from "@/utils/formatters";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 interface Props {
@@ -148,6 +147,12 @@ export function ClosingProExportPanel({ result }: Props) {
   const exportXLSX = async () => {
     setBusy("xlsx");
     try {
+      // Import dinâmico: o `xlsx` pesa ~400 kB e só é necessário quando o
+      // usuário clica em exportar. Com import estático ele entrava no bundle
+      // inicial e ainda anulava o code-splitting que `parsers.ts` já fazia —
+      // o build avisava: "dynamic import will not move module into another
+      // chunk".
+      const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
 
       // Aba Resumo
