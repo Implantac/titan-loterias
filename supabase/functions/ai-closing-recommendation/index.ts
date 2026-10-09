@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { requireUserAuth } from "../_shared/auth.ts";
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
@@ -23,8 +24,36 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    // SEGURANÇA: esta função chama um gateway de IA PAGO (ai.gateway.lovable.dev).
+    // Era a única das 7 funções de IA sem nenhuma verificação de identidade —
+    // qualquer pessoa na internet podia invocá-la e consumir créditos da conta.
+    // Comprovado em auditoria: uma requisição anônima chegou ao gateway e voltou
+    // 402 "Not enough credits". Sem gate de plano de propósito: exigir premium
+    // aqui mudaria o comportamento do produto para usuários logados, e isso é
+    // decisão de produto, não de segurança.
+    const auth = await requireUserAuth(req);
+    if (auth instanceof Response) return auth;
+
     if (!LOVABLE_API_KEY) throw new Error("Missing LOVABLE_API_KEY");
-    const body = await req.json() as RecommendationBody;
+
+    // Entrada malformada devolvia 500 com a mensagem interna vazando
+    // ("Cannot read properties of undefined (reading 'lottery')").
+    const body = await req.json().catch(() => null) as RecommendationBody | null;
+    const lottery = body?.input?.lottery;
+    const heuristic = body?.heuristic;
+    if (
+      !lottery || typeof lottery.name !== "string" ||
+      typeof lottery.totalNumbers !== "number" || typeof lottery.pick !== "number" ||
+      typeof body?.input?.baseSize !== "number" ||
+      !heuristic || typeof heuristic.strategy !== "string" ||
+      typeof heuristic.minHits !== "number" || typeof heuristic.maxGames !== "number" ||
+      typeof heuristic.expectedCoverage !== "number"
+    ) {
+      return new Response(
+        JSON.stringify({ error: "Payload inválido: input.lottery, input.baseSize e heuristic são obrigatórios." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     const prompt = `Você é um analista quantitativo especialista em fechamentos de loterias brasileiras.
 Modalidade: ${body.input.lottery.name} (universo ${body.input.lottery.totalNumbers}, escolhe ${body.input.lottery.pick}).
