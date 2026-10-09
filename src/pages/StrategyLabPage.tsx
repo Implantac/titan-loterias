@@ -842,6 +842,7 @@ export default function StrategyLabPage() {
                             <input 
                               type="text" 
                               placeholder="Ex: Padrão de Moldura 9:6 supera baseline"
+              aria-label="Descrição da nova hipótese"
                               className="flex-1 h-9 bg-background/50 border border-border rounded-lg px-3 text-xs"
                             />
                             <Button size="sm" className="h-9">Adicionar</Button>

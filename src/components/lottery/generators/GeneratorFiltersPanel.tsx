@@ -119,6 +119,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               onChange={e => setNumberInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && addFixedNumber()}
               placeholder={`1-${config.numbers}`}
+              aria-label="Dezena obrigatória a incluir"
               className="w-20 px-2 py-1 text-xs rounded border border-border bg-background"
             />
             <Button size="sm" variant="outline" onClick={addFixedNumber} className="text-xs">
@@ -149,6 +150,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               value={excludeInput}
               onChange={e => setExcludeInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && addExcludedNumber()}
+              aria-label="Dezena a excluir"
               placeholder={`1-${config.numbers}`}
               className="w-20 px-2 py-1 text-xs rounded border border-border bg-background"
             />
@@ -182,6 +184,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               value={filters.sumMin ?? ""}
               onChange={e => onFiltersChange({ ...filters, sumMin: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="Mín"
+              aria-label="Soma mínima"
               className="w-20 px-2 py-1 text-xs rounded border border-border bg-background"
             />
             <span className="text-xs text-muted-foreground">a</span>
@@ -190,6 +193,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               value={filters.sumMax ?? ""}
               onChange={e => onFiltersChange({ ...filters, sumMax: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="Máx"
+              aria-label="Soma máxima"
               className="w-20 px-2 py-1 text-xs rounded border border-border bg-background"
             />
             <span className="text-[10px] text-muted-foreground">(média: {idealSum.avg})</span>
@@ -212,6 +216,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               value={filters.minEven ?? ""}
               onChange={e => onFiltersChange({ ...filters, minEven: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="Mín pares"
+              aria-label="Quantidade mínima de dezenas pares"
               className="w-24 px-2 py-1 text-xs rounded border border-border bg-background"
             />
             <span className="text-xs text-muted-foreground">a</span>
@@ -222,6 +227,7 @@ export function GeneratorFiltersPanel({ config, draws, stats, filters, onFilters
               value={filters.maxEven ?? ""}
               onChange={e => onFiltersChange({ ...filters, maxEven: e.target.value ? parseInt(e.target.value) : null })}
               placeholder="Máx pares"
+              aria-label="Quantidade máxima de dezenas pares"
               className="w-24 px-2 py-1 text-xs rounded border border-border bg-background"
             />
           </div>

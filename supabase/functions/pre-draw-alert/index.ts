@@ -12,25 +12,46 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // SEGURANÇA: esta função dispara push para TODOS os assinantes. Era pública
+    // — qualquer pessoa na internet podia invocá-la. Agora exige a service key,
+    // que é o que o pg_cron usa para chamá-la.
+    if (req.headers.get("x-service-key") !== supabaseKey) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // 1. Identify lotteries with draws today and within 2-hour window
-    // (In a real scenario, this would check an official calendar. 
-    // Here we check the last sync status or common schedule)
     const now = new Date();
     const currentHour = now.getUTCHours() - 3; // BRT
-    
-    // Most draws happen at 20:00 BRT. Alert window 17:30 - 18:30.
-    if (currentHour < 17 || currentHour > 19) {
+    const currentMinute = now.getUTCMinutes();
+
+    // Sorteios costumam ser às 20h BRT; o aviso vai ~2h antes.
+    //
+    // ANTI-SPAM: a janela era 17h-19h inteiras. Como o cron roda a cada 30
+    // minutos, isso dispararia o mesmo aviso até 6x por dia para cada usuário
+    // (o comentário original dizia "Logic would go here" — nunca foi feita).
+    // Restringindo à primeira metade da hora 17, exatamente uma execução do
+    // cron (17:00) cai dentro da janela.
+    const inWindow = currentHour === 17 && currentMinute < 30;
+    if (!inWindow) {
       return new Response(JSON.stringify({ success: true, message: "Outside alert window" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // 2. Fetch users with pre_draw notifications enabled
+    // A tabela correta é `push_subscriptions` (criada na migration
+    // 20260727230529). Aqui estava `user_push_subscriptions`, que NUNCA existiu:
+    // a função quebrava com erro de relação inexistente sempre que entrava na
+    // janela. Também faltava respeitar o `enabled` — enviaria para quem
+    // desativou as notificações.
     const { data: subscribers, error: subError } = await supabase
-      .from("user_push_subscriptions")
+      .from("push_subscriptions")
       .select("user_id, endpoint, auth, p256dh, categories")
+      .eq("enabled", true)
       .contains("categories", { pre_draw: true });
 
     if (subError) throw subError;

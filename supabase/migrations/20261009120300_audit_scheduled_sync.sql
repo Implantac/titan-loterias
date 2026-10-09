@@ -87,6 +87,16 @@ SELECT cron.schedule(
   $cron$ SELECT public.invoke_edge_function('post-sync-notify'); $cron$
 );
 
+-- Aviso de "sorteio em 2h". A função só executa de fato entre 17:00 e 17:29 BRT
+-- e ignora as demais execuções, então rodar a cada 30 minutos garante que
+-- exatamente uma chamada por dia cai dentro da janela (anti-spam).
+-- Antes desta migration a função não era agendada por nada — push nunca saiu.
+SELECT cron.schedule(
+  'pre-draw-alert',
+  '*/30 * * * *',
+  $cron$ SELECT public.invoke_edge_function('pre-draw-alert'); $cron$
+);
+
 -- ── Observabilidade: atraso da base ────────────────────────────────────────
 -- Permite alertar quando a sincronização parar de funcionar. Sem isso, o
 -- produto continuaria servindo dado velho em silêncio (foi o que aconteceu).

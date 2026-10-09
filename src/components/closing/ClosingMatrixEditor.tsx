@@ -154,6 +154,7 @@ export function ClosingMatrixEditor({
         <div className="flex flex-wrap gap-2">
           <input
             ref={fileRef} type="file" accept=".csv,.txt,.json,.xml,.xlsx"
+              aria-label="Arquivo de matriz a importar"
             className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) handleImport(f); e.target.value = ""; }}
           />

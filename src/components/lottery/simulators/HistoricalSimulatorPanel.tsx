@@ -289,6 +289,7 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
             value={manualInput}
             onChange={e => setManualInput(e.target.value)}
             placeholder={`Insira ${config.pick} números separados por espaço (1-${config.numbers})`}
+              aria-label="Números da aposta manual"
             className="flex-1 h-8 text-xs rounded border border-border bg-secondary/50 px-2 placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <Button size="sm" variant="ghost" onClick={handleAddManual} className="text-xs h-8">

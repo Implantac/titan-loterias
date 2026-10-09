@@ -176,6 +176,7 @@ export function SmartUnfoldingGenerator({ matrixData, config, onSaveBet }: Props
               min={config.pick}
               max={Math.min(config.numbers, 30)}
               value={baseCount}
+              aria-label="Quantidade de dezenas na base"
               onChange={e => setBaseCount(+e.target.value)}
               className="w-24"
             />
@@ -189,6 +190,7 @@ export function SmartUnfoldingGenerator({ matrixData, config, onSaveBet }: Props
             <input
               type="number"
               value={auditSeed}
+              aria-label="Semente de auditoria"
               onChange={e => setAuditSeed(+e.target.value)}
               className="w-16 h-7 bg-background border border-border rounded px-1 text-[10px] font-mono focus:ring-1 focus:ring-primary outline-none"
             />
@@ -216,6 +218,7 @@ export function SmartUnfoldingGenerator({ matrixData, config, onSaveBet }: Props
               min={1}
               max={50}
               value={maxGames}
+              aria-label="Quantidade máxima de jogos"
               onChange={e => setMaxGames(+e.target.value)}
               className="w-24"
             />

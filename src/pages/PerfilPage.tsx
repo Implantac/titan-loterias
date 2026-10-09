@@ -180,6 +180,7 @@ export default function PerfilPage() {
             ref={fileInputRef}
             type="file"
             accept="image/*"
+              aria-label="Selecionar foto de perfil"
             className="hidden"
             onChange={handleAvatarUpload}
           />

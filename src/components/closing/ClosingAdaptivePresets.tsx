@@ -361,6 +361,7 @@ export function ClosingAdaptivePresets({ lotteryId, current, meta, onApply, onAu
             <input
               ref={fileInputRef}
               type="file"
+              aria-label="Arquivo de fechamento a importar"
               accept="application/json,.json"
               className="hidden"
               onChange={e => {

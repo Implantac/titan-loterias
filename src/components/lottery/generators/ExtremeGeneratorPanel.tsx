@@ -303,6 +303,7 @@ export function ExtremeGeneratorPanel({ stats, config, draws, onSaveBet }: Props
                   <input
                     type="number"
                     value={ecfg.hotCount}
+              aria-label="Quantidade de dezenas quentes"
                     onChange={e => {
                       const v = parseInt(e.target.value) || 0;
                       updateConfig("hotCount", v);
@@ -315,6 +316,7 @@ export function ExtremeGeneratorPanel({ stats, config, draws, onSaveBet }: Props
                   <input
                     type="number"
                     value={ecfg.mediumCount}
+              aria-label="Quantidade de dezenas mornas"
                     onChange={e => {
                       const v = parseInt(e.target.value) || 0;
                       updateConfig("mediumCount", v);
@@ -326,6 +328,7 @@ export function ExtremeGeneratorPanel({ stats, config, draws, onSaveBet }: Props
                   <input
                     type="number"
                     value={ecfg.coldCount}
+              aria-label="Quantidade de dezenas frias"
                     onChange={e => {
                       const v = parseInt(e.target.value) || 0;
                       updateConfig("coldCount", v);
@@ -493,6 +496,7 @@ export function ExtremeGeneratorPanel({ stats, config, draws, onSaveBet }: Props
                   <input
                     type="checkbox"
                     checked={selectedForCompare.has(i)}
+                    aria-label={`Selecionar aposta ${i + 1} para comparar`}
                     onClick={e => e.stopPropagation()}
                     onChange={() => toggleCompare(i)}
                     className="w-3.5 h-3.5 rounded border-border accent-primary flex-shrink-0 cursor-pointer"

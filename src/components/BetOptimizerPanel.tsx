@@ -78,6 +78,7 @@ export function BetOptimizerPanel({ stats, config, draws }: Props) {
               type="text"
               value={manualBet}
               onChange={e => setManualBet(e.target.value)}
+              aria-label="Números da aposta a avaliar"
               placeholder={`Ex: ${Array.from({ length: config.pick }, (_, i) => i * Math.floor(config.numbers / config.pick) + 1).join(", ")}`}
               className="flex-1 bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
             />
