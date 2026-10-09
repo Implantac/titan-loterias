@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { requireUserAuth } from "../_shared/auth.ts";
 import { getSupabaseAdmin, getCachedAnalysis, setCachedAnalysis } from "../_shared/ai-cache.ts";
 
+import { checkRateLimit, rateLimited, AI_RATE_LIMIT } from "../_shared/rate-limit.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
@@ -13,6 +14,10 @@ serve(async (req) => {
   try {
     const auth = await requireUserAuth(req, { allowedPlans: ["premium", "professional", "lifetime"] });
     if (auth instanceof Response) return auth;
+    
+    // Chamadas de IA custam dinheiro: limita abuso por usuário logado.
+    const rl = checkRateLimit(`ai:ai-autonomous-learning:${auth.userId}`, AI_RATE_LIMIT);
+    if (!rl.allowed) return rateLimited(rl.retryAfterSec, corsHeaders);
 
     const { report, lotteryName, pick, totalNumbers } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");

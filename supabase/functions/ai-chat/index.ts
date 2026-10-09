@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { requireUserAuth, corsHeaders } from "../_shared/auth.ts";
 
+import { checkRateLimit, rateLimited, AI_RATE_LIMIT } from "../_shared/rate-limit.ts";
 interface ChatMessage {
   role: "user" | "assistant" | "system" | "tool";
   content: string;
@@ -122,6 +123,10 @@ serve(async (req) => {
       allowedPlans: ["premium", "professional", "lifetime"],
     });
     if (auth instanceof Response) return auth;
+    
+    // Chamadas de IA custam dinheiro: limita abuso por usuário logado.
+    const rl = checkRateLimit(`ai:ai-chat:${auth.userId}`, AI_RATE_LIMIT);
+    if (!rl.allowed) return rateLimited(rl.retryAfterSec, corsHeaders);
 
     const body = await req.json().catch(() => ({}));
     const messages: ChatMessage[] = Array.isArray(body?.messages) ? body.messages : [];

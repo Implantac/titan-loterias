@@ -1,6 +1,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { requireUserAuth } from "../_shared/auth.ts";
 
+import { checkRateLimit, rateLimited, AI_RATE_LIMIT } from "../_shared/rate-limit.ts";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
 interface RecommendationBody {
@@ -28,11 +29,20 @@ Deno.serve(async (req) => {
     // Era a única das 7 funções de IA sem nenhuma verificação de identidade —
     // qualquer pessoa na internet podia invocá-la e consumir créditos da conta.
     // Comprovado em auditoria: uma requisição anônima chegou ao gateway e voltou
-    // 402 "Not enough credits". Sem gate de plano de propósito: exigir premium
-    // aqui mudaria o comportamento do produto para usuários logados, e isso é
-    // decisão de produto, não de segurança.
-    const auth = await requireUserAuth(req);
+    // 402 "Not enough credits".
+    //
+    // O gate de plano segue as outras 6 funções de IA. O impacto para conta
+    // free é nulo: o frontend (AIRecommendationEngine.aiRecommendation) já cai
+    // na heurística local quando a função responde erro, então o usuário free
+    // continua recebendo a recomendação estatística, que é a parte verificável.
+    const auth = await requireUserAuth(req, {
+      allowedPlans: ["premium", "professional", "lifetime"],
+    });
     if (auth instanceof Response) return auth;
+    
+    // Chamadas de IA custam dinheiro: limita abuso por usuário logado.
+    const rl = checkRateLimit(`ai:ai-closing-recommendation:${auth.userId}`, AI_RATE_LIMIT);
+    if (!rl.allowed) return rateLimited(rl.retryAfterSec, corsHeaders);
 
     if (!LOVABLE_API_KEY) throw new Error("Missing LOVABLE_API_KEY");
 
