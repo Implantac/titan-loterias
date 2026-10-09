@@ -28,7 +28,7 @@ export function InvestmentSimulator() {
     // Suggest a closure based on budget
     const matrix = Object.values(WHEELING_MATRICES).find(m => m.games.length <= totalBets && m.lottery === selectedLottery);
     
-    let multiplier = risk === "high" ? 1.45 : risk === "medium" ? 1.15 : 0.9;
+    const multiplier = risk === "high" ? 1.45 : risk === "medium" ? 1.15 : 0.9;
     const estimatedReturn = budget * multiplier;
     
     return {

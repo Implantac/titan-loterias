@@ -1,4 +1,5 @@
 import { useMemo, useState, ReactNode } from "react";
+import { formatDrawDate } from "@/lib/draw-date";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -189,7 +190,7 @@ export function DrawTestDialog({ numbers, trigger, defaultConcurso }: Props) {
               <SelectContent className="max-h-[300px]">
                 {draws.slice(0, 500).map(d => (
                   <SelectItem key={d.concurso} value={String(d.concurso)}>
-                    Concurso {d.concurso} · {new Date(d.date).toLocaleDateString("pt-BR")}
+                    Concurso {d.concurso} · {formatDrawDate(d.date)}
                   </SelectItem>
                 ))}
               </SelectContent>

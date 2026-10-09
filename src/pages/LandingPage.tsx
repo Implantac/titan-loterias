@@ -139,7 +139,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-12 mb-32">
             {[
               { label: "Loterias Suportadas", value: String(LOTTERIES.length).padStart(2, "0") },
-              { label: "Fonte dos Resultados", value: "Caixa" },
+              { label: "Fonte dos Resultados", value: "API Caixa" },
               { label: "Verificação de Dados", value: "Lacunas e duplicados" },
               { label: "Score", value: "Explicado" },
             ].map((stat, i) => (

@@ -15,6 +15,7 @@ import { ROIFilters, ROIFilterState } from "@/components/ROIFilters";
 import { PrizeHistoryPanel } from "@/components/lottery/analysis/PrizeHistoryPanel";
 import { DrawResultWithPrizes } from "@/hooks/useLotteryDraws";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
+import { parseDrawDate } from "@/lib/draw-date";
 
 // Custo oficial da aposta simples (fonte única em betting-budget)
 const BET_COST = LOTTERY_BET_COST;
@@ -26,7 +27,7 @@ function findNextDraw(betDate: Date, sortedDraws: DrawResultWithPrizes[]): DrawR
   // sortedDraws está em ordem DESC (mais recente primeiro)
   let closest: DrawResultWithPrizes | null = null;
   for (const draw of sortedDraws) {
-    const drawDate = draw.date ? new Date(draw.date) : null;
+    const drawDate = parseDrawDate(draw.date);
     if (!drawDate) continue;
     if (drawDate >= betDate) {
       closest = draw; // continua procurando um mais próximo

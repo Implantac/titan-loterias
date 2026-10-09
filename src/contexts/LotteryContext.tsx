@@ -5,7 +5,7 @@ import { FarolStats, CycleStats } from "@/engine/stats/farol-engine";
 import { useLotteryDraws, DrawResultWithPrizes } from "@/hooks/useLotteryDraws";
 import { useLotteryStats } from "@/hooks/lottery/useLotteryStats";
 import { DataProvider, DataOrigin } from "@/engine/data-provider/DataProvider";
-import { OfficialProvider, LocalCacheProvider, ImportProvider, MockProvider } from "@/engine/data-provider/Providers";
+import { OfficialProvider, LocalCacheProvider, ImportProvider } from "@/engine/data-provider/Providers";
 
 
 import { TimeRange } from "@/hooks/lottery/useLotteryStats";
@@ -55,7 +55,8 @@ export function LotteryProvider({ children }: { children: ReactNode }) {
     DataProvider.register(OfficialProvider);
     DataProvider.register(LocalCacheProvider);
     DataProvider.register(ImportProvider);
-    DataProvider.register(MockProvider);
+    // MockProvider é intencionalmente NÃO registrado em produção: ele gera
+    // concursos sintéticos e um usuário nunca deve analisar dado inventado.
   }, []);
 
   const setDataOrigin = useCallback((origin: DataOrigin) => {

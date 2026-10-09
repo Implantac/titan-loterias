@@ -6,8 +6,9 @@ verify_jwt = true
 [functions.ai-lottery-predict]
 verify_jwt = true
 
+# Autenticação feita pela própria função (JWT de usuário OU x-service-key do cron).
 [functions.sync-lottery-draws]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-pattern-analysis]
 verify_jwt = true
@@ -51,3 +52,20 @@ verify_jwt = false
 
 [functions.admin-users]
 verify_jwt = false
+
+# ── Funções que antes não estavam listadas e dependiam do default ──────────
+# signup-guard roda ANTES do cadastro: não há JWT de usuário ainda.
+[functions.signup-guard]
+verify_jwt = false
+
+# send-push e pre-draw-alert são chamadas por outras funções com x-service-key.
+[functions.send-push]
+verify_jwt = false
+
+[functions.pre-draw-alert]
+verify_jwt = false
+
+# ai-closing-recommendation exige login, mas valida também por código — manter
+# verify_jwt = true impede uso anônimo do gateway de IA às nossas custas.
+[functions.ai-closing-recommendation]
+verify_jwt = true

@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getPrizeTiers } from "@/services/api/lottery";;
 import { ClipboardCheck, Trophy, TrendingUp, BarChart3, Calendar, ArrowUpRight, ArrowDownRight, Minus, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { parseDrawDate } from "@/lib/draw-date";
 
 interface BetComparison {
   bet: ReturnType<typeof useSavedBets>["savedBets"][0];
@@ -43,7 +44,7 @@ const HistoricoApostasPage = () => {
     return savedBets.map((bet) => {
       const betDate = new Date(bet.created_at);
       const futureDraws = draws.filter((d) => {
-        const drawDate = d.date ? new Date(d.date) : null;
+        const drawDate = parseDrawDate(d.date);
         return !drawDate || drawDate >= betDate;
       });
 

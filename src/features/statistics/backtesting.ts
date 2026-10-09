@@ -85,7 +85,7 @@ export function runBacktest(
 
     testDraws.forEach((draw, drawIdx) => {
       let drawPrize = 0;
-      let drawCost = btConfig.betsPerDraw * costPerGame;
+      const drawCost = btConfig.betsPerDraw * costPerGame;
       
       for (let b = 0; b < btConfig.betsPerDraw; b++) {
         const bet = generateByStrategy(strategy, stats, config);

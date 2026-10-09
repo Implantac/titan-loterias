@@ -20,7 +20,8 @@ if (SENTRY_DSN && import.meta.env.PROD) {
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
     ],
-    tracesSampleRate: 1.0,
+    // 1.0 enviava 100% das transações — custo explosivo no primeiro pico.
+    tracesSampleRate: Number(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
     tracePropagationTargets: ["localhost", /^https:\/\/titanloterias\.lovable\.app/],
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,

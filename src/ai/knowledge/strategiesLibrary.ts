@@ -1327,7 +1327,7 @@ function generateFilteredCombinations(
 
   // Pool primário: candidatos da estratégia. Se for pequeno demais,
   // completa com o universo inteiro para nunca retornar zero jogos.
-  let pool = strategy.candidateNumbers.slice();
+  const pool = strategy.candidateNumbers.slice();
   if (pool.length < pick) {
     const universe = Array.from({ length: rules.totalNumbers }, (_, i) => i + 1);
     const set = new Set(pool);

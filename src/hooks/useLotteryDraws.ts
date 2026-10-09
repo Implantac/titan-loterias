@@ -8,6 +8,15 @@ import { DataProvider, DataOrigin } from "@/engine/data-provider/DataProvider";
 
 export type { PrizeTierInfo, DrawPrizeData, DrawResultWithPrizes };
 
+/**
+ * Quantos concursos carregar por loteria.
+ *
+ * Era 2000, mas a Quina tem 7.135 concursos e a Federal 6.087: a UI oferecia a
+ * opção "Histórico Total" enquanto analisava só 28% da base. O payload é pequeno
+ * (concurso + data + array de dezenas) e `fetchDraws` já pagina de 1000 em 1000.
+ */
+export const HISTORY_LIMIT = 8000;
+
 export function useLotteryDraws(lotteryId: string, origin: DataOrigin = "official") {
   const queryClient = useQueryClient();
   const [syncing, setSyncing] = useState(false);
@@ -17,11 +26,11 @@ export function useLotteryDraws(lotteryId: string, origin: DataOrigin = "officia
   const { data, isLoading: loading, refetch } = useQuery({
     queryKey: ["lottery-draws", lotteryId, origin],
     queryFn: async () => {
-      const result = await DataProvider.fetchDraws(lotteryId, 2000);
+      const result = await DataProvider.fetchDraws(lotteryId, HISTORY_LIMIT);
       
       // If official, we use the full service logic for prizes
       if (origin === "official") {
-        return LotteryService.fetchDraws(lotteryId, 2000);
+        return LotteryService.fetchDraws(lotteryId, HISTORY_LIMIT);
       }
       
       return {

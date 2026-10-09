@@ -1,14 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { requireUserAuth, corsHeaders } from "../_shared/auth.ts";
-
-const PLAN_PRICES: Record<string, { price_id: string; mode: "subscription" | "payment" }> = {
-  premium: { price_id: "price_1TFfc9CzGT9FnNQptfREBkbH", mode: "subscription" },
-  premium_annual: { price_id: "price_1TFl8yCzGT9FnNQpAJCMX3vY", mode: "subscription" },
-  professional: { price_id: "price_1TFfckCzGT9FnNQp2uEvf3iM", mode: "subscription" },
-  professional_annual: { price_id: "price_1TFlIkCzGT9FnNQpi4eSk938", mode: "subscription" },
-  lifetime: { price_id: "price_1TFflFCzGT9FnNQpKT7INteS", mode: "payment" },
-};
+import { PLAN_PRICES, allowedOrigin } from "../_shared/billing.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -17,6 +10,17 @@ serve(async (req) => {
 
   const auth = await requireUserAuth(req);
   if (auth instanceof Response) return auth;
+
+  // GUARD: `stripe.customers.list({ email: undefined })` NÃO filtra — ele lista
+  // TODOS os clientes da conta e `data[0]` seria um assinante qualquer, aplicando
+  // o plano/portal de outra pessoa a este usuário. Cadastro por telefone existe
+  // neste produto, então e-mail nulo é um caminho alcançável.
+  if (!auth.email) {
+    return new Response(
+      JSON.stringify({ error: "Conta sem e-mail associado. Adicione um e-mail no seu perfil para gerenciar o plano." }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   try {
     if (auth.isSuperAdmin || auth.plan === "lifetime") {
@@ -30,11 +34,13 @@ serve(async (req) => {
     const planConfig = PLAN_PRICES[planId];
     if (!planConfig) throw new Error(`Invalid plan: ${planId}`);
 
+    const origin = allowedOrigin(req.headers.get("origin"));
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
 
-    const customers = await stripe.customers.list({ email: auth.email!, limit: 1 });
+    const customers = await stripe.customers.list({ email: auth.email, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
@@ -42,11 +48,11 @@ serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : auth.email!,
+      customer_email: customerId ? undefined : auth.email,
       line_items: [{ price: planConfig.price_id, quantity: 1 }],
       mode: planConfig.mode,
-      success_url: `${req.headers.get("origin")}/payment-success?plan=${planId}`,
-      cancel_url: `${req.headers.get("origin")}/planos`,
+      success_url: `${origin}/payment-success?plan=${planId}`,
+      cancel_url: `${origin}/planos`,
       metadata: { user_id: auth.userId, plan_id: planId },
     });
 

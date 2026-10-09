@@ -3,12 +3,13 @@ import { HelpCircle, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 const faqs = [
-  { q: "Existe plano gratuito?", a: "Não. O Titan Loterias trabalha exclusivamente com o Acesso Vitalício: um pagamento único que libera todas as funcionalidades para sempre." },
-  { q: "Posso trocar de plano a qualquer momento?", a: "Sim! Você pode fazer upgrade ou downgrade do seu plano quando quiser. Ao fazer upgrade, a diferença será cobrada proporcionalmente. Ao fazer downgrade, o novo valor será aplicado no próximo ciclo de cobrança." },
-  { q: "Como cancelo minha assinatura?", a: "Você pode cancelar a qualquer momento clicando em \"Gerenciar assinatura\" nesta página. O cancelamento é imediato, mas você mantém o acesso até o final do período já pago." },
-  { q: "O plano Vitalício inclui atualizações futuras?", a: "Sim! O plano Vitalício garante acesso permanente a todas as funcionalidades atuais e futuras da plataforma, sem nenhum custo adicional." },
-  { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartões de crédito e débito (Visa, Mastercard, Elo, American Express) e Pix, tudo processado de forma segura pelo Stripe." },
-  { q: "Posso solicitar reembolso?", a: "Sim, oferecemos reembolso integral em até 7 dias após a compra, sem perguntas. Basta entrar em contato com nosso suporte." },
+  { q: "Existe plano gratuito?", a: "Não há plano gratuito permanente. O Titan Loterias trabalha com o Acesso Vitalício: um pagamento único que libera todas as funcionalidades." },
+  { q: "Existe mensalidade?", a: "Não. O acesso é vitalício: você paga uma única vez e não há renovação nem cobrança recorrente." },
+  { q: "Preciso cancelar alguma assinatura?", a: "Não. Como o pagamento é único, não existe assinatura ativa para cancelar. Se quiser encerrar a conta, basta solicitar ao suporte." },
+  { q: "O acesso vitalício inclui atualizações futuras?", a: "Sim. O acesso vitalício garante as funcionalidades atuais e as futuras da plataforma, sem custo adicional." },
+  { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartões de crédito e débito (Visa, Mastercard, Elo, American Express) e Pix, processados de forma segura pelo Stripe." },
+  { q: "Posso solicitar reembolso?", a: "Sim. Oferecemos reembolso integral em até 7 dias após a compra, sem perguntas. Basta entrar em contato com o suporte." },
+  { q: "Quais loterias são suportadas?", a: "Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena, Timemania, Dia de Sorte, Super Sete, +Milionária e Loteria Federal." },
 ];
 
 export function PlanFAQ() {
@@ -25,7 +26,7 @@ export function PlanFAQ() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-foreground">Perguntas Frequentes</h2>
-          <p className="text-xs text-muted-foreground">Tire suas dúvidas antes de assinar</p>
+          <p className="text-xs text-muted-foreground">Tire suas dúvidas antes de comprar</p>
         </div>
       </div>
 

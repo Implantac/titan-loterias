@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { getLotteryStats } from "@/features/lottery/utils/stats-utils";
 import { startOfToday, startOfWeek, startOfMonth, isWithinInterval, subDays } from "date-fns";
+import { parseDrawDate } from "@/lib/draw-date";
 
 export type TimeRange = "today" | "week" | "month" | "custom" | "all";
 
@@ -31,8 +32,8 @@ export function useLotteryStats(draws: DrawResult[], config: LotteryConfig, time
     }
 
     return draws.filter(d => {
-      if (!d.date) return false;
-      const drawDate = new Date(d.date);
+      const drawDate = parseDrawDate(d.date);
+      if (!drawDate) return false;
       return isWithinInterval(drawDate, interval);
     });
   }, [draws, timeRange, customInterval]);

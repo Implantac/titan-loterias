@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Segredos e configuração local. `.env` estava commitado no repositório:
+# a chave anon é pública por desenho, mas nada garante que o próximo segredo
+# adicionado aqui também possa ser.
+.env
+.env.local
+.env.*.local
+
+# Artefatos de auditoria/teste
+playwright-report/
+blob-report/
+test-results/
+audit-*.png

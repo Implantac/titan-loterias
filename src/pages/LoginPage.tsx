@@ -149,9 +149,9 @@ export default function LoginPage() {
               </Button>
 
               <p className="text-xs text-center text-muted-foreground pt-2">
-                O acesso é criado pelo administrador do sistema.
+                Ainda não tem conta? Crie a sua em poucos segundos.
                 <br />
-                Entre em contato com o suporte para solicitar suas credenciais.
+                Se você já comprou o acesso e não consegue entrar, fale com o suporte.
               </p>
 
             </CardFooter>

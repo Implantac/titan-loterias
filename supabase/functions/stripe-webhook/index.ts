@@ -3,6 +3,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { PRODUCT_TO_PLAN, LIFETIME_PRICE_ID, PLAN_RANK } from "../_shared/billing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,14 +15,6 @@ const log = (step: string, details?: unknown) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${suffix}`);
 };
 
-// Keep mapping in sync with check-subscription/index.ts
-const PRODUCT_TO_PLAN: Record<string, "premium" | "professional" | "lifetime"> = {
-  "prod_UE7roMlQFnRldw": "premium",
-  "prod_UE7sbRkUnU7ISi": "professional",
-  "prod_UE81WPrPw7pexN": "lifetime",
-};
-const LIFETIME_PRICE_ID = "price_1TFflFCzGT9FnNQpKT7INteS";
-const PLAN_RANK: Record<string, number> = { free: 0, premium: 1, professional: 2, lifetime: 3 };
 
 const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
@@ -74,13 +67,34 @@ async function computePlanForCustomer(customerId: string): Promise<"free" | "pre
   return detected;
 }
 
-async function syncPlanByEmail(email: string, plan: string) {
-  const { error } = await admin.from("profiles").update({ plan }).eq("email", email);
+/**
+ * Atualiza o plano do perfil. Retorna `false` quando a escrita falhou — o caller
+ * DEVE propagar isso como HTTP 500 para que o Stripe reenvie o evento.
+ *
+ * Também persiste `stripe_customer_id` quando disponível: procurar cliente por
+ * e-mail é frágil (usuário pode trocar de e-mail) e, quando o e-mail é nulo,
+ * `stripe.customers.list({ email: undefined })` lista TODOS os clientes.
+ */
+async function syncPlanByEmail(email: string, plan: string, customerId?: string | null) {
+  const payload: Record<string, unknown> = { plan };
+  if (customerId) payload.stripe_customer_id = customerId;
+
+  const { error, count } = await admin
+    .from("profiles")
+    .update(payload, { count: "exact" })
+    .eq("email", email);
+
   if (error) {
     log("profiles.update failed", { email, plan, error: error.message });
     return false;
   }
-  log("profile plan synced", { email, plan });
+  if (!count) {
+    // Nenhum perfil com esse e-mail: não há o que atualizar. Não é falha de
+    // infraestrutura, então não vale forçar retry eterno do Stripe.
+    log("WARN no profile matched email — plan not applied", { email, plan });
+    return false;
+  }
+  log("profile plan synced", { email, plan, rows: count });
   return true;
 }
 
@@ -119,7 +133,31 @@ serve(async (req) => {
 
   log("event received", { id: event.id, type: event.type });
 
+  // ── Idempotência ────────────────────────────────────────────────────────
+  // O Stripe reenvia eventos. Sem este controle, o mesmo evento pode ser
+  // processado várias vezes e não há trilha de auditoria de pagamento.
   try {
+    const { data: already } = await admin
+      .from("webhook_events")
+      .select("id")
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (already) {
+      log("event already processed — skipping", { id: event.id });
+      return new Response(JSON.stringify({ received: true, duplicate: true }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  } catch (err) {
+    // Tabela ausente não pode impedir o processamento; apenas perdemos a
+    // deduplicação. O log fica para diagnóstico.
+    log("WARN idempotency lookup failed", { message: (err as Error).message });
+  }
+
+  try {
+    let syncFailed = false;
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -130,7 +168,7 @@ serve(async (req) => {
           break;
         }
         const plan = customerId ? await computePlanForCustomer(customerId) : "free";
-        await syncPlanByEmail(email, plan);
+        if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
         break;
       }
 
@@ -145,7 +183,7 @@ serve(async (req) => {
           break;
         }
         const plan = event.type === "customer.subscription.deleted" ? "free" : await computePlanForCustomer(customerId);
-        await syncPlanByEmail(email, plan);
+        if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
         break;
       }
 
@@ -155,7 +193,7 @@ serve(async (req) => {
         const email = await getEmailForCustomer(customerId);
         if (email) {
           const plan = await computePlanForCustomer(customerId);
-          await syncPlanByEmail(email, plan);
+          if (!(await syncPlanByEmail(email, plan, customerId))) syncFailed = true;
         }
         break;
       }
@@ -163,6 +201,26 @@ serve(async (req) => {
       default:
         log("event ignored", { type: event.type });
     }
+
+    // CRÍTICO: se a atualização do plano falhou, NÃO podemos responder 200.
+    // O Stripe consideraria o evento entregue e nunca reenviaria — o cliente
+    // pagaria e ficaria preso no plano free. Respondendo 500 o Stripe reprocessa
+    // com backoff automático.
+    if (syncFailed) {
+      log("ERROR plan sync failed — returning 500 so Stripe retries", { id: event.id });
+      return new Response(JSON.stringify({ error: "Plan sync failed; retry scheduled" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    await admin.from("webhook_events").insert({
+      event_id: event.id,
+      event_type: event.type,
+      processed_at: new Date().toISOString(),
+    }).then(({ error }) => {
+      if (error) log("WARN webhook_events insert failed", { message: error.message });
+    });
 
     return new Response(JSON.stringify({ received: true }), {
       status: 200,

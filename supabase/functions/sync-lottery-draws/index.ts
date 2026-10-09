@@ -21,7 +21,6 @@ const LOTTERIES = [
   { id: "supersete", apiName: "supersete" },
   { id: "maismilionaria", apiName: "maismilionaria" },
   { id: "federal", apiName: "federal" },
-  { id: "loteca", apiName: "loteca" },
 ];
 
 interface PrizeTier {
@@ -103,8 +102,20 @@ serve(async (req) => {
   }
 
   try {
-    const auth = await requireUserAuth(req);
-    if (auth instanceof Response) return auth;
+    // Duas formas de invocar:
+    //   1) Usuário logado (JWT) — sync manual disparado pela interface.
+    //   2) x-service-key = SUPABASE_SERVICE_ROLE_KEY — chamado pelo pg_cron.
+    // Sem o caminho (2) a sincronização só acontecia quando alguém abria o app,
+    // e a base ficava 2-3 concursos atrasada em todas as modalidades.
+    const serviceKeyHeader = req.headers.get("x-service-key");
+    const serviceRoleEnv = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const isServiceCall =
+      !!serviceKeyHeader && !!serviceRoleEnv && serviceKeyHeader === serviceRoleEnv;
+
+    if (!isServiceCall) {
+      const auth = await requireUserAuth(req);
+      if (auth instanceof Response) return auth;
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

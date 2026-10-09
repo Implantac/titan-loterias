@@ -99,8 +99,10 @@ export function JackpotFocusPanel({ stats, draws, config, selectedLottery }: Pro
   const BATCH = acumulou ? baseBatch * ACUMULOU_MULT : baseBatch;
   const topN = acumulou ? ACUMULOU_TOP : TOP_N;
 
-  if (!jackpot) return null;
-
+  // ATENÇÃO: este `return null` NÃO pode vir antes dos hooks abaixo.
+  // `JACKPOT_BY_LOTTERY` não cobre supersete/maismilionaria/federal, então o
+  // retorno antecipado mudava o número de hooks entre renders e o React
+  // abortava com "Rendered fewer hooks than expected" ao trocar de loteria.
   const unionBase = useMemo(() => {
     const set = new Set<number>();
     rows.forEach((r) => r.numbers.forEach((n) => set.add(n)));
@@ -236,6 +238,8 @@ export function JackpotFocusPanel({ stats, draws, config, selectedLottery }: Pro
     }
     toast.success(`${rows.length} jogos jackpot salvos!`);
   };
+
+  if (!jackpot) return null;
 
   return (
     <Card className="border-primary/30 bg-gradient-to-br from-primary/[0.03] to-transparent">

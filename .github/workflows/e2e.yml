@@ -27,6 +27,11 @@ jobs:
         project: [chromium, firefox, webkit]
     env:
       E2E_BASE_URL: ${{ github.event.inputs.base_url || 'https://titanloterias.lovable.app' }}
+      # Sem estas credenciais, e2e/gerador.spec.ts faz test.skip() e o único
+      # cenário autenticado do projeto nunca era executado — o CI passava
+      # "verde" sem ter testado o fluxo principal.
+      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
       CI: "true"
     steps:
       - name: Checkout

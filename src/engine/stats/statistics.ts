@@ -38,7 +38,7 @@ export function computeFrequencyStats(draws: DrawResult[], totalNumbers: number)
   const consecutivePairCount = new Array(totalNumbers + 1).fill(0);
 
   const streak = new Array(totalNumbers + 1).fill(0);
-  let lastDrawNumbers = draws[0]?.numbers || [];
+  const lastDrawNumbers = draws[0]?.numbers || [];
   
   const filterDraws = draws.filter(d => d && Array.isArray(d.numbers));
   const filterCount = filterDraws.length;

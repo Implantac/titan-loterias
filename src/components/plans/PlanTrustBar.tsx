@@ -5,7 +5,7 @@ const trustItems = [
   { icon: Shield, label: "Pagamento 100% seguro" },
   { icon: RefreshCcw, label: "Garantia de 7 dias" },
   { icon: CreditCard, label: "Cartão, Pix e mais" },
-  { icon: Clock, label: "Cancele quando quiser" },
+  { icon: Clock, label: "Sem mensalidade" },
 ];
 
 export function PlanTrustBar() {

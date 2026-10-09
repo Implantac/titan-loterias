@@ -1,0 +1,53 @@
+name: CI
+
+# O repositório só tinha o workflow de E2E, que roda Playwright contra a URL
+# JÁ PUBLICADA. Ou seja: nada validava o código antes do deploy. Este workflow
+# fecha esse buraco — roda em todo push e PR, antes de qualquer publicação.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint · Typecheck · Testes · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # `npm ci` exige lockfile em sync com package.json. Se este passo falhar,
+      # é sinal de que alguém commitou package.json sem atualizar o lock.
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc -p tsconfig.app.json --noEmit
+
+      - name: Testes unitários
+        run: npm test
+
+      # O build precisa de heap elevado: o bundle tem chunks >1 MB e estoura o
+      # heap padrão do Node (~944 MB) com "Ineffective mark-compacts".
+      - name: Build de produção
+        run: npm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=3072"
+
+      - name: Tamanho dos artefatos
+        run: du -sh dist && du -sh dist/assets | tail -1

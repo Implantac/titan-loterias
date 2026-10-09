@@ -1,4 +1,5 @@
 import { useMemo, useState, lazy, Suspense } from "react";
+import { formatDrawDate } from "@/lib/draw-date";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { LotteryContextBanner } from "@/components/LotteryContextBanner";
@@ -623,7 +624,7 @@ export default function LotofacilPremiumPage() {
                         <SelectItem value="latest">Último concurso ({draws[0]?.concurso})</SelectItem>
                         {draws.slice(0, 30).map((draw) => (
                           <SelectItem key={draw.concurso} value={String(draw.concurso)}>
-                            #{draw.concurso} - {new Date(draw.date).toLocaleDateString("pt-BR")}
+                            #{draw.concurso} - {formatDrawDate(draw.date)}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -2,14 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { requireUserAuth, corsHeaders } from "../_shared/auth.ts";
-
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  "prod_UE7roMlQFnRldw": "premium",
-  "prod_UE7sbRkUnU7ISi": "professional",
-  "prod_UE81WPrPw7pexN": "lifetime",
-};
-
-const LIFETIME_PRICE_ID = "price_1TFflFCzGT9FnNQpKT7INteS";
+import { PRODUCT_TO_PLAN, LIFETIME_PRICE_ID } from "../_shared/billing.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -25,6 +18,17 @@ serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
+  // GUARD: `stripe.customers.list({ email: undefined })` NÃO filtra — ele lista
+  // TODOS os clientes da conta e `data[0]` seria um assinante qualquer, aplicando
+  // o plano/portal de outra pessoa a este usuário. Cadastro por telefone existe
+  // neste produto, então e-mail nulo é um caminho alcançável.
+  if (!auth.email) {
+    return new Response(
+      JSON.stringify({ error: "Conta sem e-mail associado. Adicione um e-mail no seu perfil para gerenciar o plano." }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     // Admins/super admins (per user_roles table) bypass Stripe sync entirely.
     if (auth.isAdmin) {
@@ -37,7 +41,7 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: auth.email!, limit: 1 });
+    const customers = await stripe.customers.list({ email: auth.email, limit: 1 });
 
     if (customers.data.length === 0) {
       await supabaseClient.from("profiles").update({ plan: "free" }).eq("id", auth.userId);

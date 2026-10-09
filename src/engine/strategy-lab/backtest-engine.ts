@@ -57,7 +57,7 @@ export function runBacktest(
 
   let totalSpent = 0;
   let totalWon = 0;
-  let hitCounts: Record<number, number> = {};
+  const hitCounts: Record<number, number> = {};
   
   for (const draw of sortedDraws) {
     const drawSet = new Set(draw.numbers);

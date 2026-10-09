@@ -1,4 +1,4 @@
-import { Crown, Zap, Sparkles, Infinity, Settings, Loader2, CheckCircle2, Star, ShieldCheck, Gem } from "lucide-react";
+import { Crown, Zap, Sparkles, Settings, Loader2, CheckCircle2, Star, ShieldCheck, Gem } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -28,7 +28,15 @@ export default function PlanosPage() {
     setLoadingPlan(true);
     try {
       const result = await createCheckoutSession("lifetime", session.access_token);
-      if (result?.url) window.open(result.url, "_blank");
+      if (result?.url) {
+        // Navegação direta (não `window.open`): a abertura de janela depois de um
+        // `await` fica fora da call stack do gesto do usuário e é bloqueada pelo
+        // popup blocker de Chrome/Safari/Firefox — o cliente clicava e nada acontecia.
+        window.location.assign(result.url);
+        return;
+      }
+      // url === null acontece quando a conta já é lifetime/admin.
+      toast.info("Seu acesso já está ativo.");
     } catch (e: any) {
       toast.error("Erro ao iniciar checkout: " + (e.message || "Tente novamente"));
     } finally {
@@ -49,13 +57,13 @@ export default function PlanosPage() {
       >
         <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-neon-amber/10 border-2 border-neon-amber/30 text-neon-amber text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-neon-amber/5 backdrop-blur-md mb-8">
           <div className="w-2 h-2 rounded-full bg-neon-amber animate-pulse shadow-[0_0_8px_rgba(var(--neon-amber),1)]" />
-          Limited Access Protocol • {LAUNCH_PRICE} Final Offer
+          Acesso Vitalício • Pagamento Único
         </div>
         <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase italic leading-[0.9] mb-6">
           Acesso Vitalício <span className="gradient-brand-text block mt-2">Zero Mensalidade</span>
         </h1>
         <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70">
-          Trave seu acesso permanente às ferramentas de análise estatística Titan hoje mesmo por um investimento único e irrepetível.
+          Acesso permanente às ferramentas de análise estatística Titan, com um único pagamento e sem mensalidade.
         </p>
 
       </motion.div>
@@ -91,8 +99,8 @@ export default function PlanosPage() {
               <ul className="space-y-3">
                 {[
                   "Acesso vitalício sem renovação",
-                  "Todas as 8 Loterias integradas",
-                  "Inteligência Artificial e ML",
+                  "Todas as 10 loterias integradas",
+                  "Motor estatístico com backtest e evidência",
                   "Geradores e Otimizadores Pro",
                   "Backtests e Simulações massivas",
                   "Atualizações futuras inclusas",
@@ -111,10 +119,6 @@ export default function PlanosPage() {
             <div className="bg-white/[0.03] border-2 border-white/10 rounded-[2rem] p-10 flex flex-col items-center text-center relative overflow-hidden group/price">
               <div className="absolute inset-0 bg-gradient-to-b from-neon-amber/5 via-transparent to-transparent opacity-0 group-hover/price:opacity-100 transition-opacity" />
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-50 mb-4 relative z-10">Unique Node Activation</p>
-              <div className="flex items-center gap-3 mb-2 relative z-10">
-                <span className="text-muted-foreground line-through text-xl font-mono font-bold opacity-40">{ORIGINAL_PRICE}</span>
-                <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full border border-primary/30 shadow-lg shadow-primary/10">-70% DISCOUNT</span>
-              </div>
               <div className="flex items-baseline gap-1 mb-8 relative z-10 group-hover:scale-105 transition-transform duration-500">
                 <span className="text-6xl font-black font-mono tracking-tighter italic text-foreground">{LAUNCH_PRICE}</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 ml-1">Paid Once</span>

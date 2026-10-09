@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Award, TrendingUp } from "lucide-react";
 import { getPrizeTiers } from "@/services/api/lottery";;
 import { DrawResultWithPrizes } from "@/hooks/useLotteryDraws";
+import { parseDrawDate } from "@/lib/draw-date";
 
 function findNextDraw(betDate: Date, sortedDraws: DrawResultWithPrizes[]): DrawResultWithPrizes | null {
   let closest: DrawResultWithPrizes | null = null;
   for (const draw of sortedDraws) {
-    const drawDate = draw.date ? new Date(draw.date) : null;
+    const drawDate = parseDrawDate(draw.date);
     if (!drawDate) continue;
     if (drawDate >= betDate) {
       closest = draw;

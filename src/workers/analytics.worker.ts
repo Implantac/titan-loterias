@@ -5,7 +5,7 @@ self.onmessage = (e: MessageEvent) => {
     const { games, draws, lotteryId, iterations } = data;
     // Lógica de simulação pesada aqui
     const results = games.map((game: number[]) => {
-      let hits = 0;
+      const hits = 0;
       // Simulação simplificada para o worker
       return { numbers: game, avgHits: Math.random() * 5 }; 
     });

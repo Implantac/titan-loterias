@@ -48,8 +48,8 @@ export function computeFarolStats(
   // 1. Calculate Cycles
   let currentCycle = 1;
   let missingInCycle = new Set(Array.from({ length: totalNumbers }, (_, i) => i + 1));
-  let drawsToClose: number[] = [];
-  let cycleCount = 0;
+  const drawsToClose: number[] = [];
+  const cycleCount = 0;
   let currentCycleDraws = 0;
 
   // Process draws from oldest to newest to track cycles
