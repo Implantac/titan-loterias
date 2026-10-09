@@ -26,6 +26,7 @@ const AnaliseCentralPage = lazy(() => import("@/pages/AnaliseCentralPage"));
 const HistoricoUnificadoPage = lazy(() => import("@/pages/HistoricoUnificadoPage"));
 const PerfilPage = lazy(() => import("@/pages/PerfilPage"));
 const PlanosPage = lazy(() => import("@/pages/PlanosPage"));
+const LegalPage = lazy(() => import("@/pages/LegalPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const SignupPage = lazy(() => import("@/pages/SignupPage"));
 const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
@@ -147,6 +148,10 @@ const AppContent = () => {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/planos" element={<PlanosPage />} />
         <Route path="/suporte" element={<SuportePage />} />
+        <Route path="/termos" element={<LegalPage doc="termos" />} />
+        <Route path="/privacidade" element={<LegalPage doc="privacidade" />} />
+        <Route path="/seguranca" element={<LegalPage doc="seguranca" />} />
+        <Route path="/sobre" element={<LegalPage doc="sobre" />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/install" element={<InstallPage />} />
         <Route path="/pwa-test" element={<PwaOfflineTestPage />} />

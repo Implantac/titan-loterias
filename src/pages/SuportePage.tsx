@@ -26,8 +26,9 @@ const faqCategories = [
     icon: CreditCard,
     faqs: [
       { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartões de crédito e débito (Visa, Mastercard, Elo, American Express) e Pix, processados de forma segura pelo Stripe." },
-      { q: "Posso trocar de plano a qualquer momento?", a: "Sim! Faça upgrade ou downgrade quando quiser. No upgrade, a diferença é cobrada proporcionalmente. No downgrade, o novo valor vale no próximo ciclo." },
-      { q: "Como cancelo minha assinatura?", a: "Acesse \"Gerenciar assinatura\" na página de planos. O cancelamento é imediato, mas você mantém acesso até o final do período já pago." },
+      { q: "O acesso vitalício tem mensalidade?", a: "Não. O Acesso Vitalício é um pagamento único: você paga uma vez e mantém o acesso sem cobranças recorrentes, sem renovação automática e sem fatura no mês seguinte." },
+      { q: "Posso trocar de plano a qualquer momento?", a: "O sistema também oferece planos por assinatura (mensal e anual). Nessas modalidades o upgrade é cobrado proporcionalmente e o downgrade passa a valer no ciclo seguinte. Quem opta pelo Acesso Vitalício não precisa se preocupar com ciclos — o acesso é permanente." },
+      { q: "Como cancelo uma assinatura?", a: "Acesse \"Gerenciar assinatura\" na página de planos. O cancelamento é imediato e você mantém o acesso até o fim do período já pago. O Acesso Vitalício não possui cancelamento, pois não há cobrança recorrente." },
       { q: "Posso solicitar reembolso?", a: "Sim, oferecemos reembolso integral em até 7 dias após a compra, sem perguntas. Basta entrar em contato pelo WhatsApp ou e-mail." },
       { q: "O plano Vitalício inclui atualizações futuras?", a: "Sim! O plano Vitalício garante acesso permanente a todas as funcionalidades atuais e futuras, sem custo adicional." },
     ],

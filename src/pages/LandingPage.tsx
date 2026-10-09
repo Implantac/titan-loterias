@@ -248,10 +248,11 @@ export default function LandingPage() {
             <div>
               <h4 className="font-black uppercase tracking-[0.3em] text-[10px] text-primary mb-8 italic">Empresa</h4>
               <ul className="space-y-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                <li><Link to="/about" className="hover:text-primary transition-colors">Sobre Nós</Link></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Segurança</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Termos</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contato</a></li>
+                <li><Link to="/sobre" className="hover:text-primary transition-colors">Sobre Nós</Link></li>
+                <li><Link to="/seguranca" className="hover:text-primary transition-colors">Segurança</Link></li>
+                <li><Link to="/termos" className="hover:text-primary transition-colors">Termos</Link></li>
+                <li><Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link></li>
+                <li><Link to="/suporte" className="hover:text-primary transition-colors">Contato</Link></li>
               </ul>
             </div>
           </div>
