@@ -152,6 +152,11 @@ URL publicada.
 
 ## Deploy
 
+> ⚠️ **Existem pendências de implantação em aberto.** O código está completo no
+> `main`, mas 5 migrations e 13 Edge Functions ainda não foram aplicadas no
+> ambiente. O passo a passo exato, com o comando de verificação de cada etapa,
+> está em **[`docs/DEPLOY-RUNBOOK.md`](docs/DEPLOY-RUNBOOK.md)**.
+
 O projeto foi criado no Lovable e é publicado por lá. Para hospedar por conta própria:
 
 1. `npm run build` e sirva `dist/` (é uma SPA — configure fallback para `index.html`).
