@@ -9,6 +9,8 @@ import { evaluateBetQuality, BetQualityReport } from "@/engine/stats/bet-quality
 
 export type RiskLevel = "conservative" | "moderate" | "aggressive";
 
+import { makeRng } from '../rng';
+
 export interface GeneticConfig {
   populationSize: number;
   generations: number;
@@ -17,6 +19,8 @@ export interface GeneticConfig {
   eliteRatio: number;
   riskLevel: RiskLevel;
   tournamentSize: number;
+  /** Semente do PRNG. Fixa o resultado — necessário para reproduzir e auditar. */
+  seed?: number;
 }
 
 export interface GeneticResult {
@@ -34,7 +38,7 @@ const RISK_PRESETS: Record<RiskLevel, Partial<GeneticConfig>> = {
   aggressive: { mutationRate: 0.25, crossoverRate: 0.9, eliteRatio: 0.05, tournamentSize: 2 },
 };
 
-function buildWeights(stats: NumberStats[], risk: RiskLevel): Map<number, number> {
+function buildWeights(stats: NumberStats[], risk: RiskLevel, rng: () => number): Map<number, number> {
   const weights = new Map<number, number>();
   for (const s of stats) {
     let w: number;
@@ -43,7 +47,7 @@ function buildWeights(stats: NumberStats[], risk: RiskLevel): Map<number, number
       w = s.recentFreq * 3 + (s.stdDev < s.avgGap ? 4 : 1) + s.cycleScore * 2 + (s.status === "hot" ? 3 : 1);
     } else if (risk === "aggressive") {
       // Favor high-momentum and overdue numbers
-      w = (s.momentum > 0 ? s.momentum * 5 : 0) + s.cycleScore * 6 + (s.trend > 0 ? s.trend * 4 : 0) + Math.random() * 3;
+      w = (s.momentum > 0 ? s.momentum * 5 : 0) + s.cycleScore * 6 + (s.trend > 0 ? s.trend * 4 : 0) + rng() * 3;
     } else {
       w = s.recentFreq * 2 + s.cycleScore * 4 + (s.trend > 0 ? s.trend * 3 : 0.5) + (s.momentum > 0 ? s.momentum : 0);
     }
@@ -52,10 +56,10 @@ function buildWeights(stats: NumberStats[], risk: RiskLevel): Map<number, number
   return weights;
 }
 
-function weightedSelect(weights: Map<number, number>, exclude: Set<number>): number {
+function weightedSelect(weights: Map<number, number>, exclude: Set<number>, rng: () => number): number {
   const entries = [...weights.entries()].filter(([n]) => !exclude.has(n));
   const total = entries.reduce((s, [, w]) => s + w, 0);
-  let r = Math.random() * total;
+  let r = rng() * total;
   for (const [n, w] of entries) {
     r -= w;
     if (r <= 0) return n;
@@ -63,32 +67,33 @@ function weightedSelect(weights: Map<number, number>, exclude: Set<number>): num
   return entries[entries.length - 1][0];
 }
 
-function createIndividual(pick: number, maxNum: number, weights: Map<number, number>): number[] {
+function createIndividual(pick: number, maxNum: number, weights: Map<number, number>, rng: () => number): number[] {
   const selected = new Set<number>();
   while (selected.size < pick) {
-    selected.add(weightedSelect(weights, selected));
+    selected.add(weightedSelect(weights, selected, rng));
   }
   return [...selected].sort((a, b) => a - b);
 }
 
 function tournamentSelect(
   population: { numbers: number[]; fitness: number }[],
-  size: number
+  size: number,
+  rng: () => number
 ): number[] {
   const tournament: typeof population = [];
   for (let i = 0; i < size; i++) {
-    tournament.push(population[Math.floor(Math.random() * population.length)]);
+    tournament.push(population[Math.floor(rng() * population.length)]);
   }
   tournament.sort((a, b) => b.fitness - a.fitness);
   return tournament[0].numbers;
 }
 
-function orderCrossover(parent1: number[], parent2: number[], pick: number, maxNum: number): number[] {
+function orderCrossover(parent1: number[], parent2: number[], pick: number, maxNum: number, rng: () => number): number[] {
   const child = new Set<number>();
   // Take half from each parent
   const half = Math.floor(pick / 2);
-  const shuffled1 = [...parent1].sort(() => Math.random() - 0.5);
-  const shuffled2 = [...parent2].sort(() => Math.random() - 0.5);
+  const shuffled1 = [...parent1].sort(() => rng() - 0.5);
+  const shuffled2 = [...parent2].sort(() => rng() - 0.5);
   
   for (let i = 0; i < half && child.size < pick; i++) {
     child.add(shuffled1[i]);
@@ -98,18 +103,18 @@ function orderCrossover(parent1: number[], parent2: number[], pick: number, maxN
   }
   // Fill remaining randomly
   while (child.size < pick) {
-    child.add(Math.floor(Math.random() * maxNum) + 1);
+    child.add(Math.floor(rng() * maxNum) + 1);
   }
   return [...child].sort((a, b) => a - b);
 }
 
-function mutate(individual: number[], rate: number, maxNum: number, weights: Map<number, number>): number[] {
+function mutate(individual: number[], rate: number, maxNum: number, weights: Map<number, number>, rng: () => number): number[] {
   const result = [...individual];
   for (let i = 0; i < result.length; i++) {
-    if (Math.random() < rate) {
+    if (rng() < rate) {
       const exclude = new Set(result);
       exclude.delete(result[i]);
-      result[i] = weightedSelect(weights, exclude);
+      result[i] = weightedSelect(weights, exclude, rng);
     }
   }
   return result.sort((a, b) => a - b);
@@ -123,6 +128,9 @@ export function runGeneticAlgorithm(
 ): GeneticResult {
   const start = performance.now();
   const risk = geneticConfig.riskLevel || "moderate";
+  // Sem seed cai em Math.random() (comportamento antigo). Com seed o resultado
+  // é reproduzível, como exige o AGENTS.md.
+  const rng = makeRng(geneticConfig.seed ?? (Date.now() % 4294967296));
   const preset = RISK_PRESETS[risk];
   
   const cfg: GeneticConfig = {
@@ -135,7 +143,7 @@ export function runGeneticAlgorithm(
     tournamentSize: geneticConfig.tournamentSize || preset.tournamentSize!,
   };
 
-  const weights = buildWeights(stats, risk);
+  const weights = buildWeights(stats, risk, rng);
   const convergence: GeneticResult["convergence"] = [];
 
   // Initialize population
@@ -143,7 +151,7 @@ export function runGeneticAlgorithm(
   let population: Individual[] = [];
   
   for (let i = 0; i < cfg.populationSize; i++) {
-    const numbers = createIndividual(config.pick, config.numbers, weights);
+    const numbers = createIndividual(config.pick, config.numbers, weights, rng);
     const quality = evaluateBetQuality(numbers, stats, config, draws);
     population.push({ numbers, fitness: quality.overall, quality });
   }
@@ -156,17 +164,17 @@ export function runGeneticAlgorithm(
     const newPop: Individual[] = population.slice(0, eliteCount); // Keep elite
 
     while (newPop.length < cfg.populationSize) {
-      const parent1 = tournamentSelect(population, cfg.tournamentSize);
-      const parent2 = tournamentSelect(population, cfg.tournamentSize);
+      const parent1 = tournamentSelect(population, cfg.tournamentSize, rng);
+      const parent2 = tournamentSelect(population, cfg.tournamentSize, rng);
 
       let child: number[];
-      if (Math.random() < cfg.crossoverRate) {
-        child = orderCrossover(parent1, parent2, config.pick, config.numbers);
+      if (rng() < cfg.crossoverRate) {
+        child = orderCrossover(parent1, parent2, config.pick, config.numbers, rng);
       } else {
         child = [...parent1];
       }
 
-      child = mutate(child, cfg.mutationRate, config.numbers, weights);
+      child = mutate(child, cfg.mutationRate, config.numbers, weights, rng);
       const quality = evaluateBetQuality(child, stats, config, draws);
       newPop.push({ numbers: child, fitness: quality.overall, quality });
     }
@@ -184,7 +192,7 @@ export function runGeneticAlgorithm(
 
     // Fill back if needed
     while (population.length < cfg.populationSize) {
-      const numbers = createIndividual(config.pick, config.numbers, weights);
+      const numbers = createIndividual(config.pick, config.numbers, weights, rng);
       const quality = evaluateBetQuality(numbers, stats, config, draws);
       population.push({ numbers, fitness: quality.overall, quality });
     }

@@ -1,4 +1,5 @@
 import type { DrawResult } from "@/data/lotteries";
+import { makeRng, shuffleWith } from './rng';
 
 export type WorksheetMatrixMode = "base" | "fixed-plus-pool" | "gf";
 
@@ -248,27 +249,7 @@ export function runWorksheetBacktest(
   };
 }
 
-// Deterministic PRNG (mulberry32) so results are reproducible.
-function makeRng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6D2B79F5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
-// Fisher–Yates over a fresh copy of `arr` using `rng`.
-function shuffleWith<T>(arr: T[], rng: () => number): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 // Sample `count` distinct k-subsets of `arr`, biased toward even usage of each element.
 function sampleDistinctSubsets(arr: number[], k: number, count: number, seed = 42): number[][] {
