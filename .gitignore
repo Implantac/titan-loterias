@@ -35,3 +35,9 @@ playwright-report/
 blob-report/
 test-results/
 audit-*.png
+
+# O projeto usa npm (npm ci / package-lock.json). O Lovable recria bun.lock a
+# cada "Lovable update" e tê-lo versionado junto com package-lock.json faz os
+# dois gestores de pacote divergirem — foi o que quebrou `npm ci` na auditoria.
+bun.lock
+bun.lockb
