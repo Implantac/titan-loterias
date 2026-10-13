@@ -1,4 +1,5 @@
 import { NumberStats, generateSmartBet } from "@/engine/stats/statistics";
+import { makeRng, shuffleWith } from './rng';
 import { LotteryConfig } from "@/data/lotteries";
 import { getConsensusRanking, runAllModels } from "@/engine/ai/ml-models";
 
@@ -80,11 +81,11 @@ function getFibonacciNumbers(max: number): number[] {
   return fibs;
 }
 
-function weightedShuffle<T extends { weight: number }>(items: T[]): T[] {
+function weightedShuffle<T extends { weight: number }>(items: T[], rng: () => number): T[] {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i--) {
     const totalWeight = result.slice(0, i + 1).reduce((s, x) => s + x.weight, 0);
-    let r = Math.random() * totalWeight;
+    let r = rng() * totalWeight;
     for (let j = 0; j <= i; j++) {
       r -= result[j].weight;
       if (r <= 0) {
@@ -111,26 +112,29 @@ function ensureBalancedSelection(selected: number[], pick: number, maxNum: numbe
     });
     return balanced.slice(0, pick).sort((a, b) => a - b);
   }
-  return selected;
+  return [...selected].sort((a, b) => a - b);
 }
 
 export function generateByStrategy(
   strategy: Strategy,
   stats: NumberStats[],
   config: LotteryConfig,
-  filters?: any // Add optional filters support
+  filters?: any, // Add optional filters support
+  /** Sem seed cai em rng() (comportamento antigo); com seed o jogo é reproduzível. */
+  options?: { seed?: number }
 ): number[] {
   const pick = config.pick;
+  const rng = makeRng(options?.seed ?? (Date.now() % 4294967296));
 
   switch (strategy) {
     case "hot": {
       const pool = [...stats]
         .filter(s => s.status === "hot" || (s.status === "normal" && s.trend > 0))
-        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq * 2 + s.trend * 0.5 + s.momentum * 0.2 + Math.random() * 3) }));
-      const shuffled = weightedShuffle(pool);
+        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq * 2 + s.trend * 0.5 + s.momentum * 0.2 + rng() * 3) }));
+      const shuffled = weightedShuffle(pool, rng);
       const selected = shuffled.slice(0, pick).map(s => s.number);
       while (selected.length < pick) {
-        const n = Math.floor(Math.random() * config.numbers) + 1;
+        const n = Math.floor(rng() * config.numbers) + 1;
         if (!selected.includes(n)) selected.push(n);
       }
       return ensureBalancedSelection(selected, pick, config.numbers);
@@ -139,11 +143,11 @@ export function generateByStrategy(
     case "cold": {
       const pool = [...stats]
         .filter(s => s.status === "cold" || s.cycleScore > 1.2)
-        .map(s => ({ ...s, weight: Math.max(0.1, s.cycleScore * 3 + s.lastSeen * 0.1 + Math.random() * 3) }));
-      const shuffled = weightedShuffle(pool);
+        .map(s => ({ ...s, weight: Math.max(0.1, s.cycleScore * 3 + s.lastSeen * 0.1 + rng() * 3) }));
+      const shuffled = weightedShuffle(pool, rng);
       const selected = shuffled.slice(0, pick).map(s => s.number);
       while (selected.length < pick) {
-        const n = Math.floor(Math.random() * config.numbers) + 1;
+        const n = Math.floor(rng() * config.numbers) + 1;
         if (!selected.includes(n)) selected.push(n);
       }
       return ensureBalancedSelection(selected, pick, config.numbers);
@@ -157,14 +161,15 @@ export function generateByStrategy(
       const coldPick = Math.floor(pick * 0.25);
       const normalPick = pick - hotPick - coldPick;
       const sortByScore = (arr: NumberStats[]) =>
-        [...arr].sort((a, b) => (b.trend + b.cycleScore * 2 + Math.random() * 3) - (a.trend + a.cycleScore * 2 + Math.random() * 3));
+        shuffleWith(arr, rng).sort((a, b) =>
+          (b.trend + b.cycleScore * 2) - (a.trend + a.cycleScore * 2));
       const selected = [
         ...sortByScore(hot).slice(0, hotPick),
         ...sortByScore(cold).slice(0, coldPick),
         ...sortByScore(normal).slice(0, normalPick),
       ].map(s => s.number);
       while (selected.length < pick) {
-        const n = Math.floor(Math.random() * config.numbers) + 1;
+        const n = Math.floor(rng() * config.numbers) + 1;
         if (!selected.includes(n)) selected.push(n);
       }
       return ensureBalancedSelection(selected, pick, config.numbers);
@@ -179,7 +184,7 @@ export function generateByStrategy(
           s.recentFreq * 1.5
         ),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       const selected = shuffled.slice(0, pick).map(s => s.number);
       return ensureBalancedSelection(selected, pick, config.numbers);
     }
@@ -190,7 +195,7 @@ export function generateByStrategy(
         ...s,
         weight: (fibs.includes(s.number) ? 5 : 1) + s.recentFreq * 0.3 + s.trend * 0.4 + (s.cycleScore > 1 ? 2 : 0),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       return shuffled.slice(0, pick).map(s => s.number).sort((a, b) => a - b);
     }
 
@@ -203,7 +208,7 @@ export function generateByStrategy(
           s.trend * 0.5 +
           (s.cycleScore > 1.2 ? 3 : 0),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       return shuffled.slice(0, pick).map(s => s.number).sort((a, b) => a - b);
     }
 
@@ -218,7 +223,7 @@ export function generateByStrategy(
         weight: (goldenPositions.includes(s.number) ? 4 : 1) +
           s.recentFreq * 0.3 + s.trend * 0.3 + (s.cycleScore > 1 ? 2 : 0),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       return shuffled.slice(0, pick).map(s => s.number).sort((a, b) => a - b);
     }
 
@@ -234,8 +239,8 @@ export function generateByStrategy(
         const perSector = Math.ceil(pick / sectorCount);
 
         const sorted = [...sectorStats].sort((a, b) => {
-          const scoreA = a.recentFreq * 2 + a.trend * 1.5 + (a.cycleScore > 1 ? 5 : 0) + Math.random() * 2;
-          const scoreB = b.recentFreq * 2 + b.trend * 1.5 + (b.cycleScore > 1 ? 5 : 0) + Math.random() * 2;
+          const scoreA = a.recentFreq * 2 + a.trend * 1.5 + (a.cycleScore > 1 ? 5 : 0) + rng() * 2;
+          const scoreB = b.recentFreq * 2 + b.trend * 1.5 + (b.cycleScore > 1 ? 5 : 0) + rng() * 2;
           return scoreB - scoreA;
         });
 
@@ -247,7 +252,7 @@ export function generateByStrategy(
       }
 
       while (selected.length < pick) {
-        const n = Math.floor(Math.random() * config.numbers) + 1;
+        const n = Math.floor(rng() * config.numbers) + 1;
         if (!selected.includes(n)) selected.push(n);
       }
       return selected.sort((a, b) => a - b);
@@ -262,25 +267,25 @@ export function generateByStrategy(
       const pool = sorted.slice(0, pick * 2);
       const weighted = pool.map(s => ({
         ...s,
-        weight: s.cycleScore * 3 + (s.trend > 0 ? s.trend : 0) + Math.random() * 2,
+        weight: s.cycleScore * 3 + (s.trend > 0 ? s.trend : 0) + rng() * 2,
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       return shuffled.slice(0, pick).map(s => s.number).sort((a, b) => a - b);
     }
 
     case "pattern": {
       const mid = Math.ceil(config.numbers / 2);
       const evens = stats.filter(s => s.number % 2 === 0)
-        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq + s.trend + Math.random() * 3) }));
+        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq + s.trend + rng() * 3) }));
       const odds = stats.filter(s => s.number % 2 !== 0)
-        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq + s.trend + Math.random() * 3) }));
+        .map(s => ({ ...s, weight: Math.max(0.1, s.recentFreq + s.trend + rng() * 3) }));
 
       const evenPick = Math.ceil(pick / 2);
       const oddPick = pick - evenPick;
       const lowPick = Math.ceil(pick / 2);
 
-      const shuffledEvens = weightedShuffle(evens);
-      const shuffledOdds = weightedShuffle(odds);
+      const shuffledEvens = weightedShuffle(evens, rng);
+      const shuffledOdds = weightedShuffle(odds, rng);
 
       const candidates = new Set<number>();
       shuffledEvens.slice(0, evenPick * 2).forEach(s => candidates.add(s.number));
@@ -288,7 +293,7 @@ export function generateByStrategy(
 
       const selected: number[] = [];
       let lowCount = 0;
-      const candidateArr = [...candidates].sort(() => Math.random() - 0.5);
+      const candidateArr = shuffleWith([...candidates], rng);
 
       for (const n of candidateArr) {
         if (selected.length >= pick) break;
@@ -300,7 +305,7 @@ export function generateByStrategy(
       }
 
       while (selected.length < pick) {
-        const n = Math.floor(Math.random() * config.numbers) + 1;
+        const n = Math.floor(rng() * config.numbers) + 1;
         if (!selected.includes(n)) selected.push(n);
       }
       return selected.sort((a, b) => a - b);
@@ -316,7 +321,7 @@ export function generateByStrategy(
           (s.trend > 0 ? s.trend : 0)
         ),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       return shuffled.slice(0, pick).map(s => s.number).sort((a, b) => a - b);
     }
 
@@ -324,7 +329,7 @@ export function generateByStrategy(
       const models = runAllModels(stats, config);
       const consensus = getConsensusRanking(models);
       const topPool = consensus.slice(0, Math.min(pick * 2, consensus.length));
-      const shuffled = [...topPool].sort(() => Math.random() - 0.5);
+      const shuffled = shuffleWith(topPool, rng);
       return shuffled.slice(0, pick).map(p => p.number).sort((a, b) => a - b);
     }
 
@@ -345,7 +350,7 @@ export function generateByStrategy(
           s.recentFreq * 1.2
         ),
       }));
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       const selected = shuffled.slice(0, pick).map(s => s.number);
       return ensureBalancedSelection(selected, pick, config.numbers);
     }
@@ -369,7 +374,7 @@ export function generateByStrategy(
         };
       });
       
-      const shuffled = weightedShuffle(weighted);
+      const shuffled = weightedShuffle(weighted, rng);
       const selected = shuffled.slice(0, pick).map(s => s.number);
       return ensureBalancedSelection(selected, pick, config.numbers);
     }
@@ -393,7 +398,7 @@ export function generateByStrategy(
       const modelName = nameMap[strategy];
       const model = models.find(m => m.name === modelName) || models[0];
       const topPool = model.predictions.slice(0, Math.min(pick * 1.5, model.predictions.length));
-      const shuffled = [...topPool].sort(() => Math.random() - 0.5);
+      const shuffled = shuffleWith(topPool, rng);
       return shuffled.slice(0, pick).map(p => p.number).sort((a, b) => a - b);
     }
 
