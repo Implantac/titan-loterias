@@ -1,4 +1,6 @@
-CREATE TABLE public.engine_performance_log (
+-- IF NOT EXISTS: a tabela já é criada em 20260729010400. Sem isto o replay
+-- falha com 'relation already exists' e quebra qualquer ambiente novo.
+CREATE TABLE IF NOT EXISTS public.engine_performance_log (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     lottery_id text NOT NULL,
@@ -28,5 +30,5 @@ USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
 -- Create index for performance
-CREATE INDEX idx_engine_perf_user_lottery ON public.engine_performance_log(user_id, lottery_id);
-CREATE INDEX idx_engine_perf_preset ON public.engine_performance_log(preset_hash);
+CREATE INDEX IF NOT EXISTS idx_engine_perf_user_lottery ON public.engine_performance_log(user_id, lottery_id);
+CREATE INDEX IF NOT EXISTS idx_engine_perf_preset ON public.engine_performance_log(preset_hash);
