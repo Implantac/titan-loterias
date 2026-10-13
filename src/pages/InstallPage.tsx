@@ -85,7 +85,14 @@ const InstallPage = () => {
   };
 
   const openPublishedApp = () => {
-    window.open("https://read-create-play.lovable.app/install", "_blank", "noopener,noreferrer");
+    // Apontava para `read-create-play.lovable.app`, o nome antigo do projeto.
+    // Verificado: devolve HTTP 404 "Project not found". O endereço publicado
+    // atual é titanloterias.lovable.app.
+    //
+    // Override por env para não precisar mexer no código se o domínio mudar de
+    // novo (domínio próprio, por exemplo).
+    const published = import.meta.env.VITE_PUBLIC_APP_URL || "https://titanloterias.lovable.app";
+    window.open(`${published}/install`, "_blank", "noopener,noreferrer");
   };
 
   return (
