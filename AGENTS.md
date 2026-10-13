@@ -6,3 +6,4 @@
 - Every score shown to users exposes a breakdown of its components — results must be explainable.
 - Randomized engines accept a seed — tests and audits need reproducible output.
 - Benchmarks compare games against held-out recent draws not used to generate them, with seeded RNG (lottery + latest contest) — prevents lookahead bias and makes results reproducible.
+- `.env` stays committed (never gitignored): the publish build reads the public VITE_SUPABASE_* values from it; ignoring it shipped a blank site ("supabaseUrl is required").
