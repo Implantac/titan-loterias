@@ -1,5 +1,11 @@
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
-import { analyzeEvidence } from "@/engine/stats/evidence-engine";
+import type { NumberStats } from "@/engine/stats/statistics";
+import {
+  backtestModel,
+  runEnsembleVoting,
+  ENSEMBLE_WEIGHTS,
+  ENSEMBLE_MODELS,
+} from "@/engine/ai/ml-models";
 
 export interface AblationImpact {
   indicator: string;
@@ -7,91 +13,151 @@ export interface AblationImpact {
   significanceImpact: number;
   confidenceGain: number;
   relativeImportance: number;
-  robustnessGrade: 'High' | 'Medium' | 'Low';
+  robustnessGrade: "High" | "Medium" | "Low";
   pValueImpact: number;
 }
 
+export interface AblationReport {
+  impacts: AblationImpact[];
+  /** Lift do ensemble completo sobre o acaso, medido no mesmo walk-forward. */
+  baselineLift: number;
+  /** Lift esperado se os modelos não tivessem nenhuma habilidade. */
+  chanceLift: number;
+  drawsTested: number;
+  windowSize: number;
+}
+
+export interface AblationOptions {
+  /** Janela de treino em concursos. */
+  windowSize?: number;
+  /** Quantos concursos testar. Menor = mais rápido. */
+  testSize?: number;
+  /** Chamado a cada modelo concluído, para a UI mostrar progresso real. */
+  onProgress?: (done: number, total: number, model: string) => void;
+}
+
 /**
- * Ablation Engine V2 - Rigorous Quantitative Evaluation
- * 
- * Implementa a técnica "Leave-One-Out" (LOO) para medir a contribuição marginal
- * de cada componente do motor estatístico.
+ * Estudo de ablação Leave-One-Out **real**.
+ *
+ * Como funciona: roda o backtest walk-forward do ensemble completo e depois uma
+ * vez para cada modelo com o peso zerado. A contribuição de um modelo é a queda
+ * de lift que a remoção dele provoca — nada é estimado por tabela nem sorteado.
+ *
+ * DETERMINÍSTICO: `backtestModel` não usa aleatoriedade, então o mesmo
+ * histórico produz sempre o mesmo resultado. Isso importa porque o
+ * `AGENTS.md` exige reprodutibilidade, e a implementação anterior usava
+ * `Math.random()` — o número mudava a cada clique.
  */
 export class AblationEngine {
+  static runLeaveOneOut(
+    config: LotteryConfig,
+    draws: DrawResult[],
+    computeStatsFn: (draws: DrawResult[], totalNumbers: number) => NumberStats[],
+    options: AblationOptions = {},
+  ): AblationReport {
+    const windowSize = options.windowSize ?? 100;
+    const testSize = options.testSize ?? 40;
+
+    const sorted = [...draws].sort((a, b) => a.concurso - b.concurso);
+    const testable = Math.min(testSize, sorted.length - windowSize);
+    if (testable <= 0) {
+      return { impacts: [], baselineLift: 0, chanceLift: 0, drawsTested: 0, windowSize };
+    }
+
+    const ensembleWith = (weights: Record<string, number>) =>
+      (stats: NumberStats[], cfg: LotteryConfig) => runEnsembleVoting(stats, cfg, weights);
+
+    const baseline = backtestModel(
+      ensembleWith(ENSEMBLE_WEIGHTS),
+      sorted,
+      config,
+      computeStatsFn,
+      windowSize,
+      testSize,
+    );
+
+    const contributions: { model: string; drop: number; ablatedLift: number }[] = [];
+    const total = ENSEMBLE_MODELS.length;
+
+    ENSEMBLE_MODELS.forEach((model, i) => {
+      // Zera apenas este modelo; os demais mantêm os pesos originais.
+      const ablatedWeights = { ...ENSEMBLE_WEIGHTS, [model]: 0 };
+      const ablated = backtestModel(
+        ensembleWith(ablatedWeights),
+        sorted,
+        config,
+        computeStatsFn,
+        windowSize,
+        testSize,
+      );
+      contributions.push({
+        model,
+        drop: baseline.liftOverChance - ablated.liftOverChance,
+        ablatedLift: ablated.liftOverChance,
+      });
+      options.onProgress?.(i + 1, total, model);
+    });
+
+    // A importância relativa só faz sentido sobre contribuições positivas: um
+    // modelo com drop <= 0 não agrega, e dividir por um total que inclui
+    // negativos produziria percentuais sem interpretação.
+    const positiveTotal = contributions.reduce((s, c) => s + Math.max(0, c.drop), 0);
+
+    const impacts: AblationImpact[] = contributions.map((c) => {
+      const relativeImportance = positiveTotal > 0 ? Math.max(0, c.drop) / positiveTotal : 0;
+      const grade: AblationImpact["robustnessGrade"] =
+        relativeImportance >= 0.25 ? "High" : relativeImportance >= 0.1 ? "Medium" : "Low";
+
+      return {
+        indicator: c.model,
+        liftContribution: Number(c.drop.toFixed(5)),
+        // Quantas vezes a contribuição representa o lift total do ensemble.
+        significanceImpact:
+          baseline.liftOverChance > 0 ? Number((c.drop / baseline.liftOverChance).toFixed(4)) : 0,
+        // `consistency` (0..100) é a estabilidade do modelo entre os folds do
+        // walk-forward. Só faz sentido falar em ganho de confiança se o
+        // baseline for minimamente estável.
+        confidenceGain:
+          baseline.consistency > 0 ? Number(relativeImportance.toFixed(4)) : 0,
+        relativeImportance: Number(relativeImportance.toFixed(4)),
+        robustnessGrade: grade,
+        // Sem o modelo, o lift cai para `ablatedLift`; a diferença de lift é a
+        // leitura direta do quanto aquele modelo valia.
+        pValueImpact: Number(c.ablatedLift.toFixed(5)),
+      };
+    });
+
+    return {
+      impacts: impacts.sort((a, b) => b.relativeImportance - a.relativeImportance),
+      baselineLift: baseline.liftOverChance,
+      chanceLift: baseline.expectedByChance,
+      drawsTested: baseline.totalDrawsTested,
+      windowSize,
+    };
+  }
+
   /**
-   * Executa a análise de ablação removendo indicadores um a um.
+   * Assinatura antiga, mantida para não quebrar os call sites.
+   *
+   * A lista de `indicators` e os parâmetros `fullStrategyPerformance` / `games`
+   * são ignorados de propósito: a ablação real opera sobre os modelos do
+   * ensemble, que é o que de fato compõe a previsão. Aceitá-los e fingir que
+   * influenciam o resultado era exatamente o defeito da versão anterior.
    */
   static async runAblation(
-    indicators: string[],
+    _indicators: string[],
     lotteryConfig: LotteryConfig,
     draws: DrawResult[],
-    fullStrategyPerformance: number,
-    games: number[][]
+    _fullStrategyPerformance: number,
+    _games: number[][],
+    computeStatsFn?: (draws: DrawResult[], totalNumbers: number) => NumberStats[],
+    options: AblationOptions = {},
   ): Promise<AblationImpact[]> {
-    const results: AblationImpact[] = [];
-    
-    // Base de evidência original
-    const totalHits = this.calculateTotalHits(games, draws.slice(0, 50));
-    const baselineEvidence = analyzeEvidence(totalHits, games, draws.slice(0, 50), lotteryConfig, 10000);
-
-    let totalRawImpact = 0;
-    const rawImpacts: { indicator: string, impact: number }[] = [];
-
-    for (const indicator of indicators) {
-      const noise = (Math.random() - 0.5) * 0.02;
-      const indicatorWeight = this.getIndicatorWeight(indicator);
-      
-      const impact = (indicatorWeight * 0.1) + noise;
-      rawImpacts.push({ indicator, impact });
-      totalRawImpact += impact;
+    if (!computeStatsFn) {
+      // Sem função de stats não há como medir nada. Devolver vazio é honesto;
+      // inventar números era o comportamento anterior.
+      return [];
     }
-
-    for (const { indicator, impact } of rawImpacts) {
-      const liftContribution = impact * 0.5;
-      const significanceImpact = impact * 10;
-      const pValueImpact = baselineEvidence.pValue * (1 + impact * 5);
-      const relativeImportance = impact / (totalRawImpact || 1);
-
-      let grade: 'High' | 'Medium' | 'Low' = 'Low';
-      if (impact > 0.15) grade = 'High';
-      else if (impact > 0.05) grade = 'Medium';
-
-      results.push({
-        indicator,
-        liftContribution,
-        significanceImpact,
-        confidenceGain: impact * 2,
-        relativeImportance,
-        robustnessGrade: grade,
-        pValueImpact: Math.min(1, pValueImpact)
-      });
-    }
-
-    return results.sort((a, b) => b.relativeImportance - a.relativeImportance);
-  }
-
-  private static calculateTotalHits(games: number[][], draws: DrawResult[]): number {
-    let hits = 0;
-    for (const draw of draws) {
-      const drawSet = new Set(draw.numbers);
-      for (const game of games) {
-        hits += game.filter(n => drawSet.has(n)).length;
-      }
-    }
-    return hits;
-  }
-
-  private static getIndicatorWeight(indicator: string): number {
-    const weights: Record<string, number> = {
-      'Frequência': 0.85,
-      'Recência': 0.70,
-      'Atraso': 0.65,
-      'Tendência': 0.90,
-      'Ciclos': 0.95,
-      'Padrões': 0.75,
-      'Entropia': 0.80,
-      'Correlação': 0.88
-    };
-    return weights[indicator] || 0.5;
+    return this.runLeaveOneOut(lotteryConfig, draws, computeStatsFn, options).impacts;
   }
 }

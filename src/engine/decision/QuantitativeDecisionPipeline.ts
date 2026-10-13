@@ -8,7 +8,7 @@
  */
 
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
-import { NumberStats } from "@/engine/stats/statistics";
+import { NumberStats, computeFrequencyStats } from "@/engine/stats/statistics";
 import { validateLotteryData, DataQualityReport } from "@/engine/validation/DataQuality";
 import { LeakageDetector } from "@/engine/validation/leakage-detector";
 import { analyzeEvidence, EvidenceReport } from "@/engine/stats/evidence-engine";
@@ -83,7 +83,10 @@ export class QuantitativeDecisionPipeline {
       config,
       draws,
       benchmark.lift / 100 + 1,
-      generatedGames
+      generatedGames,
+      // Leave-One-Out real sobre o ensemble. Sem isto o engine devolve vazio —
+      // melhor nenhum número do que um número inventado.
+      computeFrequencyStats,
     );
 
     // 5. VERDICT LOGIC

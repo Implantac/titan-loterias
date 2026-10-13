@@ -3,7 +3,7 @@ import { PortfolioEngine, PortfolioInput, PortfolioOutput } from '../portfolio/P
 import { BenchmarkEngine, StrategyBenchmarkResult } from '../stats/benchmark-engine';
 import { AblationEngine, AblationImpact } from '../evidence/ablation-engine';
 import { DrawResult, LotteryConfig } from '@/data/lotteries';
-import { NumberStats } from '../stats/statistics';
+import { NumberStats, computeFrequencyStats } from '../stats/statistics';
 
 /**
  * QuantMasterOrchestrator
@@ -65,7 +65,8 @@ export class QuantMasterOrchestrator {
       lotteryConfig,
       draws,
       performance,
-      games
+      games,
+      computeFrequencyStats,
     );
 
     // Integrando StressTest no audit (Phase 8)

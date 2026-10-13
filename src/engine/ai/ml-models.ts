@@ -57,7 +57,7 @@ function normalizeAndRank(scored: MLPrediction[]): void {
 // BACKTESTING ENGINE — Compute real performance from historical data
 // ═══════════════════════════════════════════════════════
 
-function backtestModel(
+export function backtestModel(
   modelFn: (stats: NumberStats[], config: LotteryConfig) => ModelResult,
   sortedDraws: DrawResult[], // Must be sorted ASC
   config: LotteryConfig,
@@ -384,17 +384,25 @@ export function runMultiDimensionalPatternScore(stats: NumberStats[], config: Lo
 
 // ═══════════════════════════════════════════════════════
 
-export function runEnsembleVoting(stats: NumberStats[], config: LotteryConfig, modelWeights?: Record<string, number>): ModelResult {
-  const defaultWeights: Record<string, number> = {
-    "FrequencyTrendScore": 0.18,
-    "MultiFactorScore": 0.22,
-    "TemporalPatternScore": 0.18,
-    "BayesianScore": 0.12,
-    "TransitionScore": 0.08,
-    "MultiDimensionalPatternScore": 0.22,
-  };
+/**
+ * Pesos do ensemble. Exportados porque o estudo de ablação precisa zerar um
+ * modelo de cada vez — antes viviam inline aqui dentro e não havia como
+ * referenciá-los de fora sem duplicar a tabela.
+ */
+export const ENSEMBLE_WEIGHTS: Record<string, number> = {
+  "FrequencyTrendScore": 0.18,
+  "MultiFactorScore": 0.22,
+  "TemporalPatternScore": 0.18,
+  "BayesianScore": 0.12,
+  "TransitionScore": 0.08,
+  "MultiDimensionalPatternScore": 0.22,
+};
 
-  const weights = modelWeights || defaultWeights;
+/** Nomes dos modelos do ensemble, na ordem em que são combinados. */
+export const ENSEMBLE_MODELS = Object.keys(ENSEMBLE_WEIGHTS);
+
+export function runEnsembleVoting(stats: NumberStats[], config: LotteryConfig, modelWeights?: Record<string, number>): ModelResult {
+  const weights = modelWeights || ENSEMBLE_WEIGHTS;
 
   const models = [
     { result: runFrequencyTrendScore(stats, config), name: "FrequencyTrendScore" },
