@@ -414,3 +414,76 @@ export function generateByStrategy(
       return generateSmartBet(stats, pick);
   }
 }
+
+// =============================================================================
+// Redução de divisão de prêmio
+// -----------------------------------------------------------------------------
+// Nada aqui aumenta a probabilidade de acertar — sorteio é aleatório e isso foi
+// medido (23 estratégias, 300 concursos reais, todas em ±1,6% do acaso).
+//
+// O que existe é outra alavanca: o prêmio da faixa principal é dividido entre
+// todos os acertadores. Jogos que muita gente joga pagam menos quando ganham.
+// Este módulo penaliza esses padrões. Em Lotofácil (1-25) TODAS as dezenas
+// cabem em 1-31, então o clássico "evitar data de aniversário" não se aplica;
+// o que pesa são padrões estruturais que humanos repetem.
+// =============================================================================
+
+/** Quantos dos padrões populares um jogo apresenta. 0 = nenhum. */
+export function countPopularPatterns(bet: number[], lastDraw?: number[]): number {
+  const s = [...bet].sort((a, b) => a - b);
+  let flags = 0;
+
+  // 1. Sequência longa consecutiva (1,2,3,4,5... ou 21..25) — o padrão mais jogado
+  let run = 1;
+  for (let i = 1; i < s.length; i++) {
+    run = s[i] === s[i - 1] + 1 ? run + 1 : 1;
+    if (run >= 5) { flags++; break; }
+  }
+
+  // 2. Progressão aritmética de passo fixo (2,4,6... / 5,10,15...)
+  const diffs = new Set(s.slice(1).map((n, i) => n - s[i]));
+  if (diffs.size <= 2) flags++;
+
+  // 3. Concentração extrema em uma metade (<=5 ou >=10 dezenas num lado)
+  const low = s.filter((n) => n <= 12).length;
+  if (low <= 5 || low >= 10) flags++;
+
+  // 4. Todos múltiplos de um mesmo número (múltiplos de 5, de 3...)
+  for (const m of [3, 5]) if (s.every((n) => n % m === 0)) { flags++; break; }
+
+  // 5. Espelho do último sorteio com 12+ dezenas iguais — "repetir o anterior"
+  if (lastDraw && s.filter((n) => lastDraw.includes(n)).length >= 12) flags++;
+
+  // 6. Coluna única no volante (1,6,11,16,21 ou 5,10,15,20,25)
+  for (const start of [1, 2, 3, 4, 5]) {
+    const col = Array.from({ length: 5 }, (_, i) => start + i * 5);
+    if (col.every((n) => s.includes(n))) { flags++; break; }
+  }
+
+  return flags;
+}
+
+/**
+ * Rejeita jogos com padrões populares demais e sorteia de novo.
+ * Não muda a chance de acertar; muda o quanto o prêmio tende a ser dividido.
+ */
+export function generateWithSplitAvoidance(
+  strategy: Strategy,
+  stats: NumberStats[],
+  config: LotteryConfig,
+  options: { seed?: number; maxAttempts?: number; maxFlags?: number; lastDraw?: number[] } = {}
+): { bet: number[]; attempts: number; flags: number; fellBack: boolean } {
+  const maxAttempts = options.maxAttempts ?? 12;
+  const maxFlags = options.maxFlags ?? 0;
+  const base = options.seed ?? 0;
+  let bet = generateByStrategy(strategy, stats, config, undefined, { seed: base + 1 });
+  let flags = countPopularPatterns(bet, options.lastDraw);
+
+  for (let i = 1; i < maxAttempts && flags > maxFlags; i++) {
+    const candidate = generateByStrategy(strategy, stats, config, undefined, { seed: base + i + 1 });
+    const f = countPopularPatterns(candidate, options.lastDraw);
+    if (f < flags) { bet = candidate; flags = f; }
+  }
+
+  return { bet, attempts: maxAttempts, flags, fellBack: flags > maxFlags };
+}
