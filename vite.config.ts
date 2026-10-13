@@ -4,22 +4,15 @@ import path from "path";
 
 import { VitePWA } from "vite-plugin-pwa";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
+import { supabaseDefine } from "./supabase-env";
 
 
 // https://vitejs.dev/config/
-// Valores PÚBLICOS do backend (URL + chave publishable). Fallback para quando o
-// build de publicação roda sem `.env` (ele está no .gitignore) — sem isso o site
-// publicado quebrava com "supabaseUrl is required".
-const PUBLIC_SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://cghydrrvebnkdugdlcia.supabase.co";
-const PUBLIC_SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnaHlkcnJ2ZWJua2R1Z2RsY2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDI3NTQsImV4cCI6MjA4ODM3ODc1NH0.XJ308xFYcprD4IEdaY426mYx9JEjiGE4NnwBt6msMog";
-const PUBLIC_SUPABASE_PROJECT_ID = process.env.VITE_SUPABASE_PROJECT_ID || "cghydrrvebnkdugdlcia";
-
 export default defineConfig(({ mode }) => ({
-  define: {
-    ...(!process.env.VITE_SUPABASE_URL && { "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(PUBLIC_SUPABASE_URL) }),
-    ...(!process.env.VITE_SUPABASE_PUBLISHABLE_KEY && { "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(PUBLIC_SUPABASE_KEY) }),
-    ...(!process.env.VITE_SUPABASE_PROJECT_ID && { "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(PUBLIC_SUPABASE_PROJECT_ID) }),
-  },
+  // Fallback dos valores públicos do backend. Vive em `supabase-env.ts`, que o
+  // `vitest.config.ts` também importa — ter isso num lugar só é o que impede o
+  // build de funcionar enquanto os testes quebram.
+  define: supabaseDefine(),
   server: {
     host: "::",
     port: 8080,
