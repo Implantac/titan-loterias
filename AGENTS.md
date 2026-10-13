@@ -6,3 +6,4 @@
 - Every score shown to users exposes a breakdown of its components — results must be explainable.
 - Randomized engines accept a seed — tests and audits need reproducible output.
 - Benchmarks compare games against held-out recent draws not used to generate them, with seeded RNG (lottery + latest contest) — prevents lookahead bias and makes results reproducible.
+- vite.config.ts defines fallback public backend URL/key: the publish build runs without the gitignored .env, and without the fallback the live site crashed ("supabaseUrl is required").
