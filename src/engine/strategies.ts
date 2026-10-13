@@ -406,12 +406,12 @@ export function generateByStrategy(
     case "coreRepetition":
     case "coreSectors": {
       // Specialized Lotofacil strategies
-      return generateSmartBet(stats, pick);
+      return generateSmartBet(stats, pick, rng);
     }
 
 
     default:
-      return generateSmartBet(stats, pick);
+      return generateSmartBet(stats, pick, rng);
   }
 }
 

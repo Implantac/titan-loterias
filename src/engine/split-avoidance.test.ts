@@ -72,3 +72,17 @@ describe("generateWithSplitAvoidance", () => {
     expect(aa).toBeGreaterThan(8.6);
   });
 });
+
+describe("default: de generateByStrategy é reproduzível", () => {
+  it("estratégia desconhecida cai num caminho determinístico com seed", () => {
+    const a = generateByStrategy("nao_existe" as any, stats, cfg, undefined, { seed: 555 });
+    const b = generateByStrategy("nao_existe" as any, stats, cfg, undefined, { seed: 555 });
+    expect(a).toEqual(b);
+    expect(a).toHaveLength(15);
+  });
+  it("generateSmartBet aceita rng e reproduz", async () => {
+    const { generateSmartBet } = await import("./stats/statistics");
+    const { makeRng } = await import("./rng");
+    expect(generateSmartBet(stats, 15, makeRng(42))).toEqual(generateSmartBet(stats, 15, makeRng(42)));
+  });
+});

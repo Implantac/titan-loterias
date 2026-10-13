@@ -1,4 +1,5 @@
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
+import { makeRng } from '../rng';
 
 export interface NumberStats {
   number: number;
@@ -147,7 +148,7 @@ export function computeSumDistribution(draws: DrawResult[]): { concurso: number;
   }));
 }
 
-export function generateSmartBet(stats: NumberStats[], pick: number): number[] {
+export function generateSmartBet(stats: NumberStats[], pick: number, rng: () => number = Math.random): number[] {
   const weighted = stats.map(s => ({
     number: s.number,
     weight:
@@ -162,7 +163,7 @@ export function generateSmartBet(stats: NumberStats[], pick: number): number[] {
 
   while (selected.length < pick && pool.length > 0) {
     const totalWeight = pool.reduce((a, b) => a + b.weight, 0);
-    let r = Math.random() * totalWeight;
+    let r = rng() * totalWeight;
     for (let i = 0; i < pool.length; i++) {
       r -= pool[i].weight;
       if (r <= 0) {
