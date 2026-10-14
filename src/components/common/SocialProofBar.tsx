@@ -3,32 +3,36 @@ import { Users, TrendingUp, ShieldCheck, Zap } from "lucide-react";
 
 export function SocialProofBar() {
   const socialItems = [
-    { icon: Users, label: "Acesso Seguro", detail: "Individual e Criptografado" },
-    { icon: TrendingUp, label: "Histórico Oficial", detail: "Resultados da Caixa" },
-    { icon: ShieldCheck, label: "Rigor Estatístico", detail: "Matemática Aplicada" },
-    { icon: Zap, label: "Módulo de Bolão", detail: "Rateio e WhatsApp" },
+    { icon: TrendingUp, label: "Resultados Oficiais", detail: "Sincronização direta Caixa" },
+    { icon: ShieldCheck, label: "Garantia Comprovada", detail: "Matrizes com cálculo exaustivo" },
+    { icon: Users, label: "Módulo de Bolão", detail: "Rateio e exportação WhatsApp" },
+    { icon: Zap, label: "Acesso Vitalício", detail: "Pagamento único sem mensalidade" },
   ];
 
   return (
-    <div className="py-12 border-b border-white/5 bg-black/20 overflow-hidden relative">
+    <div className="py-6 sm:py-8 border-b border-border/40 bg-card/30 overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
       <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {socialItems.map((item, i) => (
             <motion.div 
               key={i} 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="flex items-center gap-4 group"
+              transition={{ delay: i * 0.05 }}
+              className="flex items-center gap-3 group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-primary/40 group-hover:bg-primary/5 transition-all duration-500 shadow-inner">
-                <item.icon className="w-5 h-5 text-primary/70 group-hover:text-primary group-hover:scale-110 transition-all" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary/20 group-hover:scale-105 transition-all shrink-0">
+                <item.icon className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-foreground italic leading-none mb-1.5">{item.label}</p>
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground opacity-50 italic">{item.detail}</p>
+                <p className="text-xs sm:text-sm font-semibold text-foreground leading-snug">
+                  {item.label}
+                </p>
+                <p className="text-[11px] sm:text-xs text-muted-foreground">
+                  {item.detail}
+                </p>
               </div>
             </motion.div>
           ))}

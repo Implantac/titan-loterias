@@ -44,7 +44,7 @@ export default function BolaoPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { config: activeConfig, stats, draws } = useLotteryContext();
-  const { saveBet, bets: savedBetsList, remaining, isAtLimit } = useSavedBets(activeConfig.id);
+  const { saveBet, savedBets: savedBetsList, remaining, isAtLimit } = useSavedBets(activeConfig.id);
 
   // State from location or default
   const locationState = location.state as {
@@ -63,7 +63,7 @@ export default function BolaoPage() {
 
   // Creation mode
   const [creationMode, setCreationMode] = useState<"closing" | "split_avoidance" | "saved">("closing");
-  const [selectedMatrixId, setSelectedMatrixId] = useState<WheelingMatrixId | "">("lf_18_15_14_24");
+  const [selectedMatrixId, setSelectedMatrixId] = useState<WheelingMatrixId | "">("lotofacil_18_14");
   const [quickGameCount, setQuickGameCount] = useState<number>(10);
 
   // Participants

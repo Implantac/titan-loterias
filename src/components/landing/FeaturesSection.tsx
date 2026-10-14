@@ -1,6 +1,5 @@
 import { motion, MotionValue } from "framer-motion";
-import { useTranslation } from "react-i18next";
-import { Layers, Sparkles, Clipboard, BarChart3, Box, MessageSquare, Users } from "lucide-react";
+import { Layers, Sparkles, BarChart3, Box, Users, ShieldCheck } from "lucide-react";
 
 interface FeaturesSectionProps {
   featuresRef: React.RefObject<HTMLDivElement>;
@@ -8,86 +7,94 @@ interface FeaturesSectionProps {
   fadeUp: any;
 }
 
-const colorMap = {
-  green: "hover:border-primary/50 group-hover:shadow-primary/10",
-  blue: "hover:border-neon-blue/50 group-hover:shadow-neon-blue/10",
-  amber: "hover:border-accent/50 group-hover:shadow-accent/10",
-  red: "hover:border-neon-red/50 group-hover:shadow-neon-red/10",
-  purple: "hover:border-neon-purple/50 group-hover:shadow-neon-purple/10",
-  cyan: "hover:border-neon-cyan/50 group-hover:shadow-neon-cyan/10",
-};
-
-export function FeaturesSection({ featuresRef, featuresRotateX, fadeUp }: FeaturesSectionProps) {
-  const { t } = useTranslation();
-
+export function FeaturesSection({ featuresRef, fadeUp }: FeaturesSectionProps) {
   const features = [
     {
       icon: Layers,
       title: "Análise Histórica Avançada",
-      description: "Processamos o histórico oficial completo para mapear frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões.",
-      color: "green" as const,
+      description: "Processamento do histórico oficial completo para mapear frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões.",
+      tag: "Estatística Histórica",
     },
     {
       icon: Sparkles,
       title: "Motor Heurístico & Estatístico",
-      description: "Modelos multi-fatoriais, análise de tendências e ciclos estatísticos para fundamentar decisões com dados empíricos reais.",
-      color: "blue" as const,
+      description: "Modelos multi-fatoriais, análise de tendências e ciclos empíricos para fundamentar decisões com dados reais, sem promessas místicas.",
+      tag: "Modelos Preditivos",
     },
     {
       icon: Users,
       title: "Módulo de Bolão Colaborativo",
-      description: "Divisão automática em cotas, cálculo de rateio justo por participante, relatórios individuais e envio direto no WhatsApp.",
-      color: "amber" as const,
+      description: "Divisão automática em cotas, cálculo de rateio justo por participante, relatórios individuais e envio direto e formatado via WhatsApp.",
+      tag: "Gestão & Rateio",
     },
     {
       icon: Box,
       title: "Fechamentos & Cobertura",
-      description: "Matrizes combinatórias com verificação matemática exaustiva da garantia — saiba exatamente o menor acerto entregue em cada cenário.",
-      color: "purple" as const,
+      description: "Matrizes combinatórias com verificação matemática exaustiva da garantia — saiba exatamente o menor acerto entregue em qualquer cenário sorteado.",
+      tag: "Garantia Comprovada",
     },
     {
       icon: BarChart3,
       title: "Simulador de Performance & ROI",
-      description: "Teste suas estratégias contra centenas de concursos passados e descubra o retorno teórico real antes de realizar as apostas.",
-      color: "red" as const,
+      description: "Teste suas estratégias contra centenas de concursos passados e descubra a distribuição de prêmios e o retorno teórico antes de apostar.",
+      tag: "Backtest Realista",
     },
     {
-      icon: MessageSquare,
-      title: "Sincronização & Integridade Oficial",
-      description: "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação contínua de lacunas, duplicados e integridade dos dados.",
-      color: "cyan" as const,
+      icon: ShieldCheck,
+      title: "Sincronização & Integridade",
+      description: "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação contínua de lacunas, duplicados e integridade na base.",
+      tag: "Dados Oficiais Caixa",
     },
   ];
 
   return (
-    <section ref={featuresRef} className="py-24 md:py-48 relative overflow-hidden bg-background" style={{ perspective: "1500px" }}>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(201,168,76,0.12),transparent_70%)] pointer-events-none" />
-      <motion.div style={{ rotateX: featuresRotateX }} className="container mx-auto px-6 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-32 space-y-8">
-          <div className="inline-flex items-center px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em] bg-primary/10 text-primary border border-primary/20 italic">
-            Tecnologia de Elite
+    <section ref={featuresRef} className="py-16 md:py-24 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(201,168,76,0.06),transparent_70%)] pointer-events-none" />
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4">
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+            Recursos da Plataforma
           </div>
-          <h2 className="text-3xl md:text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-[1] drop-shadow-2xl text-white">
-            CENTRO DE <span className="gradient-brand-text drop-shadow-[0_0_20px_rgba(201,168,76,0.3)]">INTELIGÊNCIA</span> TITAN
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+            Centro de <span className="gradient-brand-text">Inteligência</span> Titan
           </h2>
-          <p className="text-muted-foreground max-w-3xl mx-auto font-medium text-xl opacity-70 italic leading-relaxed px-4">
-            Muito além de um gerador de números: uma plataforma completa de inteligência estatística aplicada às loterias brasileiras.
+          <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
+            Muito além de um gerador de números: uma plataforma completa de inteligência estatística e combinatória aplicada às loterias brasileiras.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {features.map((f, i) => (
-            <motion.div key={f.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} whileHover={{ y: -16, scale: 1.02 }} className={`relative rounded-[2.5rem] glass-card border-white/5 p-12 transition-all duration-700 hover:shadow-premium-hover ${colorMap[f.color]} group overflow-hidden shadow-premium`}>
-              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
-              <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-gold-glow transition-all duration-500 relative z-10 shadow-inner">
-                <f.icon className="w-10 h-10 text-primary group-hover:rotate-6 transition-transform duration-500" />
+            <motion.div 
+              key={f.title} 
+              custom={i} 
+              initial={{ opacity: 0, y: 20 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true }} 
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -4 }} 
+              className="relative rounded-2xl glass-card border border-white/5 hover:border-primary/40 p-6 sm:p-7 transition-all duration-300 group overflow-hidden flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:scale-105 group-hover:bg-primary/20 transition-all text-primary">
+                  <f.icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2.5 leading-snug group-hover:text-primary transition-colors">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed font-normal">
+                  {f.description}
+                </p>
               </div>
-              <h3 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight italic mb-6 leading-none">{f.title}</h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-medium opacity-80 italic">{f.description}</p>
+
+              <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                <span className="text-muted-foreground font-medium">{f.tag}</span>
+                <span className="font-mono text-primary text-[11px] font-semibold">Titan Core</span>
+              </div>
             </motion.div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

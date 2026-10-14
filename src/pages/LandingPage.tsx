@@ -121,45 +121,76 @@ export default function LandingPage() {
         fadeUp={fadeUp}
       />
 
-      <section className="py-32 md:py-64 border-y border-white/5 bg-black/40 relative overflow-hidden">
+      {/* Stats Section */}
+      <section className="py-16 md:py-24 border-y border-border/40 bg-card/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10">
-          <div className="flex flex-col items-center mb-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] bg-primary/10 text-primary border border-primary/20 mb-8 italic drop-shadow-md"
+              className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20"
             >
-              Análise estatística completa
+              Rigor e Transparência dos Dados
             </motion.div>
-            <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+              Estatística Séria, <span className="gradient-brand-text">Sem Promessas Falsas</span>
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Infraestrutura orientada a dados históricos para apostadores e organizadores de bolão.
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-12 mb-32">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
             {[
-              { label: "Loterias Suportadas", value: String(LOTTERIES.length).padStart(2, "0") },
-              { label: "Fonte dos Resultados", value: "API Caixa" },
-              { label: "Verificação de Dados", value: "Lacunas e duplicados" },
-              { label: "Score", value: "Explicado" },
+              { 
+                value: String(LOTTERIES.length).padStart(2, "0"), 
+                label: "Loterias Suportadas", 
+                detail: "Modalidades ativas da Caixa" 
+              },
+              { 
+                value: "API Caixa", 
+                label: "Fonte dos Resultados", 
+                detail: "Sincronização oficial em tempo real" 
+              },
+              { 
+                value: "100%", 
+                label: "Integridade de Base", 
+                detail: "Zero lacunas ou duplicados" 
+              },
+              { 
+                value: "Auditável", 
+                label: "Metodologia & Scores", 
+                detail: "Modelos com cálculo transparente" 
+              },
             ].map((stat, i) => (
               <motion.div 
                 key={i} 
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center p-10 rounded-[3rem] glass-card border-white/5 group hover:border-primary/40 transition-all duration-500 shadow-premium hover:shadow-premium-hover relative overflow-hidden"
+                transition={{ delay: i * 0.08 }}
+                className="text-left p-5 sm:p-6 rounded-2xl glass-card border border-white/5 hover:border-primary/40 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between"
               >
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <p className="text-4xl md:text-6xl font-black tracking-tighter italic gradient-brand-text mb-4 drop-shadow-2xl relative z-10">{stat.value}</p>
-                <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 italic relative z-10">{stat.label}</p>
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative z-10">
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight font-mono gradient-brand-text mb-2">
+                    {stat.value}
+                  </p>
+                  <p className="text-xs sm:text-sm font-semibold text-foreground mb-1 leading-snug">
+                    {stat.label}
+                  </p>
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground relative z-10 mt-2">
+                  {stat.detail}
+                </p>
               </motion.div>
             ))}
           </div>
 
           <Suspense fallback={<SectionFallback />}>
-            <div className="py-12 border-t border-white/5">
+            <div className="pt-8 border-t border-white/5">
               <LotteryLogosCarousel />
             </div>
           </Suspense>
@@ -182,23 +213,24 @@ export default function LandingPage() {
         <ScreensShowcase />
       </Suspense>
 
-      <section className="py-32 md:py-64 relative overflow-hidden bg-background">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[140vw] h-[800px] bg-primary/10 rounded-full blur-[140px] opacity-20 pointer-events-none" />
+      {/* Command Center Section */}
+      <section className="py-16 md:py-24 relative overflow-hidden bg-background">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vw] h-[600px] bg-primary/10 rounded-full blur-[140px] opacity-20 pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-32">
-            <div className="inline-flex items-center px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.4em] bg-primary/10 text-primary border border-primary/20 mb-8 italic drop-shadow-md">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
               Sincronização em Tempo Real
             </div>
-            <h2 className="text-3xl md:text-6xl font-black tracking-tighter uppercase italic leading-[1] mb-10 drop-shadow-2xl text-white">
-              Central <span className="gradient-brand-text drop-shadow-[0_0_20px_rgba(201,168,76,0.3)]">de Análise Titan</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
+              Central <span className="gradient-brand-text">de Análise Titan</span>
             </h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto font-medium text-xl opacity-70 italic leading-relaxed px-4">
-              Acompanhe em tempo real o processamento dos concursos oficiais e a detecção de padrões estatísticos pela nossa inteligência de elite.
+            <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
+              Acompanhe em tempo real o processamento dos concursos oficiais e o cálculo de indicadores estatísticos pelo motor Titan.
             </p>
           </div>
           <div className="max-w-6xl mx-auto">
             <Suspense fallback={<SectionFallback />}>
-              <div className="shadow-2xl shadow-primary/10 rounded-[3rem]">
+              <div className="shadow-2xl shadow-primary/10 rounded-2xl">
                 <TitanCommandCenter />
               </div>
             </Suspense>
@@ -217,54 +249,55 @@ export default function LandingPage() {
       <Suspense fallback={<SectionFallback />}>
         <PricingSection />
       </Suspense>
+
       <Suspense fallback={<SectionFallback />}>
         <FAQSection />
       </Suspense>
 
-      <footer className="py-24 border-t border-white/5 bg-black/60 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-20" />
+      <footer className="py-16 border-t border-white/5 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-20 pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10">
-          <div className="grid md:grid-cols-4 gap-16 mb-24">
-            <div className="col-span-2 space-y-8">
-              <div className="flex items-center gap-4 group">
-                <img src="/logo.png" alt="Titan Loterias" className="w-12 h-12 grayscale opacity-50" loading="lazy" decoding="async" />
-                <span className="text-2xl font-black uppercase tracking-tighter italic leading-none">
-                  Titan<span className="text-primary/70">Loterias</span>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 mb-12">
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-3 group">
+                <img src="/logo.png" alt="Titan Loterias" className="w-9 h-9 object-contain opacity-80" loading="lazy" decoding="async" />
+                <span className="text-xl font-bold tracking-tight text-white">
+                  Titan<span className="text-primary">Loterias</span>
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground max-w-sm leading-relaxed font-medium">
-                Plataforma brasileira de inteligência estatística e IA aplicada às loterias oficiais. Analise, simule e monte apostas com base em dados — nunca no achismo.
+              <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                Plataforma de inteligência estatística e combinatória aplicada às loterias oficiais da Caixa. Analise, simule e monte apostas com base em dados empíricos.
               </p>
             </div>
             <div>
-              <h4 className="font-black uppercase tracking-[0.3em] text-[10px] text-primary mb-8 italic">Plataforma</h4>
-              <ul className="space-y-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                <li><Link to="/gerador" onMouseEnter={() => prefetchRoute("/gerador")} onFocus={() => prefetchRoute("/gerador")} onTouchStart={() => prefetchRoute("/gerador")} className="hover:text-primary transition-colors">Gerador de Apostas</Link></li>
-                <li><Link to="/fechamentos" onMouseEnter={() => prefetchRoute("/fechamentos")} onFocus={() => prefetchRoute("/fechamentos")} onTouchStart={() => prefetchRoute("/fechamentos")} className="hover:text-primary transition-colors">Fechamentos Matemáticos</Link></li>
-                <li><Link to="/bolao" onMouseEnter={() => prefetchRoute("/bolao")} onFocus={() => prefetchRoute("/bolao")} onTouchStart={() => prefetchRoute("/bolao")} className="hover:text-primary transition-colors">Módulo de Bolão</Link></li>
-                <li><Link to="/analise" onMouseEnter={() => prefetchRoute("/analise")} onFocus={() => prefetchRoute("/analise")} onTouchStart={() => prefetchRoute("/analise")} className="hover:text-primary transition-colors">Central de Análise</Link></li>
-                <li><Link to="/planos" onMouseEnter={() => prefetchRoute("/planos")} onFocus={() => prefetchRoute("/planos")} onTouchStart={() => prefetchRoute("/planos")} className="hover:text-primary transition-colors">Planos</Link></li>
+              <h4 className="font-semibold text-xs text-primary uppercase tracking-wider mb-4">Plataforma</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <li><Link to="/gerador" onMouseEnter={() => prefetchRoute("/gerador")} className="hover:text-foreground transition-colors">Gerador de Apostas</Link></li>
+                <li><Link to="/fechamentos" onMouseEnter={() => prefetchRoute("/fechamentos")} className="hover:text-foreground transition-colors">Fechamentos Matemáticos</Link></li>
+                <li><Link to="/bolao" onMouseEnter={() => prefetchRoute("/bolao")} className="hover:text-foreground transition-colors">Módulo de Bolão</Link></li>
+                <li><Link to="/analise" onMouseEnter={() => prefetchRoute("/analise")} className="hover:text-foreground transition-colors">Central de Análise</Link></li>
+                <li><Link to="/planos" onMouseEnter={() => prefetchRoute("/planos")} className="hover:text-foreground transition-colors">Planos</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-black uppercase tracking-[0.3em] text-[10px] text-primary mb-8 italic">Empresa</h4>
-              <ul className="space-y-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                <li><Link to="/sobre" className="hover:text-primary transition-colors">Sobre Nós</Link></li>
-                <li><Link to="/seguranca" className="hover:text-primary transition-colors">Segurança</Link></li>
-                <li><Link to="/termos" className="hover:text-primary transition-colors">Termos</Link></li>
-                <li><Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link></li>
-                <li><Link to="/suporte" className="hover:text-primary transition-colors">Contato</Link></li>
+              <h4 className="font-semibold text-xs text-primary uppercase tracking-wider mb-4">Institucional</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <li><Link to="/sobre" className="hover:text-foreground transition-colors">Sobre Nós</Link></li>
+                <li><Link to="/seguranca" className="hover:text-foreground transition-colors">Segurança</Link></li>
+                <li><Link to="/termos" className="hover:text-foreground transition-colors">Termos de Uso</Link></li>
+                <li><Link to="/privacidade" className="hover:text-foreground transition-colors">Privacidade</Link></li>
+                <li><Link to="/suporte" className="hover:text-foreground transition-colors">Suporte</Link></li>
               </ul>
             </div>
           </div>
-          <div className="mb-12">
+          <div className="mb-8">
             <ComplianceDisclaimer />
           </div>
-          <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-            <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.4em]">
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-muted-foreground/60">
               © {new Date().getFullYear()} Titan Loterias. Todos os direitos reservados.
             </p>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4">
               {deferredReady && (
                 <Suspense fallback={null}>
                   <WhatsAppButton />

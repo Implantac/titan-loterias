@@ -20,7 +20,7 @@ interface Props {
   onSaveBet?: (numbers: number[], strategy?: string, score?: number, grade?: string) => void;
 }
 
-const ICON_MAP: Record<Strategy, any> = {
+const ICON_MAP: Record<string, any> = {
   smart: Sparkles, hot: Flame, cold: Snowflake, balanced: Shuffle,
   trend: TrendingUp, fibonacci: Sigma, primes: Hash, golden: Ratio,
   sectors: Grid3X3, lowDelay: Clock, pattern: BarChart3, cycle: Repeat,
@@ -28,7 +28,9 @@ const ICON_MAP: Record<Strategy, any> = {
   bayesian: Microscope, markov_model: Activity, quantum: Cpu,
   lstm: Network, xgboost: Database, randomForest: Binary,
   repetition: RefreshCw, coreRepetition: RefreshCw, coreSectors: Grid3X3,
-  markov: Activity, poisson: Sigma, cluster: LayoutGrid, expert: Globe
+  markov: Activity, poisson: Sigma, cluster: LayoutGrid, expert: Globe,
+  frequencyTrend: TrendingUp, multiFactor: Layers, temporalPattern: Clock,
+  bayesianScore: Microscope, transitionScore: Activity, multiDimensionalPattern: Database
 };
 
 
