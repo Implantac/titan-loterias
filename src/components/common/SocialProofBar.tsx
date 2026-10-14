@@ -3,10 +3,10 @@ import { Users, TrendingUp, ShieldCheck, Zap } from "lucide-react";
 
 export function SocialProofBar() {
   const socialItems = [
-    { icon: Users, label: "Acesso por Conta", detail: "Criada pelo administrador" },
+    { icon: Users, label: "Acesso Seguro", detail: "Individual e Criptografado" },
     { icon: TrendingUp, label: "Histórico Oficial", detail: "Resultados da Caixa" },
     { icon: ShieldCheck, label: "Rigor Estatístico", detail: "Matemática Aplicada" },
-    { icon: Zap, label: "Análise Estatística", detail: "Dados oficiais" },
+    { icon: Zap, label: "Módulo de Bolão", detail: "Rateio e WhatsApp" },
   ];
 
   return (

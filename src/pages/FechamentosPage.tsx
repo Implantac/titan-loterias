@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PlanGate } from "@/components/PlanGate";
@@ -16,7 +17,7 @@ import {
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { 
   Grid3X3, Layers, Target, ChevronRight, ChevronLeft, 
-  CheckCircle2, Hash, Shield, Coins, Brain, Play, Save, Download, Loader2
+  CheckCircle2, Hash, Shield, Coins, Brain, Play, Save, Download, Loader2, Users, AlertTriangle
 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import { useSavedBets } from "@/hooks/useSavedBets";
@@ -24,6 +25,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DrawTestDialog } from "@/components/lottery/DrawTestDialog";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Preços oficiais Caixa (fonte única em betting-budget)
 const BET_PRICES: Record<string, number> = LOTTERY_BET_COST;
@@ -34,6 +37,7 @@ const MATRIX_LIST = Object.entries(WHEELING_MATRICES).map(([id, m]) => ({
 }));
 
 const FechamentosPage = () => {
+  const navigate = useNavigate();
   const { config, stats } = useLotteryContext();
   const { saveBet } = useSavedBets(config.id);
   
@@ -46,6 +50,11 @@ const FechamentosPage = () => {
   const availableMatrices = config.id === 'lotofacil' ? MATRIX_LIST.filter((m) => m.lottery === 'lotofacil') : [];
   const currentMatrix = selectedMatrix ? WHEELING_MATRICES[selectedMatrix] : null;
   const betPrice = BET_PRICES[config.id] || 3.0;
+
+  const matrixValidation = useMemo(() => {
+    if (!selectedMatrix) return null;
+    return validateMatrix(selectedMatrix);
+  }, [selectedMatrix]);
 
   const toggleNumber = (n: number) => {
     setBaseNumbers((prev) =>
@@ -66,6 +75,60 @@ const FechamentosPage = () => {
       }
       setGenerating(false);
     }, 1000);
+  };
+
+  const handleOpenBolao = () => {
+    if (!generatedGames || !currentMatrix) return;
+    navigate("/bolao", {
+      state: {
+        lotteryId: config.id,
+        games: generatedGames,
+        title: `Bolão — ${currentMatrix.name}`,
+        source: "fechamentos",
+      },
+    });
+  };
+
+  const downloadPDF = () => {
+    if (!generatedGames || !currentMatrix || !matrixValidation) {
+      toast.error("Nenhum fechamento pronto para exportar.");
+      return;
+    }
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const w = doc.internal.pageSize.getWidth();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text(`Fechamento Matemático — ${config.name}`, 40, 50);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(90);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const info = [
+      `Matriz: ${currentMatrix.name}`,
+      `Jogos gerados: ${generatedGames.length}   Custo total: ${formatCurrency(generatedGames.length * betPrice)}`,
+      `Garantia declarada: ${currentMatrix.guarantee} acertos na base de ${currentMatrix.baseSize} dezenas`,
+      matrixValidation.exhaustive
+        ? `Validacao: EXAUSTIVA (${formatNumber(matrixValidation.totalDraws)} cenarios combinatorios enumerados — PROVA MATEMATICA)`
+        : `Validacao: AMOSTRAL (${formatNumber(matrixValidation.totalDraws)} cenarios simulados — ESTIMATIVA)`,
+      `Menor acerto garantido comprovado: ${matrixValidation.worstCaseHits} acertos`,
+      `Taxa de cumprimento da meta: ${matrixValidation.coveragePercent}%`,
+      `Gerado em ${new Date().toLocaleString("pt-BR")}`,
+    ];
+    info.forEach((t, i) => doc.text(t, 40, 70 + i * 14));
+    autoTable(doc, {
+      startY: 180,
+      head: [["#", ...Array.from({ length: config.pick }, (_, i) => `N${i + 1}`)]],
+      body: generatedGames.map((g, i) => [i + 1, ...g.map(pad)]),
+      styles: { font: "helvetica", fontSize: 10, halign: "center", cellPadding: 4 },
+      headStyles: { fillColor: [30, 30, 40], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 250] },
+      margin: { left: 40, right: 40 },
+    });
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.text(`Titan Loterias — pagina ${doc.getNumberOfPages()}`, w - 40, doc.internal.pageSize.getHeight() - 20, { align: "right" });
+    doc.save(`fechamento-${config.id}-${currentMatrix.name}-${generatedGames.length}jogos.pdf`);
+    toast.success("PDF exportado com comprovante de garantia!");
   };
 
   const handleSaveAll = async () => {
@@ -261,21 +324,64 @@ const FechamentosPage = () => {
                   <Shield className="w-10 h-10 text-primary-foreground group-hover:rotate-12 transition-transform" />
                 </div>
                 <h3 className="text-3xl font-black uppercase tracking-tighter italic">Fechamento <span className="gradient-brand-text">Concluído</span></h3>
-                <p className="text-sm text-muted-foreground font-medium italic opacity-60">Deploy de <span className="text-foreground font-black">{generatedGames.length}</span> jogos com integridade <span className="text-primary font-black">{currentMatrix.guarantee} SYNC</span>.</p>
+                <p className="text-sm text-muted-foreground font-medium italic opacity-60">
+                  Deploy de <span className="text-foreground font-black">{generatedGames.length}</span> jogos com garantia comprovada de <span className="text-primary font-black">{currentMatrix.guarantee} acertos</span>.
+                </p>
+              </div>
+
+              {/* Status de Verificação Exaustiva vs Amostral */}
+              <div className={cn(
+                "rounded-2xl border p-4 flex flex-col sm:flex-row items-center justify-between gap-4 glass-card",
+                matrixValidation?.exhaustive ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"
+              )}>
+                <div className="flex items-center gap-3">
+                  {matrixValidation?.exhaustive ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                  )}
+                  <div>
+                    <p className={cn("font-bold text-sm", matrixValidation?.exhaustive ? "text-emerald-400" : "text-amber-400")}>
+                      {matrixValidation?.exhaustive 
+                        ? "Garantia Matematicamente Provada (Verificação Exaustiva)" 
+                        : "Garantia Estimada por Amostragem"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {matrixValidation?.exhaustive
+                        ? `Todos os ${formatNumber(matrixValidation?.totalDraws ?? 0)} cenários combinatórios possíveis foram enumerados e testados. Menor acerto entregue em qualquer cenário: ${matrixValidation?.worstCaseHits} acertos.`
+                        : `${formatNumber(matrixValidation?.totalDraws ?? 0)} cenários simulados via Monte Carlo. Menor acerto verificado: ${matrixValidation?.worstCaseHits} acertos.`}
+                    </p>
+                  </div>
+                </div>
+                <Badge 
+                  variant={matrixValidation?.exhaustive ? "default" : "outline"} 
+                  className={cn("shrink-0 font-mono text-xs uppercase px-3 py-1 font-bold", matrixValidation?.exhaustive ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "border-amber-500 text-amber-400")}
+                >
+                  {matrixValidation?.exhaustive ? "100% EXAUSTIVO" : "AMOSTRAL (ESTIMATIVA)"}
+                </Badge>
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-accent/40 transition-colors">
-                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Investimento</p>
+                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Investimento Total</p>
                   <p className="text-3xl font-black font-mono tracking-tighter italic text-accent leading-none group-hover:scale-105 transition-transform origin-left">{formatCurrency(generatedGames.length * betPrice)}</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">{formatCurrency(betPrice)} por jogo oficial</p>
                 </div>
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-primary/40 transition-colors">
-                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Cobertura Alpha</p>
-                  <p className="text-3xl font-black font-mono tracking-tighter italic text-primary leading-none group-hover:scale-105 transition-transform origin-left">92.4%</p>
+                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Cobertura Combinatória</p>
+                  <p className="text-3xl font-black font-mono tracking-tighter italic text-primary leading-none group-hover:scale-105 transition-transform origin-left">
+                    {matrixValidation ? matrixValidation.coveragePercent.toFixed(1) : "100"}%
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    {matrixValidation?.exhaustive ? `${formatNumber(matrixValidation.totalDraws)} cenários testados` : "amostragem estocástica"}
+                  </p>
                 </div>
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-foreground/20 transition-colors">
-                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Dataset Grade</p>
-                  <p className="text-3xl font-black font-mono tracking-tighter italic text-foreground leading-none group-hover:scale-105 transition-transform origin-left">{currentMatrix.guarantee}+ SYNC</p>
+                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Garantia Comprovada</p>
+                  <p className="text-3xl font-black font-mono tracking-tighter italic text-foreground leading-none group-hover:scale-105 transition-transform origin-left">
+                    {matrixValidation?.worstCaseHits ?? currentMatrix.guarantee} acertos
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono">Meta mínima: {currentMatrix.guarantee} acertos</p>
                 </div>
               </div>
 
@@ -298,14 +404,17 @@ const FechamentosPage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-10 border-t border-white/5">
-                <Button size="lg" className="rounded-[1.25rem] px-12 h-16 text-sm font-black gap-3 shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all italic" onClick={handleSaveAll}>
-                  <Save className="w-6 h-6" /> Salvar Dataset
+                <Button size="lg" className="rounded-[1.25rem] px-8 h-16 text-sm font-black gap-3 shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all italic bg-gradient-to-r from-emerald-600 to-teal-600 text-white" onClick={handleOpenBolao}>
+                  <Users className="w-5 h-5" /> Criar Bolão com estes Jogos
                 </Button>
-                <Button variant="outline" size="lg" className="rounded-[1.25rem] px-12 h-16 text-sm font-black gap-3 border-white/10 hover:bg-white/5 italic">
-                  <Download className="w-6 h-6 text-primary" /> Exportar PDF
+                <Button size="lg" className="rounded-[1.25rem] px-8 h-16 text-sm font-black gap-3 shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all italic" onClick={handleSaveAll}>
+                  <Save className="w-5 h-5" /> Salvar em Meus Jogos
                 </Button>
-                <Button variant="ghost" size="lg" className="rounded-[1.25rem] px-12 h-16 text-sm font-black opacity-40 hover:opacity-100 italic transition-opacity" onClick={() => setStep(1)}>
-                  Novo Deploy
+                <Button variant="outline" size="lg" className="rounded-[1.25rem] px-8 h-16 text-sm font-black gap-3 border-white/10 hover:bg-white/5 italic" onClick={downloadPDF}>
+                  <Download className="w-5 h-5 text-primary" /> Exportar PDF (com Garantia)
+                </Button>
+                <Button variant="ghost" size="lg" className="rounded-[1.25rem] px-6 h-16 text-sm font-black opacity-40 hover:opacity-100 italic transition-opacity" onClick={() => setStep(1)}>
+                  Novo Fechamento
                 </Button>
               </div>
             </div>

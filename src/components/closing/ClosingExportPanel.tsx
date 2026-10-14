@@ -178,6 +178,18 @@ export function ClosingExportPanel({ result }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        <div className="rounded-lg border bg-muted/20 p-2.5 text-xs flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground font-medium">Status da Garantia:</span>
+            <Badge variant="outline" className={coverage.exhaustive ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 font-mono text-[10px]" : "text-amber-400 border-amber-500/30 bg-amber-500/10 font-mono text-[10px]"}>
+              {coverage.exhaustive ? `EXAUSTIVA (${coverage.testedScenarios} cenários enumerados)` : `AMOSTRAL (${coverage.testedScenarios} cenários simulados)`}
+            </Badge>
+          </div>
+          <span className="text-[11px] text-muted-foreground font-mono">
+            Garantia real: {coverage.guaranteedHits} acertos ({coverage.meetsGoalPercent.toFixed(1)}% na meta)
+          </span>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           <Button variant="outline" size="sm" onClick={downloadPDF}>
             <FileDown className="h-4 w-4 mr-1" /> PDF

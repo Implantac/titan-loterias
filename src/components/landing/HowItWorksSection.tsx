@@ -38,28 +38,28 @@ export function HowItWorksSection() {
                   <span className="text-6xl font-black text-primary/5 group-hover:text-primary/20 transition-colors italic leading-none select-none">02</span>
                   <div className="space-y-2">
                     <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Análise Estatística</h3>
-                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">O Titan AI Core v7.5 cruza milhões de combinações em busca de padrões estatísticos e anomalias de frequência.</p>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Cruzamos o histórico consolidado de concursos para calcular métricas empíricas de frequência, atraso, gaps e ciclos.</p>
                   </div>
                 </div>
                 <div className="flex gap-8 items-start group">
                   <span className="text-6xl font-black text-primary/5 group-hover:text-primary/20 transition-colors italic leading-none select-none">03</span>
                   <div className="space-y-2">
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Detecção de Padrões</h3>
-                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Redes neurais especializadas identificam dezenas quentes, frias, ciclos de retorno e tendências emergentes.</p>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Detecção de Padrões & Cobertura</h3>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Modelos estatísticos multi-fatoriais e algoritmos de covering design calculam a melhor cobertura para seu orçamento.</p>
                   </div>
                 </div>
                 <div className="flex gap-8 items-start group">
                   <span className="text-6xl font-black text-primary/5 group-hover:text-primary/20 transition-colors italic leading-none select-none">04</span>
                   <div className="space-y-2">
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Estratégia Quantitativa</h3>
-                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Aplicamos filtros de dispersão, equilíbrio estrutural e fechamentos matemáticos para maximizar sua cobertura.</p>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Estratégia Quantitativa & Split-Avoidance</h3>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Aplicamos filtros de dispersão, paridade e penalização de padrões populares para reduzir a divisão de prêmio.</p>
                   </div>
                 </div>
                 <div className="flex gap-8 items-start group">
                   <span className="text-6xl font-black text-primary/5 group-hover:text-primary/20 transition-colors italic leading-none select-none">05</span>
                   <div className="space-y-2">
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Output Estratégico</h3>
-                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Você recebe combinações prontas com o Titan Score — decisões baseadas em evidências, não em palpite.</p>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tight group-hover:text-primary transition-colors">Deploy Individual ou Bolão</h3>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed italic opacity-80 font-medium">Receba jogos com garantias matemáticas comprovadas, prontos para aposta individual ou gestão de cotas em bolão.</p>
                   </div>
                 </div>
             </div>

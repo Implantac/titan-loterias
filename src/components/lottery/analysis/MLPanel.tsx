@@ -204,7 +204,7 @@ export function MLPanel({ stats, config, draws }: Props) {
 
               <TabsContent value="consensus" className="mt-4">
                 <p className="text-xs text-muted-foreground mb-2">
-                  Top 20 — média ponderada pela acurácia dos 6 modelos (clique em uma barra para ver detalhes):
+                  Top 20 — média ponderada pelo desempenho e cobertura dos 6 modelos estatísticos (clique em uma barra para ver detalhes):
                 </p>
                 {consensus && (
                   <>

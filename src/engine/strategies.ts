@@ -18,6 +18,14 @@ export type Strategy =
   | "trend"
   | "cycle"
   | "titan_pro"
+  // Nomes reais dos 6 modelos estatísticos e heurísticos
+  | "frequencyTrend"
+  | "multiFactor"
+  | "temporalPattern"
+  | "bayesianScore"
+  | "transitionScore"
+  | "multiDimensionalPattern"
+  // Aliases legados (nomes de marketing que foram corrigidos para honestidade)
   | "bayesian"
   | "markov_model"
   | "quantum"
@@ -57,10 +65,17 @@ export const STRATEGIES: StrategyInfo[] = [
   { id: "lowDelay", label: "Baixo Atraso", desc: "Números com maior atraso + detecção de ciclo vencido", category: "math" },
   { id: "pattern", label: "Padrão", desc: "Padrões par/ímpar, alto/baixo e consecutividade", category: "math" },
   { id: "cycle", label: "Ciclo", desc: "Seleção baseada no desvio padrão e regularidade de gaps", category: "math" },
-  // AI
-  { id: "ml", label: "IA Ensemble", desc: "Consenso de 6 modelos de Machine Learning", category: "ai" },
-  { id: "hybrid", label: "IA Híbrida", desc: "Combina consenso ML + análise de tendência + ciclos", category: "ai" },
-  { id: "titan_pro", label: "Titan Pro X", desc: "Motor de elite com otimização heurística agressiva", category: "ai" },
+  // Modelos Estatísticos e Heurísticos (nomes honestos substituindo rótulos fictícios)
+  { id: "frequencyTrend", label: "Frequência & Tendência", desc: "Heurística de frequência histórica ponderada, tendência e momentum", category: "math" },
+  { id: "multiFactor", label: "Multi-Fatorial", desc: "Algoritmo estatístico multi-fatorial com desvio padrão e análise de gaps", category: "math" },
+  { id: "temporalPattern", label: "Padrões Temporais", desc: "Heurística de séries temporais e recência de dezenas", category: "math" },
+  { id: "bayesianScore", label: "Inferência Bayesiana", desc: "Heurística de atualização Bayesiana de priors históricos", category: "math" },
+  { id: "transitionScore", label: "Transição de Estados", desc: "Matriz de transição estatística de ocorrência consecutiva", category: "math" },
+  { id: "multiDimensionalPattern", label: "Padrões Multi-Dimensionais", desc: "Detecção de padrões estatísticos por ressonância e dispersão", category: "math" },
+  // AI / Ensemble
+  { id: "ml", label: "Ensemble Estatístico", desc: "Consenso ponderado dos 6 modelos estatísticos e heurísticos", category: "ai" },
+  { id: "hybrid", label: "Estratégia Híbrida", desc: "Combina consenso dos modelos + análise de tendência + ciclos", category: "ai" },
+  { id: "titan_pro", label: "Titan Pro X", desc: "Motor de busca com otimização heurística agressiva", category: "ai" },
 ];
 
 function isPrime(n: number): boolean {
@@ -379,15 +394,30 @@ export function generateByStrategy(
       return ensureBalancedSelection(selected, pick, config.numbers);
     }
 
+    case "frequencyTrend":
+    case "multiFactor":
+    case "temporalPattern":
+    case "bayesianScore":
+    case "transitionScore":
+    case "multiDimensionalPattern":
     case "bayesian":
     case "markov_model":
     case "quantum":
     case "lstm":
     case "xgboost":
     case "randomForest": {
-      // These are wrappers for ml models in this context
+      // Modelos estatísticos e heurísticos (ml-models.ts).
+      // Falsos nomes de marketing (quantum, lstm, xgboost, randomForest) mantidos como aliases para retrocompatibilidade.
       const models = runAllModels(stats, config);
       const nameMap: Record<string, string> = {
+        // Nomes honestos
+        "frequencyTrend": "FrequencyTrendScore",
+        "multiFactor": "MultiFactorScore",
+        "temporalPattern": "TemporalPatternScore",
+        "bayesianScore": "BayesianScore",
+        "transitionScore": "TransitionScore",
+        "multiDimensionalPattern": "MultiDimensionalPatternScore",
+        // Aliases legados
         "bayesian": "BayesianScore",
         "markov_model": "TransitionScore",
         "quantum": "MultiDimensionalPatternScore",

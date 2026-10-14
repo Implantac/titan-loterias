@@ -24,18 +24,7 @@ export function PricingSection() {
       navigate("/login");
       return;
     }
-
-    setLoadingPlan(true);
-    try {
-      toast.info("Processando seu acesso ELITE...");
-      setTimeout(() => {
-        toast.success("Redirecionando para checkout seguro...");
-      }, 1500);
-    } catch (e: any) {
-      toast.error("Erro ao iniciar checkout: " + (e.message || "Tente novamente"));
-    } finally {
-      setLoadingPlan(false);
-    }
+    navigate("/planos");
   };
 
   const plans = [
@@ -45,12 +34,12 @@ export function PricingSection() {
       description: "O ecossistema Titan completo — pagamento único.",
       features: [
         "Pagamento único · sem mensalidade · sem renovação",
-        "Jogos e simulações ilimitadas em todas as loterias",
-        "Assistente de IA e Motor Adaptativo",
-        "Fechamentos matemáticos, matrizes e cobertura extrema",
+        "Jogos e simulações ilimitadas em todas as 10 loterias",
+        "Módulo de Bolão Colaborativo (cotas, rateio e envio WhatsApp)",
+        "Fechamentos matemáticos com verificação exaustiva de garantia",
+        "Redução de divisão de prêmio (split-avoidance)",
         "Backtests massivos, ROI real e comparador de estratégias",
-        "Exportações profissionais (PDF, Excel e planilhas)",
-        "Suporte prioritário via chat e e-mail",
+        "Exportações profissionais (PDF, Excel, CSV e planilhas)",
         "Todas as atualizações futuras incluídas para sempre",
       ],
       cta: "Garantir Acesso Vitalício",

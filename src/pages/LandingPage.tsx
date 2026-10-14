@@ -97,12 +97,12 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden antialiased selection:bg-primary selection:text-white">
       <Helmet>
-        <title>Titan Loterias | Inteligência Artificial e Ciência de Dados Aplicada</title>
-        <meta name="description" content="Titan Loterias é uma plataforma de inteligência aplicada às loterias brasileiras que analisa históricos oficiais, identifica padrões estatísticos e utiliza IA para gerar apostas mais estratégicas." />
-        <meta property="og:title" content="Titan Loterias | Inteligência Artificial para Loterias" />
-        <meta property="og:description" content="Analise históricos oficiais, identifique padrões estatísticos e utilize IA para gerar apostas estratégicas." />
+        <title>Titan Loterias | Estatística Avançada, Fechamentos Matemáticos e Bolão</title>
+        <meta name="description" content="Plataforma de inteligência quantitativa aplicada às loterias brasileiras: fechamentos matemáticos com garantia exaustiva, split-avoidance, análise estatística oficial e gestão profissional de bolão." />
+        <meta property="og:title" content="Titan Loterias | Estatística Avançada e Fechamentos" />
+        <meta property="og:description" content="Fechamentos matemáticos com garantia comprovada, split-avoidance e gestão profissional de bolão para loterias da Caixa." />
         <meta property="og:type" content="website" />
-        <meta name="keywords" content="Mega-Sena, Lotofácil, Quina, Inteligência Artificial, Loterias, Gerador de Apostas, Probabilidade, Estatística, Análise de Dados" />
+        <meta name="keywords" content="Mega-Sena, Lotofácil, Quina, Fechamento Matemático, Bolão, Gerador de Apostas, Probabilidade, Estatística, Análise de Dados" />
       </Helmet>
 
       {deferredReady && (
@@ -240,8 +240,9 @@ export default function LandingPage() {
               <h4 className="font-black uppercase tracking-[0.3em] text-[10px] text-primary mb-8 italic">Plataforma</h4>
               <ul className="space-y-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                 <li><Link to="/gerador" onMouseEnter={() => prefetchRoute("/gerador")} onFocus={() => prefetchRoute("/gerador")} onTouchStart={() => prefetchRoute("/gerador")} className="hover:text-primary transition-colors">Gerador de Apostas</Link></li>
+                <li><Link to="/fechamentos" onMouseEnter={() => prefetchRoute("/fechamentos")} onFocus={() => prefetchRoute("/fechamentos")} onTouchStart={() => prefetchRoute("/fechamentos")} className="hover:text-primary transition-colors">Fechamentos Matemáticos</Link></li>
+                <li><Link to="/bolao" onMouseEnter={() => prefetchRoute("/bolao")} onFocus={() => prefetchRoute("/bolao")} onTouchStart={() => prefetchRoute("/bolao")} className="hover:text-primary transition-colors">Módulo de Bolão</Link></li>
                 <li><Link to="/analise" onMouseEnter={() => prefetchRoute("/analise")} onFocus={() => prefetchRoute("/analise")} onTouchStart={() => prefetchRoute("/analise")} className="hover:text-primary transition-colors">Central de Análise</Link></li>
-                <li><Link to="/fechamentos" onMouseEnter={() => prefetchRoute("/fechamentos")} onFocus={() => prefetchRoute("/fechamentos")} onTouchStart={() => prefetchRoute("/fechamentos")} className="hover:text-primary transition-colors">Fechamentos</Link></li>
                 <li><Link to="/planos" onMouseEnter={() => prefetchRoute("/planos")} onFocus={() => prefetchRoute("/planos")} onTouchStart={() => prefetchRoute("/planos")} className="hover:text-primary transition-colors">Planos</Link></li>
               </ul>
             </div>

@@ -2,7 +2,7 @@ import {
   BarChart3, Sparkles, History, Zap, Grid3X3,
   Brain, ShieldCheck, Crown, PieChart, Lock,
   MessageCircle, User, Wallet, Command, FileCode,
-  BookOpen, FlaskConical
+  BookOpen, FlaskConical, Users
 } from "lucide-react";
 
 import { NavLink } from "@/components/layout/NavLink";
@@ -34,6 +34,7 @@ const workflowGroups: { label: string; items: { title: string; url: string; icon
     items: [
       { title: "Central de Inteligência", url: "/dashboard", icon: BarChart3, tooltip: "Terminal central de inteligência e resumo de fluxos." },
       { title: "Painel de Comando", url: "/comando", icon: Command, tooltip: "Todos os sinais críticos consolidados para decisão rápida.", badge: "PRO" },
+      { title: "Módulo de Bolão", url: "/bolao", icon: Users, tooltip: "Gestão de bolões colaborativos, rateio de cotas e envio WhatsApp.", badge: "NEW" },
       { title: "Titan AI Center", url: "/ia-chat", icon: MessageCircle, tooltip: "O motor de inteligência central do seu ecossistema.", badge: "NEW" },
       { title: "Gerador Estratégico", url: "/gerador", icon: Sparkles, tooltip: "Geração assistida de coleções inteligentes (Loto Data)." },
       { title: "Análise VIP", url: "/lotofacil-premium", icon: Crown, tooltip: "Ambiente profissional exclusivo.", badge: "PREMIUM" },
@@ -45,7 +46,7 @@ const workflowGroups: { label: string; items: { title: string; url: string; icon
     items: [
         { title: "Estratégias ML", url: "/estrategias", icon: Brain, tooltip: "Painel de modelos e simulações clássicas." },
         { title: "Strategy Lab", url: "/strategy-lab", icon: FlaskConical, tooltip: "Laboratório evolutivo com teste de integridade temporal (Shuffled).", badge: "NEW" },
-        { title: "IA Autônoma", url: "/ia-autonoma", icon: Zap, tooltip: "Predição preditiva baseada em redes neurais." },
+        { title: "IA Autônoma", url: "/ia-autonoma", icon: Zap, tooltip: "Análise quantitativa de padrões e cobertura." },
         { title: "Central Analítica", url: "/analise", icon: PieChart, tooltip: "Estatísticas avançadas, tendências e indicadores." },
         { title: "Fechamentos", url: "/fechamentos", icon: Grid3X3, requiredFeature: "fechamentos", tooltip: "Fechamentos matemáticos de alta performance." },
         { title: "Gestão de Banca", url: "/banca", icon: Wallet, tooltip: "Kelly defensivo, alocação por ROI e stops operacionais.", badge: "PRO" },

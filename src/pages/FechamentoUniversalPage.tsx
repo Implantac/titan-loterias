@@ -544,6 +544,7 @@ function ComparisonPanel({ results, onPick }: { results: ClosingResult[]; onPick
                 <th className="text-right py-2 px-2">Jogos</th>
                 <th className="text-right py-2 px-2">Garantia</th>
                 <th className="text-right py-2 px-2">Cobertura</th>
+                <th className="text-center py-2 px-2">Validação</th>
                 <th className="text-right py-2 px-2">Custo</th>
                 <th className="text-right py-2 px-2">Tempo</th>
                 <th className="py-2 px-2"></th>
@@ -562,6 +563,11 @@ function ComparisonPanel({ results, onPick }: { results: ClosingResult[]; onPick
                     {r.validation.guaranteedHits}
                   </td>
                   <td className="text-right py-2 px-2 font-mono">{r.validation.coveragePercent.toFixed(1)}%</td>
+                  <td className="text-center py-2 px-2">
+                    <Badge variant="outline" className={cn("text-[9px] font-mono", r.validation.exhaustive ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" : "text-amber-400 border-amber-500/30 bg-amber-500/10")}>
+                      {r.validation.exhaustive ? "Exaustivo" : "Amostral"}
+                    </Badge>
+                  </td>
                   <td className="text-right py-2 px-2 font-mono">{formatCurrency(r.cost)}</td>
                   <td className="text-right py-2 px-2 font-mono text-muted-foreground">{r.elapsedMs}ms</td>
                   <td className="text-right py-2 px-2">
@@ -588,13 +594,18 @@ function ResultPanel({ result }: { result: ClosingResult }) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between flex-wrap gap-2">
             <span className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" /> {STRATEGY_LABEL(result.strategy)}
             </span>
-            <Badge className="text-lg" variant={s.overall >= 80 ? "default" : "secondary"}>
-              Nota {s.overall}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={v.exhaustive ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 font-mono text-xs" : "text-amber-400 border-amber-500/30 bg-amber-500/10 font-mono text-xs"}>
+                {v.exhaustive ? `Exaustivo (${v.testedScenarios} cenários)` : `Amostral (${v.testedScenarios} cenários)`}
+              </Badge>
+              <Badge className="text-lg" variant={s.overall >= 80 ? "default" : "secondary"}>
+                Nota {s.overall}
+              </Badge>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -602,7 +613,7 @@ function ResultPanel({ result }: { result: ClosingResult }) {
             <Stat label="Jogos" value={result.gameCount.toString()} sub={`min. teórico: ${result.lowerBound}`} />
             <Stat label="Custo" value={formatCurrency(result.cost)} sub={`${result.request.lottery.ticketPrice.toFixed(2)}/jogo`} />
             <Stat label="Garantia real" value={`${v.guaranteedHits} acertos`} sub={`meta: ${v.targetMinHits}`} ok={v.meetsGuarantee} />
-            <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.exhaustive ? "exaustiva" : "amostrada"} />
+            <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.exhaustive ? "exaustiva (provada)" : "amostral (estimativa)"} />
           </div>
           <Separator className="my-4" />
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">

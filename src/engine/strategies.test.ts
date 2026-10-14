@@ -47,4 +47,40 @@ describe("generateByStrategy — reprodutibilidade", () => {
       expect(g).toEqual([...g].sort((a, b) => a - b));
     }
   });
+
+  it("modelos com nomes honestos funcionam e são reprodutíveis com seed", () => {
+    const honestStrategies = [
+      "frequencyTrend",
+      "multiFactor",
+      "temporalPattern",
+      "bayesianScore",
+      "transitionScore",
+      "multiDimensionalPattern",
+    ] as const;
+
+    for (const strat of honestStrategies) {
+      const a = generateByStrategy(strat, stats, config, undefined, { seed: 777 });
+      const b = generateByStrategy(strat, stats, config, undefined, { seed: 777 });
+      expect(a, `${strat} deve ser reprodutível com mesmo seed`).toEqual(b);
+      expect(a).toHaveLength(15);
+      expect(a).toEqual([...a].sort((x, y) => x - y));
+    }
+  });
+
+  it("aliases legados continuam mapeando para os mesmos resultados que os nomes honestos", () => {
+    const pairs = [
+      ["frequencyTrend", "randomForest"],
+      ["multiFactor", "xgboost"],
+      ["temporalPattern", "lstm"],
+      ["bayesianScore", "bayesian"],
+      ["transitionScore", "markov_model"],
+      ["multiDimensionalPattern", "quantum"],
+    ] as const;
+
+    for (const [honest, legacy] of pairs) {
+      const a = generateByStrategy(honest, stats, config, undefined, { seed: 1234 });
+      const b = generateByStrategy(legacy, stats, config, undefined, { seed: 1234 });
+      expect(a, `${honest} e ${legacy} devem produzir o mesmo resultado com mesmo seed`).toEqual(b);
+    }
+  });
 });

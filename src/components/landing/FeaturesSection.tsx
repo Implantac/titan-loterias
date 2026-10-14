@@ -1,6 +1,6 @@
 import { motion, MotionValue } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { Layers, Sparkles, Clipboard, BarChart3, Box, MessageSquare } from "lucide-react";
+import { Layers, Sparkles, Clipboard, BarChart3, Box, MessageSquare, Users } from "lucide-react";
 
 interface FeaturesSectionProps {
   featuresRef: React.RefObject<HTMLDivElement>;
@@ -24,37 +24,37 @@ export function FeaturesSection({ featuresRef, featuresRotateX, fadeUp }: Featur
     {
       icon: Layers,
       title: "Análise Histórica Avançada",
-      description: "Processamos o histórico oficial completo para revelar frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões.",
+      description: "Processamos o histórico oficial completo para mapear frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões.",
       color: "green" as const,
     },
     {
       icon: Sparkles,
-      title: "Titan AI Core",
-      description: "Redes neurais avançadas e modelos preditivos aplicados aos sorteios brasileiros para identificar padrões que escapam da análise humana.",
+      title: "Motor Heurístico & Estatístico",
+      description: "Modelos multi-fatoriais, análise de tendências e ciclos estatísticos para fundamentar decisões com dados empíricos reais.",
       color: "blue" as const,
     },
     {
-      icon: Clipboard,
-      title: "Motor de Probabilidade",
-      description: "Apostas geradas com Monte Carlo, Cadeias de Markov e distribuições balanceadas — foco em consistência estatística, não em sorte.",
+      icon: Users,
+      title: "Módulo de Bolão Colaborativo",
+      description: "Divisão automática em cotas, cálculo de rateio justo por participante, relatórios individuais e envio direto no WhatsApp.",
       color: "amber" as const,
     },
     {
-      icon: BarChart3,
-      title: "Simulador de Performance",
-      description: "Coloque sua estratégia contra centenas de concursos passados e descubra o ROI teórico antes de gastar um real com apostas.",
-      color: "red" as const,
-    },
-    {
       icon: Box,
-      title: "Laboratório de Estratégias",
-      description: "Fechamentos matemáticos, matrizes de cobertura, filtros avançados e estratégias proprietárias com pontuação Titan Score.",
+      title: "Fechamentos & Cobertura",
+      description: "Matrizes combinatórias com verificação matemática exaustiva da garantia — saiba exatamente o menor acerto entregue em cada cenário.",
       color: "purple" as const,
     },
     {
+      icon: BarChart3,
+      title: "Simulador de Performance & ROI",
+      description: "Teste suas estratégias contra centenas de concursos passados e descubra o retorno teórico real antes de realizar as apostas.",
+      color: "red" as const,
+    },
+    {
       icon: MessageSquare,
-      title: "Sincronização Oficial",
-      description: "Resultados oficiais atualizados em tempo real direto da fonte, com verificação de integridade (concursos ausentes, duplicados e inconsistências) visível em cada análise.",
+      title: "Sincronização & Integridade Oficial",
+      description: "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação contínua de lacunas, duplicados e integridade dos dados.",
       color: "cyan" as const,
     },
   ];

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   BarChart3, Brain, Target, Dices, TrendingUp,
   Shield, ChevronLeft, ChevronRight, Sparkles, Activity,
-  PieChart, Cpu, LineChart, Zap, Settings,
+  PieChart, Cpu, LineChart, Zap, Settings, Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,9 +24,9 @@ function DashboardMock() {
       <div className="grid grid-cols-4 gap-2">
         {[
           { label: "Concursos", val: "14.502", icon: BarChart3, c: "text-primary" },
-          { label: "IA Models", val: "48", icon: Brain, c: "text-neon-blue" },
-          { label: "Predictive", val: "89%", icon: TrendingUp, c: "text-primary" },
-          { label: "Status", val: "Ativo", icon: Zap, c: "text-accent" },
+          { label: "Modelos", val: "6", icon: Brain, c: "text-neon-blue" },
+          { label: "Cobertura", val: "100%", icon: TrendingUp, c: "text-primary" },
+          { label: "Integridade", val: "Auditada", icon: Zap, c: "text-accent" },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-border/20 bg-card/50 p-2 text-center">
             <s.icon className={`w-3.5 h-3.5 mx-auto mb-1 ${s.c}`} />
@@ -135,20 +135,53 @@ function IAMock() {
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
         <div className="flex items-center gap-2 mb-2">
           <Brain className="w-4 h-4 text-primary" />
-          <span className="text-[9px] font-mono text-primary uppercase tracking-wider">Análise Autônoma</span>
+          <span className="text-[9px] font-mono text-primary uppercase tracking-wider">Análise Estatística</span>
         </div>
         <div className="text-[10px] text-foreground/80 leading-relaxed">
-          O modelo identificou <span className="text-primary font-semibold">3 padrões recorrentes</span> nos últimos 50 sorteios.
+          O modelo identificou <span className="text-primary font-semibold">3 zonas estatísticas</span> nos últimos 50 sorteios.
           Números quentes: 07, 13, 34. Tendência de soma entre 140-180.
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {[{ l: "Precisão", v: "78%", c: "text-primary" }, { l: "Modelos", v: "5", c: "text-neon-blue" }, { l: "Padrões", v: "12", c: "text-accent" }, { l: "Confiança", v: "Alto", c: "text-primary" }].map((s) => (
+        {[{ l: "Cobertura", v: "100%", c: "text-primary" }, { l: "Modelos", v: "6", c: "text-neon-blue" }, { l: "Padrões", v: "12", c: "text-accent" }, { l: "Consistência", v: "Alta", c: "text-primary" }].map((s) => (
           <div key={s.l} className="rounded-lg border border-border/20 bg-card/30 p-2 text-center">
             <div className={`text-sm font-bold font-mono ${s.c}`}>{s.v}</div>
             <div className="text-[7px] text-muted-foreground uppercase">{s.l}</div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function BolaoMock() {
+  return (
+    <div className="p-4 space-y-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="text-[9px] font-mono text-primary uppercase tracking-wider">Bolão Lotofácil 18 Dezenas</span>
+          </div>
+          <span className="text-[8px] font-mono bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">10 Cotas</span>
+        </div>
+        <div className="text-[10px] text-foreground/80 leading-relaxed">
+          Fechamento com 24 jogos · Rateio exato de <span className="text-primary font-semibold">R$ 7,20 por cota</span> · Garantia matemática exaustiva.
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-lg border border-border/20 bg-card/30 p-2">
+          <div className="text-xs font-bold font-mono text-foreground">24</div>
+          <div className="text-[7px] text-muted-foreground uppercase">Jogos Gerados</div>
+        </div>
+        <div className="rounded-lg border border-border/20 bg-card/30 p-2">
+          <div className="text-xs font-bold font-mono text-emerald-400">100%</div>
+          <div className="text-[7px] text-muted-foreground uppercase">Cobertura</div>
+        </div>
+        <div className="rounded-lg border border-border/20 bg-card/30 p-2">
+          <div className="text-xs font-bold font-mono text-primary">WhatsApp</div>
+          <div className="text-[7px] text-muted-foreground uppercase">Rateio Direto</div>
+        </div>
       </div>
     </div>
   );
@@ -166,12 +199,21 @@ const slideData: ScreenSlide[] = [
   },
   {
     id: "gerador",
-    title: "Gerador com IA",
-    subtitle: "Algoritmos genéticos e Monte Carlo geram apostas otimizadas automaticamente",
+    title: "Gerador Estratégico",
+    subtitle: "Filtros matemáticos e split avoidance geram apostas sem divisão de prêmio",
     icon: Target,
     color: "text-neon-blue",
     accentBg: "bg-neon-blue/10",
     content: <GeradorMock />,
+  },
+  {
+    id: "bolao",
+    title: "Módulo de Bolão",
+    subtitle: "Divisão automática em cotas, rateio por participante e comprovantes para WhatsApp",
+    icon: Users,
+    color: "text-emerald-400",
+    accentBg: "bg-emerald-500/10",
+    content: <BolaoMock />,
   },
   {
     id: "estatisticas",
@@ -193,8 +235,8 @@ const slideData: ScreenSlide[] = [
   },
   {
     id: "ia",
-    title: "IA Autônoma",
-    subtitle: "Modelos de Machine Learning revelam padrões ocultos nos resultados",
+    title: "Estratégia & Cobertura",
+    subtitle: "Modelos estatísticos e fechamentos combinatórios para máxima cobertura",
     icon: Brain,
     color: "text-primary",
     accentBg: "bg-primary/10",

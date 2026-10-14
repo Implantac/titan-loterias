@@ -481,7 +481,7 @@ export function strategyConsensus(
   return {
     id: "consensus",
     name: "Consenso Multi-Estratégia",
-    description: `Agrega o ranking de 6 estratégias com pesos calibrados. Números com convergência em múltiplos modelos ganham boost. Ideal para maximizar assertividade.`,
+    description: `Agrega o ranking de 6 estratégias com pesos calibrados. Números com convergência em múltiplos modelos ganham boost. Ideal para maximizar a cobertura combinatória.`,
     candidateNumbers: candidates,
     weights,
     metrics: {
@@ -1585,7 +1585,7 @@ export function getStrategyInfo(id: string): { id: string; name: string; descrip
     coverage:     { name: "Cobertura Máxima",     description: "Combina frequência, atraso, primos e Fibonacci para cobrir mais faixas." },
     repetition:   { name: "Repetição do Anterior", description: "Aproveita o viés de repetição do último sorteio + frequência recente." },
     hot_cold:     { name: "Quente-Frio",           description: "Combina viés oficial + atraso + frequência recente. Ideal p/ universos grandes." },
-    consensus:    { name: "Consenso Multi-Estratégia", description: "Agrega 6 estratégias por Borda Count ponderado. Números convergentes ganham boost. Máxima assertividade." },
+    consensus:    { name: "Consenso Multi-Estratégia", description: "Agrega 6 estratégias por Borda Count ponderado. Números convergentes ganham boost. Máxima cobertura estatística." },
     lotofacil_jackpot: { name: "🎯 Lotofácil Jackpot (15 pontos)", description: "Exclusiva Lotofácil: repetição forte do anterior, moldura×miolo, grade 5×5 balanceada, viés oficial, primos e múltiplos de 3. Caça os 15 acertos." },
     mega_jackpot: { name: "🔥 Mega Jackpot (Sena)", description: "Exclusiva Mega-Sena: pool enxuto de 22 dezenas, foco na faixa 51-60, atraso qualificado, viés oficial e baixa repetição. Caça os 6 acertos." },
     quina_jackpot: { name: "⭐ Quina Jackpot (5 acertos)", description: "Exclusiva Quina: pool de 18 dezenas distribuído pelos 4 quartis do volante, viés oficial, atraso qualificado e baixa repetição." },

@@ -48,8 +48,8 @@ const resources = {
               "description": "Processamos o histórico oficial completo para revelar frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões."
             },
             "ia": {
-              "title": "Titan AI Core",
-              "description": "Redes neurais avançadas e modelos preditivos aplicados aos sorteios brasileiros para identificar padrões que escapam da análise humana."
+              "title": "Motor Heurístico & Estatístico",
+              "description": "Modelos multi-fatoriais e heurísticas aplicadas aos sorteios brasileiros para mapear ciclos estatísticos e otimizar cobertura."
             },
             "optimizer": {
               "title": "Motor de Probabilidade",
@@ -65,7 +65,7 @@ const resources = {
             },
             "sync": {
               "title": "Sincronização Oficial",
-              "description": "Resultados oficiais atualizados em tempo real direto da fonte, garantindo 100% de precisão para cada análise."
+              "description": "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação de integridade e cobertura matemática em cada análise."
             }
           }
         },
@@ -76,27 +76,27 @@ const resources = {
             "desc": "Consolidamos todos os concursos oficiais em uma base de dados única, pronta para análise temporal profunda."
           },
           "step2": {
-            "title": "Processamento com IA",
-            "desc": "O Titan AI Core cruza milhões de combinações em busca de padrões estatísticos e anomalias de frequência."
+            "title": "Análise Estatística",
+            "desc": "Processamento estatístico de frequência, atraso, paridade e ciclos históricos em bases oficiais consolidadas."
           },
           "step3": {
-            "title": "Detecção de Padrões",
-            "desc": "Redes neurais especializadas identificam dezenas quentes, frias, ciclos de retorno e tendências emergentes."
+            "title": "Detecção de Padrões e Cobertura",
+            "desc": "Heurísticas estatísticas e matrizes combinatórias mapeiam a cobertura ideal para as dezenas selecionadas."
           },
           "step4": {
-            "title": "Estratégia Matemática",
+            "title": "Estratégia Quantitativa",
             "desc": "Aplicamos filtros de dispersão, equilíbrio estrutural e fechamentos matemáticos para maximizar sua cobertura."
           },
           "step5": {
-            "title": "Apostas Estratégicas",
-            "desc": "Você recebe combinações prontas com o Titan Score — decisões baseadas em dados, não em palpite."
+            "title": "Apostas Estratégicas & Bolão",
+            "desc": "Você recebe combinações prontas com o Titan Score — decisões baseadas em dados e aptas para gestão de bolão."
           }
         },
         "faq": {
           "q1": "O Titan Loterias garante que eu vou ganhar na loteria?",
-          "a1": "Não. Nenhuma ferramenta, sistema ou pessoa pode garantir prêmios em jogos de sorte. O Titan Loterias é uma plataforma de análise estatística e inteligência artificial que ajuda você a tomar decisões mais informadas — mas o resultado final continua sendo probabilístico.",
-          "q2": "Como funciona a análise por IA?",
-          "a2": "Nosso Titan AI Core processa o histórico completo de cada loteria oficial, aplicando modelos matemáticos como Cadeias de Markov, simulação de Monte Carlo e redes neurais. O objetivo é identificar padrões de frequência, atraso e distribuição que passariam despercebidos em uma análise manual.",
+          "a1": "Não. Nenhuma ferramenta, sistema ou pessoa pode garantir prêmios em jogos de sorte. O Titan Loterias é uma plataforma de análise estatística e inteligência combinatória que ajuda você a tomar decisões mais informadas — mas o resultado final continua sendo probabilístico.",
+          "q2": "Como funciona a análise dos modelos?",
+          "a2": "Nossos motores analíticos processam o histórico oficial de cada loteria aplicando modelos estatísticos rigorosos: Cadeias de Markov, simulações de Monte Carlo, heurísticas de ciclo, tendência e desdobramentos combinatórios. O objetivo é mapear a distribuição empírica das dezenas e garantir máxima cobertura sem divisão desnecessária de prêmio.",
           "q3": "Preciso entender de matemática ou estatística para usar?",
           "a3": "Não. A plataforma foi desenhada para ser intuitiva: você escolhe a loteria, define seus parâmetros e recebe apostas com pontuação estratégica pronta. Todo o rigor matemático fica nos bastidores.",
           "q4": "Quais loterias são suportadas?",
@@ -106,15 +106,15 @@ const resources = {
           "q6": "Como funciona o pagamento?",
           "a6": "O Acesso Vitalício é um pagamento único de R$ 99,90 — sem mensalidade, sem renovação automática, sem cobrança recorrente. Você paga uma vez e usa para sempre, com todas as atualizações futuras incluídas."
         },
-        "disclaimer": "As análises são baseadas em dados históricos, estatística, probabilidade e inteligência artificial. O sistema não garante ganhos e deve ser utilizado como ferramenta de suporte à decisão.",
+        "disclaimer": "As análises são baseadas em dados históricos, estatística, probabilidade e matemática combinatória. O sistema não garante ganhos e deve ser utilizado como ferramenta de suporte à decisão.",
         "testimonials": {
           "title": "O que dizem, nossos usuários",
-          "subtitle": "Junte-se a milhares de apostadores brasileiros que trocaram o achismo por decisões guiadas por estatística e inteligência artificial.",
+          "subtitle": "Junte-se a milhares de apostadores brasileiros que trocaram o achismo por decisões guiadas por estatística e inteligência matemática.",
           "items": {
             "t1": {
               "name": "Ricardo Silva",
               "role": "Analista de Dados • SP",
-              "content": "O Titan Loterias mudou completamente a forma como eu enxergo os sorteios. A profundidade das análises e a precisão da IA impressionam — é o nível de rigor que eu esperava encontrar em uma ferramenta profissional."
+              "content": "O Titan Loterias mudou completamente a forma como eu enxergo os sorteios. A profundidade das análises e a cobertura matemática dos fechamentos impressionam — é o nível de rigor que eu esperava encontrar em uma ferramenta profissional."
             },
             "t2": {
               "name": "Ana Oliveira",

@@ -64,19 +64,19 @@ export const STRATEGIES: StrategyInfo[] = [
   { id: "lowDelay", label: "Baixo Atraso", desc: "Números com maior atraso + detecção de ciclo vencido", category: "math" },
   { id: "pattern", label: "Padrão", desc: "Padrões par/ímpar, alto/baixo e consecutividade", category: "math" },
   { id: "cycle", label: "Ciclo", desc: "Seleção baseada no desvio padrão e regularidade de gaps", category: "math" },
-  // AI
-  { id: "ml", label: "IA Ensemble", desc: "Consenso de 6 modelos de Machine Learning", category: "ai" },
-  { id: "hybrid", label: "IA Híbrida", desc: "Combina consenso ML + análise de tendência + ciclos", category: "ai" },
+  // AI / Modelos
+  { id: "ml", label: "Ensemble Estatístico", desc: "Consenso ponderado dos 6 modelos estatísticos e heurísticos", category: "ai" },
+  { id: "hybrid", label: "Estratégia Híbrida", desc: "Combina consenso dos modelos + análise de tendência + ciclos", category: "ai" },
   { id: "markov", label: "Cadeia de Markov", desc: "Probabilidade de transição e sequência de estados", category: "ai" },
   { id: "poisson", label: "Poisson", desc: "Distribuição estatística por taxa de ocorrência", category: "ai" },
   { id: "cluster", label: "Clusters", desc: "Agrupamento por afinidade e correlação histórica", category: "ai" },
   { id: "expert", label: "Loto-Mestre", desc: "Estratégia profissional com dezenas fixas e desdobramento", category: "ai" },
-  { id: "quantum", label: "Análise Quantum", desc: "Padrões multi-dimensionais e ressonância estatística", category: "ai" },
-  { id: "randomForest", label: "Random Forest", desc: "Ensemble de árvores de decisão e features clássicas", category: "ai" },
-  { id: "xgboost", label: "XGBoost", desc: "Gradient Boosting de alta performance", category: "ai" },
-  { id: "lstm", label: "Rede Neural (LSTM)", desc: "Reconhecimento de padrões profundos em séries temporais", category: "ai" },
-  { id: "bayesian", label: "Bayesiana", desc: "Inferência probabilística com atualização de priors", category: "ai" },
-  { id: "markov_model", label: "Cadeia de Markov", desc: "Probabilidades de transição de estados numéricos", category: "ai" },
+  { id: "quantum", label: "Padrões Multi-Dimensionais", desc: "Heurística de padrões multi-dimensionais e ressonância estatística", category: "ai" },
+  { id: "randomForest", label: "Frequência e Tendência", desc: "Heurística ponderada de frequência e tendência histórica (FrequencyTrendScore)", category: "ai" },
+  { id: "xgboost", label: "Multi-Fatorial Estatístico", desc: "Algoritmo estatístico multi-fatorial com desvio padrão e ciclos (MultiFactorScore)", category: "ai" },
+  { id: "lstm", label: "Padrões Temporais", desc: "Heurística de séries temporais e recência de dezenas (TemporalPatternScore)", category: "ai" },
+  { id: "bayesian", label: "Inferência Bayesiana", desc: "Inferência probabilística com atualização contínua de priors", category: "ai" },
+  { id: "markov_model", label: "Transição de Estados", desc: "Probabilidades de transição de estados numéricos (TransitionScore)", category: "ai" },
 ];
 
 function isPrime(n: number): boolean {

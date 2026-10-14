@@ -56,6 +56,8 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
       target: v.targetMinHits,
       meets: v.meetsGuarantee,
       coverage: v.coveragePercent,
+      exhaustive: v.exhaustive,
+      testedScenarios: v.testedScenarios,
       overall: s.overall,
       elapsed: primary.elapsedMs,
       optimality,
@@ -79,21 +81,32 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
   return (
     <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-background">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 flex-wrap">
           <TrendingUp className="h-5 w-5 text-primary" />
           Painel Executivo
           <Badge variant="secondary" className="ml-2 font-mono">
             {STRATEGY_LABELS[primary.strategy] ?? primary.strategy}
           </Badge>
-          {stats.meets ? (
-            <Badge className="ml-auto bg-emerald-500/15 text-emerald-500 border-emerald-500/30 gap-1">
-              <CheckCircle2 className="h-3 w-3" /> Garantia validada
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="ml-auto text-amber-500 border-amber-500/40 gap-1">
-              <AlertTriangle className="h-3 w-3" /> Garantia parcial
-            </Badge>
-          )}
+          <div className="ml-auto flex items-center gap-2 flex-wrap">
+            {stats.meets ? (
+              <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30 gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Garantia validada
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-amber-500 border-amber-500/40 gap-1">
+                <AlertTriangle className="h-3 w-3" /> Garantia parcial
+              </Badge>
+            )}
+            {stats.exhaustive ? (
+              <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 gap-1 font-mono text-[11px]" title="Todos os cenários possíveis foram enumerados: prova combinatória matemática.">
+                <CheckCircle2 className="h-3 w-3" /> Exaustivo ({formatNumber(stats.testedScenarios)} cenários)
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-amber-400 border-amber-500/40 bg-amber-500/10 gap-1 font-mono text-[11px]" title="Universo muito grande: verificação realizada por amostragem de Monte Carlo (estimativa, não prova).">
+                <AlertTriangle className="h-3 w-3" /> Amostral ({formatNumber(stats.testedScenarios)} cenários)
+              </Badge>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -121,8 +134,36 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
             icon={Target}
             label="Cobertura"
             value={`${stats.coverage.toFixed(1)}%`}
-            sub={`nota geral ${stats.overall}`}
+            sub={stats.exhaustive ? `Exaustivo (${formatNumber(stats.testedScenarios)} cenários)` : `Amostral (${formatNumber(stats.testedScenarios)} cenários)`}
+            tone={stats.meets ? "success" : "warning"}
           />
+        </div>
+
+        {/* Banner de status exaustivo vs amostral */}
+        <div className={cn(
+          "rounded-xl border p-3.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3",
+          stats.exhaustive ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
+        )}>
+          <div className="flex items-center gap-2.5">
+            {stats.exhaustive ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+            )}
+            <div>
+              <p className={cn("font-bold text-sm", stats.exhaustive ? "text-emerald-400" : "text-amber-400")}>
+                {stats.exhaustive ? "Garantia Combinatória Provada (Verificação Exaustiva)" : "Garantia Estimada por Amostragem (Não é Prova Absoluta)"}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                {stats.exhaustive
+                  ? `Todos os ${formatNumber(stats.testedScenarios)} cenários possíveis foram testados. O menor acerto garantido em qualquer cenário é de ${stats.guarantee} pontos.`
+                  : `${formatNumber(stats.testedScenarios)} cenários foram testados via Monte Carlo (espaço combinatório muito grande para tempo real). Menor acerto amostrado: ${stats.guarantee} pontos.`}
+              </p>
+            </div>
+          </div>
+          <Badge variant={stats.exhaustive ? "default" : "outline"} className={cn("shrink-0 font-mono text-[10px] uppercase font-bold", stats.exhaustive ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "border-amber-500 text-amber-400")}>
+            {stats.exhaustive ? "100% EXAUSTIVO" : "AMOSTRAL (ESTIMADO)"}
+          </Badge>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
