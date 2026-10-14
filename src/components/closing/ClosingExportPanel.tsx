@@ -6,6 +6,7 @@
  */
 
 import { useState } from "react";
+import { validateWheelCoverage } from "@/engine/wheeling/coverageValidator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +83,18 @@ export function ClosingExportPanel({ result }: Props) {
     }
   };
 
+  /**
+   * Toda afirmação de garantia impressa aqui é verificada contra os jogos reais.
+   * Antes o PDF imprimia a garantia pedida sem checar se o fechamento a cumpre.
+   */
+  const coverage = validateWheelCoverage(
+    result.games,
+    result.request.baseNumbers.length,
+    result.request.lottery.pick,
+    result.request.guarantee.hitsInBase,
+    result.request.guarantee.minHits,
+  );
+
   const downloadPDF = () => {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const w = doc.internal.pageSize.getWidth();
@@ -95,6 +108,16 @@ export function ClosingExportPanel({ result }: Props) {
       `Estrategia: ${result.strategy}`,
       `Jogos: ${result.gameCount}   Custo: R$ ${result.cost.toFixed(2)}`,
       `Garantia: ${result.request.guarantee.minHits} acertos se ${result.request.guarantee.hitsInBase} cairem na base de ${result.request.baseNumbers.length}`,
+      // Uma garantia só é garantia se todos os cenários foram enumerados. Quando o
+      // universo é grande demais o validador amostra, e isso precisa estar escrito
+      // no documento que o usuário leva — não apenas num campo que ninguém exibe.
+      coverage.exhaustive
+        ? `Verificacao: EXAUSTIVA (${coverage.testedScenarios} cenarios enumerados)`
+        : `Verificacao: AMOSTRAL (${coverage.testedScenarios} cenarios) - NAO e uma prova`,
+      `Menor acerto realmente entregue em qualquer cenario testado: ${coverage.guaranteedHits}`,
+      coverage.meetsGoalPercent < 100
+        ? `ATENCAO: a meta falhou em ${(100 - coverage.meetsGoalPercent).toFixed(1)}% dos cenarios testados.`
+        : `A meta foi atingida em 100% dos cenarios testados.`,
       `Score: ${result.score.overall}/100   Gerado em ${new Date().toLocaleString("pt-BR")}`,
     ];
     info.forEach((t, i) => doc.text(t, 40, 70 + i * 14));
