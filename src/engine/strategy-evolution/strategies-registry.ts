@@ -96,7 +96,7 @@ export const STRATEGY_REGISTRY: StrategyDefinition[] = [
     params: { ...DEFAULT_PARAMS },
   },
   {
-    id: "xgboost_model", name: "Gradient Pattern Engine", description: "Algoritmo de gradiente de alto desempenho e precisão",
+    id: "xgboost_model", name: "Gradient Pattern Engine", description: "Algoritmo multi-fatorial de alto desempenho para máxima cobertura",
     category: "ai", baseStrategy: "xgboost", supportedLotteries: [],
     params: { ...DEFAULT_PARAMS },
   },

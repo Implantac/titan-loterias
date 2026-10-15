@@ -25,7 +25,7 @@ export function EmptyState({ title = "Banco de dados vazio", description, onImpo
       <div className="relative">
         <h3 className="text-xl font-black text-foreground uppercase tracking-tight italic">{title}</h3>
         <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto font-medium leading-relaxed">
-          {description || "Sincronize os dados históricos da rede institucional para iniciar o processamento de alta precisão."}
+          {description || "Sincronize os dados históricos oficiais para iniciar o processamento de cobertura estatística."}
         </p>
       </div>
       {onImport && (

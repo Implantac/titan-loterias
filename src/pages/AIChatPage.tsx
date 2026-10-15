@@ -325,7 +325,7 @@ const AIChatPage = () => {
             )}
           </div>
           <p className="text-[9px] text-muted-foreground text-center mt-4 font-black uppercase tracking-widest opacity-40 italic">
-            Tecnologia Titan IA • Precisão Matemática v7.5
+            Tecnologia Titan IA • Cobertura Matemática v7.5
           </p>
         </div>
       </div>

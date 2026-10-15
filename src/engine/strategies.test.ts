@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateByStrategy } from "./strategies";
+import { generateByStrategy, STRATEGIES } from "./strategies";
 import { computeFrequencyStats } from "@/engine/stats/statistics";
 import type { DrawResult, LotteryConfig } from "@/data/lotteries";
 
@@ -81,6 +81,14 @@ describe("generateByStrategy — reprodutibilidade", () => {
       const a = generateByStrategy(honest, stats, config, undefined, { seed: 1234 });
       const b = generateByStrategy(legacy, stats, config, undefined, { seed: 1234 });
       expect(a, `${honest} e ${legacy} devem produzir o mesmo resultado com mesmo seed`).toEqual(b);
+    }
+  });
+
+  it("STRATEGIES inclui os modelos de posicionamento para cobertura", () => {
+    const positioningIds = ["quantum", "randomForest", "xgboost", "lstm", "bayesian", "markov_model"];
+    const ids = STRATEGIES.map(s => s.id);
+    for (const pId of positioningIds) {
+      expect(ids).toContain(pId);
     }
   });
 });

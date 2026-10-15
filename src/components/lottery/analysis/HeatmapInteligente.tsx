@@ -42,7 +42,7 @@ export function HeatmapInteligente() {
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 italic">
           <Activity className="w-4 h-4 text-primary" />
-          Mapa Térmico de Precisão
+          Mapa Térmico de Cobertura
         </h3>
         <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-tighter">
           <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded bg-primary" /> Elite</div>

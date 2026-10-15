@@ -189,7 +189,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                 <CardDescription className="font-black uppercase tracking-[0.2em] text-[10px] opacity-60 flex items-center gap-3">
                   <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-primary" /> {report.drawsAnalyzed} Concursos Processados</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-border" />
-                  <span className="flex items-center gap-1.5 text-foreground"><Target className="w-3.5 h-3.5 text-accent" /> Precisão: {report.confidenceScore}% Alpha</span>
+                  <span className="flex items-center gap-1.5 text-foreground"><Target className="w-3.5 h-3.5 text-accent" /> Cobertura: {report.confidenceScore}% Alpha</span>
                 </CardDescription>
               </div>
             </div>

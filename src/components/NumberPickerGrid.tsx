@@ -68,7 +68,7 @@ export function NumberPickerGrid({ config, stats, onSaveBet }: Props) {
           </div>
           <div>
             <h3 className="text-sm font-black text-foreground uppercase tracking-widest italic flex items-center gap-2">
-              Seletor de Precisão
+              Seletor de Cobertura
             </h3>
             <p className="text-[10px] text-muted-foreground mt-1 font-bold uppercase tracking-widest opacity-60">
               {selected.size} de {config.pick} Ativos • Grid Dinâmica

@@ -610,7 +610,7 @@ export function getConsensusRanking(models: ModelResult[]): MLPrediction[] {
  */
 function buildReason(p: MLPrediction, totalModels: number): string {
   const bd = p.breakdown;
-  if (!bd) return "Recomendação baseada em convergência algorítmica de alta precisão.";
+  if (!bd) return "Recomendação baseada em convergência algorítmica para máxima cobertura.";
   const factors: Array<{ label: string; value: number }> = [
     { label: "frequência histórica sólida", value: bd.frequency },
     { label: "momentum de curto prazo positivo", value: bd.recency },

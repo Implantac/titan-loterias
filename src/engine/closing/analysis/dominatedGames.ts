@@ -14,7 +14,7 @@ export interface DominatedGameInput {
   minHits: number;              // M
   pick: number;                 // K (dezenas por jogo)
   maxRemove?: number;           // limite superior de remoções (default 50%)
-  /** Reduz precisão para bases maiores (amostragem). */
+  /** Reduz resolução/cobertura para bases maiores (amostragem). */
   sampleLimit?: number;
 }
 
