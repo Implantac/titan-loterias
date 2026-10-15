@@ -169,6 +169,38 @@ export default function PlanilhasMatrizPage() {
 
   const canGenerate = selectedNumbers.length >= inputSize && generatedGames.length > 0;
 
+  // Conferência de cada jogo contra TODOS os concursos salvos (mesma regra do concurso a concurso)
+  const [checkAll, setCheckAll] = useState(false);
+  const allDrawsCheck = useMemo(() => {
+    if (!checkAll || !canGenerate || draws.length === 0) return null;
+    const toMask = (nums: number[]) => nums.reduce((m, n) => m | (1 << n), 0);
+    const popcount = (x: number) => {
+      let c = 0;
+      while (x) { x &= x - 1; c++; }
+      return c;
+    };
+    const drawMasks = draws.map((d) => toMask(d.numbers));
+    const totals: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+    const rows = generatedGames.map((game, i) => {
+      const gm = toMask(game);
+      const counts: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+      const fifteen: number[] = [];
+      drawMasks.forEach((dm, di) => {
+        const h = popcount(gm & dm);
+        if (h >= 11) {
+          counts[h]++;
+          totals[h]++;
+          if (h === 15) fifteen.push(draws[di].concurso);
+        }
+      });
+      return { index: i + 1, numbers: game, counts, fifteen };
+    });
+    let prizes = 0;
+    for (const h of [11, 12, 13, 14, 15]) prizes += totals[h] * (PRIZE_ESTIMATES[h] || 0);
+    const cost = generatedGames.length * draws.length * LOTOFACIL_PRICE;
+    return { rows, totals, prizes, cost, drawCount: draws.length };
+  }, [checkAll, canGenerate, draws, generatedGames]);
+
   // Identificação de fixas / pool para modelos híbridos
   const fixedCount = preset.fixedCount || 0;
   const eliminatedCount = preset.eliminatedCount || 0;
@@ -687,6 +719,16 @@ export default function PlanilhasMatrizPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button
+                    variant={checkAll ? "default" : "outline"}
+                    size="sm"
+                    className="w-full h-9 text-xs gap-1.5"
+                    disabled={!canGenerate}
+                    onClick={() => setCheckAll((v) => !v)}
+                  >
+                    <Table2 className="w-3.5 h-3.5" />
+                    {checkAll ? "Ocultar conferência em todos os concursos" : `Conferir em todos os ${draws.length} concursos`}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -832,6 +874,57 @@ export default function PlanilhasMatrizPage() {
                         </Badge>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Conferência em todos os concursos */}
+                {allDrawsCheck && (
+                  <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                        Conferência em todos os {allDrawsCheck.drawCount} concursos salvos
+                      </span>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        Prêmios est. R$ {allDrawsCheck.prizes.toFixed(2)} · Custo R$ {allDrawsCheck.cost.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      {[11, 12, 13, 14, 15].map((h) => (
+                        <div key={h} className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                          <p className="text-[9px] text-muted-foreground uppercase">{h} pts</p>
+                          <p className="font-mono font-bold text-foreground">{allDrawsCheck.totals[h]}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-lg border border-border/50 overflow-x-auto max-h-[320px] overflow-y-auto">
+                      <Table>
+                        <TableHeader className="bg-secondary/40 sticky top-0 z-10">
+                          <TableRow>
+                            <TableHead className="text-xs font-bold">Jogo</TableHead>
+                            {[11, 12, 13, 14, 15].map((h) => (
+                              <TableHead key={h} className="text-center text-xs font-bold">{h}</TableHead>
+                            ))}
+                            <TableHead className="text-xs font-bold">15 pts em</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allDrawsCheck.rows.map((r) => (
+                            <TableRow key={r.index} className={r.counts[15] > 0 ? "bg-emerald-500/10 font-bold" : undefined}>
+                              <TableCell className="font-mono text-xs font-bold text-muted-foreground">J{String(r.index).padStart(2, "0")}</TableCell>
+                              {[11, 12, 13, 14, 15].map((h) => (
+                                <TableCell key={h} className="text-center font-mono text-xs">{r.counts[h]}</TableCell>
+                              ))}
+                              <TableCell className="font-mono text-xs">
+                                {r.fifteen.length ? r.fifteen.map((c) => `#${c}`).join(", ") : "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Conferência retroativa: mostra quantas vezes cada jogo teria acertado no passado. Não indica chance de sair no futuro.
+                    </p>
                   </div>
                 )}
 
