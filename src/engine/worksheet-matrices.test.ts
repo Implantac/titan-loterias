@@ -33,4 +33,27 @@ describe("worksheet matrices", () => {
     expect(result.bestHits).toBeGreaterThan(0);
     expect(result.totalCost).toBe(15);
   });
+
+  it("garante que todos os 7 presets geram jogos válidos de 15 dezenas com contagem exata", () => {
+    for (const preset of LOTOFACIL_WORKSHEET_PRESETS) {
+      let selected: number[];
+      if (preset.mode === "base") {
+        selected = Array.from({ length: preset.baseCount ?? 21 }, (_, i) => i + 1);
+      } else if (preset.mode === "fixed-plus-pool") {
+        selected = Array.from({ length: (preset.fixedCount ?? 6) + (preset.poolCount ?? 14) }, (_, i) => i + 1);
+      } else {
+        selected = Array.from({ length: (preset.fixedCount ?? 3) + (preset.eliminatedCount ?? 2) }, (_, i) => i + 1);
+      }
+
+      const games = generateWorksheetMatrixGames(preset, selected);
+      expect(games, `Preset ${preset.id} deve gerar ${preset.gameCount} jogos`).toHaveLength(preset.gameCount);
+      expect(games.every(g => g.length === 15), `Preset ${preset.id} deve ter 15 dezenas em cada jogo`).toBe(true);
+      expect(games.every(g => new Set(g).size === 15), `Preset ${preset.id} não deve ter dezenas duplicadas`).toBe(true);
+
+      // Garante proteção anti-plágio: nenhum termo da planilha externa
+      const lowerLabel = preset.label.toLowerCase();
+      expect(lowerLabel).not.toContain("tribo da sorte");
+      expect(lowerLabel).not.toContain("farol selecionador");
+    }
+  });
 });

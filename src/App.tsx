@@ -182,6 +182,7 @@ const AppContent = () => {
           <Route path="/historico-legacy" element={<HistoricoPage />} />
           <Route path="/jogos-salvos" element={<JogosSalvosPage />} />
           <Route path="/matriz" element={<MatrizAnalisePage />} />
+          <Route path="/matrizes" element={<PlanilhasMatrizPage />} />
           <Route path="/planilhas" element={<PlanilhasMatrizPage />} />
           <Route path="/roi" element={<ROIDashboardPage />} />
           <Route path="/banca" element={<GestaoBancaPage />} />

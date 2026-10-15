@@ -14,9 +14,14 @@ import {
   Download,
   Flame,
   ArrowRight,
+  Calculator,
+  ChevronDown,
+  ChevronUp,
+  Percent,
   TrendingUp,
   DollarSign,
   Info,
+  ShieldCheck,
 } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { useSavedBets } from "@/hooks/useSavedBets";
@@ -38,7 +43,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Slider } from "@/components/ui/slider";
 import { formatDrawDate } from "@/lib/draw-date";
+
+// Tabela de combinações brutas C(n, 15) para a Calculadora Combinatória Lotofácil
+const COMBINATIONS_LOTOFACIL: Record<number, number> = {
+  15: 1,
+  16: 16,
+  17: 136,
+  18: 816,
+  19: 3876,
+  20: 15504,
+  21: 54264,
+  22: 170544,
+  23: 490314, // Número emblemático da aba CALC COMB
+  24: 1307504,
+  25: 3268760,
+};
 
 // Estimativa de prêmios oficiais da Lotofácil da Caixa
 const PRIZE_ESTIMATES: Record<number, number> = {
@@ -57,14 +78,16 @@ export default function PlanilhasMatrizPage() {
   const [selectedDrawConcurso, setSelectedDrawConcurso] = useState<string>("latest");
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcDezenas, setCalcDezenas] = useState(21);
 
   const matrixData = useMemo(() => computeMatrixAnalysis(draws, config.numbers), [draws, config.numbers]);
   const rankedNumbers = useMemo(() => matrixData.map((row) => row.number), [matrixData]);
   const preset = LOTOFACIL_WORKSHEET_PRESETS.find((item) => item.id === presetId) ?? LOTOFACIL_WORKSHEET_PRESETS[0];
   const inputSize = getPresetInputSize(preset);
 
-  // Mapeamento de status estatístico por dezena usando o motor FAROL
-  const farolMap = useMemo(() => {
+  // Mapeamento de status estatístico por dezena usando o motor analítico de Radar
+  const radarMap = useMemo(() => {
     const map = new Map<number, { status: "hot" | "warm" | "cold"; delay: number; grade: string; freq: number }>();
     if (farol && farol.length > 0) {
       for (const item of farol) {
@@ -108,6 +131,19 @@ export default function PlanilhasMatrizPage() {
     [generatedGames, selectedDraw, previousDraw],
   );
 
+  // Médias estatísticas de filtro de volante dos jogos gerados
+  const gameAverages = useMemo(() => {
+    if (analysis.games.length === 0) return null;
+    const total = analysis.games.length;
+    const avgSum = Math.round(analysis.games.reduce((acc, g) => acc + g.sum, 0) / total);
+    const avgEven = (analysis.games.reduce((acc, g) => acc + g.even, 0) / total).toFixed(1);
+    const avgOdd = (analysis.games.reduce((acc, g) => acc + g.odd, 0) / total).toFixed(1);
+    const avgPrimes = (analysis.games.reduce((acc, g) => acc + g.primes, 0) / total).toFixed(1);
+    const avgMoldura = (analysis.games.reduce((acc, g) => acc + g.moldura, 0) / total).toFixed(1);
+    const avgRepeated = (analysis.games.reduce((acc, g) => acc + g.repeatedFromPrevious, 0) / total).toFixed(1);
+    return { avgSum, avgEven, avgOdd, avgPrimes, avgMoldura, avgRepeated };
+  }, [analysis.games]);
+
   // Cálculo financeiro da simulação
   const financialSummary = useMemo(() => {
     let totalPrizesValue = 0;
@@ -132,32 +168,34 @@ export default function PlanilhasMatrizPage() {
 
   const canGenerate = selectedNumbers.length >= inputSize && generatedGames.length > 0;
 
+  // Identificação de fixas / pool para modelos híbridos
+  const fixedCount = preset.fixedCount || 0;
+  const eliminatedCount = preset.eliminatedCount || 0;
+
   // Atalhos de Seleção
   const autoSelect = () => {
     const numbers = selectTopLotofacilNumbers(rankedNumbers, inputSize);
     setSelectedNumbers(numbers);
   };
 
-  const selectFarolHot = () => {
+  const selectRadarHot = () => {
     if (farol && farol.length > 0) {
       const sorted = [...farol].sort((a, b) => b.titanScore - a.titanScore);
       const topNumbers = sorted.slice(0, inputSize).map((s) => s.number).sort((a, b) => a - b);
       setSelectedNumbers(topNumbers);
-      toast.success(`${topNumbers.length} dezenas de maior força no Farol selecionadas.`);
+      toast.success(`${topNumbers.length} dezenas de maior força estatística selecionadas.`);
     } else {
       autoSelect();
     }
   };
 
   const selectGoldenRatio = () => {
-    // 9 repetidas do último sorteio + ausentes mais quentes (padrão ouro)
     if (!latestDraw) return autoSelect();
     const repeatedPool = [...latestDraw.numbers];
     const absentPool = [...absentFromLatest];
 
-    // Ordenar pelo Farol
-    repeatedPool.sort((a, b) => (farolMap.get(b)?.delay ?? 0) - (farolMap.get(a)?.delay ?? 0));
-    absentPool.sort((a, b) => (farolMap.get(b)?.freq ?? 0) - (farolMap.get(a)?.freq ?? 0));
+    repeatedPool.sort((a, b) => (radarMap.get(b)?.delay ?? 0) - (radarMap.get(a)?.delay ?? 0));
+    absentPool.sort((a, b) => (radarMap.get(b)?.freq ?? 0) - (radarMap.get(a)?.freq ?? 0));
 
     const targetRepeated = Math.min(9, inputSize - 1);
     const targetAbsent = inputSize - targetRepeated;
@@ -168,7 +206,7 @@ export default function PlanilhasMatrizPage() {
     ].sort((a, b) => a - b);
 
     setSelectedNumbers(chosen);
-    toast.success(`Selecionadas ${targetRepeated} repetidas + ${targetAbsent} ausentes (Padrão Farol).`);
+    toast.success(`Selecionadas ${targetRepeated} repetidas + ${targetAbsent} ausentes (Padrão Ouro).`);
   };
 
   const toggleNumber = (number: number) => {
@@ -181,7 +219,7 @@ export default function PlanilhasMatrizPage() {
 
   const copyGamesToClipboard = async () => {
     if (!canGenerate) return;
-    const header = `=== TITAN LOTERIAS — PLANILHA ${preset.sheetName} ===\n` +
+    const header = `=== TITAN LOTERIAS — MATRIZ ${preset.sheetName} ===\n` +
       `Modelo: ${preset.label} (${preset.gameCount} jogos)\n` +
       `Custo total: R$ ${(preset.gameCount * 3).toFixed(2)}\n\n`;
 
@@ -215,7 +253,7 @@ export default function PlanilhasMatrizPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `titan-farol-${preset.id}-${Date.now()}.txt`;
+    link.download = `titan-matriz-${preset.id}-${Date.now()}.txt`;
     link.click();
     URL.revokeObjectURL(url);
     toast.success("Arquivo TXT gerado com sucesso.");
@@ -228,7 +266,7 @@ export default function PlanilhasMatrizPage() {
     for (const game of generatedGames) {
       const ok = await saveBet({
         numbers: game,
-        strategy: `Planilha Matriz: ${preset.label}`,
+        strategy: `Matriz Titan: ${preset.label}`,
         label: `${preset.sheetName} J${saved + 1}`,
       });
       if (ok) saved++;
@@ -242,8 +280,8 @@ export default function PlanilhasMatrizPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Planilhas Farol"
-          description="Metodologia exclusiva de desdobramentos para Lotofácil"
+          title="Matrizes Titan"
+          description="Motor exclusivo de desdobramentos combinatórios para Lotofácil"
           icon={FileSpreadsheet}
           badge="Exclusivo Lotofácil"
         />
@@ -259,7 +297,7 @@ export default function PlanilhasMatrizPage() {
                   Esta metodologia é exclusiva para a Lotofácil
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-                  Os modelos matemáticos <strong>Farol (21x50, 19x5, 17x8, 13x6, etc.)</strong> foram construídos especificamente para o universo de 25 dezenas com sorteios de 15 números da Lotofácil.
+                  As <strong>Matrizes Titan (21x50, 19x5, 17x8, 13x6, etc.)</strong> foram calibradas especificamente para o universo de 25 dezenas com sorteios de 15 números da Lotofácil.
                 </p>
               </div>
             </div>
@@ -281,25 +319,29 @@ export default function PlanilhasMatrizPage() {
   if (draws.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Planilhas Farol" description="Geração e conferência em formato de planilha" icon={FileSpreadsheet} />
+        <PageHeader title="Matrizes Titan" description="Geração e conferência em formato de matriz" icon={FileSpreadsheet} />
         <LotteryContextBanner />
-        <EmptyState description="Carregando sorteios da Lotofácil para alimentar os modelos do Farol..." />
+        <EmptyState description="Carregando sorteios da Lotofácil para alimentar as matrizes combinatórias..." />
       </div>
     );
   }
 
+  // Cálculos da Calculadora Combinatória
+  const combRawCount = COMBINATIONS_LOTOFACIL[calcDezenas] || 1;
+  const combRawCost = combRawCount * 3;
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Planilhas Farol — Lotofácil"
-        description="Desdobramentos dinâmicos baseados na planilha oficial Farol Selecionador (21x50, 19x5, 17x8, 13x6 e mais)."
+        title="Matrizes Titan — Lotofácil"
+        description="Desdobramentos estratégicos de alta cobertura, matrizes combinatórias e conferência financeira em tempo real."
         icon={FileSpreadsheet}
-        badge="Lotofácil Oficial"
+        badge="Lotofácil VIP"
       />
       <LotteryContextBanner />
       <ComplianceDisclaimer />
 
-      {/* --- FAROL CONTEXT BAR (COMO NA ABA FAROL DA PLANILHA) --- */}
+      {/* --- RADAR DE DEZENAS (CONTEXTO DO ÚLTIMO SORTEIO) --- */}
       {latestDraw && (
         <Card className="glass-card border-primary/20 overflow-hidden">
           <CardHeader className="py-3 px-5 border-b border-primary/10 bg-primary/5">
@@ -307,7 +349,7 @@ export default function PlanilhasMatrizPage() {
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                 <span className="text-xs font-bold uppercase tracking-wider text-foreground">
-                  Painel Farol — Concurso #{latestDraw.concurso} ({formatDrawDate(latestDraw.date)})
+                  Radar de Dezenas — Concurso #{latestDraw.concurso} ({formatDrawDate(latestDraw.date)})
                 </span>
               </div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
@@ -352,19 +394,94 @@ export default function PlanilhasMatrizPage() {
         </Card>
       )}
 
-      <PlanGate feature="fechamentos" fallbackMessage="Planilhas Farol e conferidor de matrizes">
+      {/* --- CALCULADORA COMBINATÓRIA INTERATIVA (INSPIRADA NA ABA CALC COMB) --- */}
+      <Card className="glass-card border-border/50 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setShowCalculator(!showCalculator)}
+          className="w-full p-4 flex items-center justify-between text-left hover:bg-secondary/10 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Calculator className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-foreground flex items-center gap-2">
+                Calculadora Combinatória Lotofácil
+                <Badge variant="outline" className="text-[9px] font-mono">C(n, 15)</Badge>
+              </span>
+              <p className="text-[11px] text-muted-foreground">
+                Compare o custo de jogar fechado na Caixa vs a economia das Matrizes Titan
+              </p>
+            </div>
+          </div>
+          {showCalculator ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        </button>
+
+        {showCalculator && (
+          <CardContent className="p-5 border-t border-border/40 bg-secondary/5 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-muted-foreground">Quantas dezenas você quer cercar?</span>
+                <span className="text-base font-black text-primary font-mono">{calcDezenas} Dezenas</span>
+              </div>
+              <Slider
+                value={[calcDezenas]}
+                min={16}
+                max={24}
+                step={1}
+                onValueChange={(val) => setCalcDezenas(val[0])}
+                className="w-full"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
+                <span>16 dezenas</span>
+                <span>20 dezenas</span>
+                <span>24 dezenas</span>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3.5 rounded-xl border border-border/50 bg-background/50">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Combinações Totais 100% Fechadas</p>
+                <p className="mt-1 text-xl font-black font-mono text-foreground">{combRawCount.toLocaleString("pt-BR")}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">jogos de 15 números</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-rose-400">Custo Total Fechado na Caixa</p>
+                <p className="mt-1 text-xl font-black font-mono text-rose-300">R$ {combRawCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                <p className="text-[10px] text-rose-400/80 mt-0.5">inviável para apostador comum</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> Economia com Matriz Titan
+                </p>
+                <p className="mt-1 text-xl font-black font-mono text-emerald-300">
+                  {calcDezenas === 21 ? "99,91% de Economia" : ">95% de Economia"}
+                </p>
+                <p className="text-[10px] text-emerald-400 mt-0.5">
+                  {calcDezenas === 21 ? "Jogue com apenas 50 jogos (R$ 150,00)" : "Fechamentos balanceados por fração do custo"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      <PlanGate feature="fechamentos" fallbackMessage="Matrizes Titan e conferidor avançado de desdobramentos">
         <div className="grid xl:grid-cols-[0.85fr_1.15fr] gap-6">
           
-          {/* --- COLUNA ESQUERDA: CONFIGURAÇÃO & SELETOR DO FAROL --- */}
+          {/* --- COLUNA ESQUERDA: CONFIGURAÇÃO & SELETOR DO RADAR --- */}
           <div className="space-y-6">
             <Card className="glass-card border-border/60">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Grid3X3 className="w-5 h-5 text-primary" />
-                  1. Escolha o Desdobramento
+                  1. Escolha a Matriz Estratégica
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Selecione uma das matrizes inspiradas na planilha oficial Farol v2.1
+                  Modelos de alta performance calibrados matematicamente para a Lotofácil
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
@@ -383,7 +500,7 @@ export default function PlanilhasMatrizPage() {
                     <SelectContent>
                       {LOTOFACIL_WORKSHEET_PRESETS.map((item) => (
                         <SelectItem key={item.id} value={item.id}>
-                          <span className="font-bold">{item.label}</span> — {item.gameCount} jogos ({item.sheetName})
+                          <span className="font-bold">{item.label}</span> — {item.gameCount} jogos
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -413,12 +530,26 @@ export default function PlanilhasMatrizPage() {
                   <Metric label="Custo (R$)" value={`R$ ${(preset.gameCount * 3).toFixed(2)}`} highlight />
                 </div>
 
-                {/* --- SELETOR DE DEZENAS VISUAL (ESTILO FAROL) --- */}
+                {/* --- SELETOR DE DEZENAS VISUAL (ESTILO RADAR) --- */}
                 <div className="rounded-xl border border-border/60 bg-card/30 p-4 space-y-3.5">
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-xs font-bold text-foreground">2. Selecione as {inputSize} Dezenas</span>
-                      <p className="text-[11px] text-muted-foreground">Cores baseadas na força do Farol estatístico</p>
+                      {preset.mode === "fixed-plus-pool" && (
+                        <p className="text-[11px] text-amber-400 font-semibold">
+                          Primeiras {fixedCount} dezenas = FIXAS • Restantes = POOL
+                        </p>
+                      )}
+                      {preset.mode === "gf" && (
+                        <p className="text-[11px] text-amber-400 font-semibold">
+                          Primeiras 3 = FIXAS • Seguintes 2 = ELIMINADAS
+                        </p>
+                      )}
+                      {preset.mode === "base" && (
+                        <p className="text-[11px] text-muted-foreground">
+                          Cores baseadas na força do Radar estatístico
+                        </p>
+                      )}
                     </div>
                     <Badge
                       variant={selectedNumbers.length === inputSize ? "default" : "outline"}
@@ -434,11 +565,11 @@ export default function PlanilhasMatrizPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={selectFarolHot}
+                      onClick={selectRadarHot}
                       className="text-[10px] h-8 px-2 gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
                     >
                       <Flame className="w-3 h-3 text-emerald-400" />
-                      Top Farol
+                      Top Radar
                     </Button>
                     <Button
                       type="button"
@@ -473,14 +604,26 @@ export default function PlanilhasMatrizPage() {
                   {/* Grade 5x5 estilo volante */}
                   <div className="grid grid-cols-5 gap-2 pt-1">
                     {Array.from({ length: 25 }, (_, i) => i + 1).map((number) => {
-                      const selected = selectedNumbers.includes(number);
+                      const selectedIndex = selectedNumbers.indexOf(number);
+                      const selected = selectedIndex !== -1;
                       const isRepeated = latestDrawSet.has(number);
                       const disabled = !selected && selectedNumbers.length >= inputSize;
-                      const farolInfo = farolMap.get(number);
-                      const status = farolInfo?.status || "warm";
+                      const radarInfo = radarMap.get(number);
+                      const status = radarInfo?.status || "warm";
 
-                      // Borda baseada no Farol
-                      const farolBorder =
+                      // Tag especial de Fixa / Eliminada se o modelo exigir
+                      let roleTag = isRepeated ? "Rep." : "Aus.";
+                      if (selected) {
+                        if (preset.mode === "fixed-plus-pool" && selectedIndex < fixedCount) {
+                          roleTag = "FIXA";
+                        } else if (preset.mode === "gf") {
+                          if (selectedIndex < 3) roleTag = "FIXA";
+                          else if (selectedIndex < 5) roleTag = "ELIM.";
+                        }
+                      }
+
+                      // Borda baseada no Radar
+                      const radarBorder =
                         status === "hot"
                           ? "border-emerald-500/60 text-emerald-400"
                           : status === "cold"
@@ -495,22 +638,26 @@ export default function PlanilhasMatrizPage() {
                           onClick={() => toggleNumber(number)}
                           className={`relative h-12 rounded-xl border-2 text-xs font-bold font-mono transition-all flex flex-col items-center justify-center ${
                             selected
-                              ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30 scale-105 z-10"
+                              ? roleTag === "ELIM."
+                                ? "bg-rose-600 text-white border-rose-600 shadow-md scale-105 z-10"
+                                : roleTag === "FIXA"
+                                  ? "bg-amber-500 text-black border-amber-500 shadow-md font-extrabold scale-105 z-10"
+                                  : "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/30 scale-105 z-10"
                               : disabled
                                 ? "bg-muted/10 text-muted-foreground/30 border-transparent cursor-not-allowed opacity-40"
-                                : `bg-background/50 hover:bg-background/80 ${farolBorder} hover:scale-102`
+                                : `bg-background/50 hover:bg-background/80 ${radarBorder} hover:scale-102`
                           }`}
                         >
                           <span className="text-sm font-black">{String(number).padStart(2, "0")}</span>
-                          <span className="text-[9px] font-sans opacity-75 font-semibold">
-                            {isRepeated ? "Rep." : "Aus."}
+                          <span className="text-[9px] font-sans opacity-85 font-semibold">
+                            {roleTag}
                           </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Legenda do Farol */}
+                  {/* Legenda do Radar */}
                   <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1 border-t border-border/30">
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-500" /> Forte
@@ -544,7 +691,7 @@ export default function PlanilhasMatrizPage() {
             </Card>
           </div>
 
-          {/* --- COLUNA DIREITA: JOGOS GERADOS & CONFERIDOR FINANCEIRO --- */}
+          {/* --- COLUNA DIREITA: JOGOS GERADOS, MÉDIAS DE VOLANTE & CONFERIDOR --- */}
           <div className="space-y-6">
             <Card className="glass-card border-border/60">
               <CardHeader className="pb-3">
@@ -552,7 +699,7 @@ export default function PlanilhasMatrizPage() {
                   <div>
                     <CardTitle className="text-base flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                      Conferidor & Jogos do Desdobramento
+                      Conferidor & Jogos da Matriz
                     </CardTitle>
                     <CardDescription className="text-xs">
                       {preset.label} — {generatedGames.length} jogos gerados
@@ -604,6 +751,37 @@ export default function PlanilhasMatrizPage() {
                     color={financialSummary.isProfitable ? "text-emerald-400" : undefined}
                   />
                 </div>
+
+                {/* Médias Estatísticas dos Volantes Gerados (Equilíbrio de Filtros da Planilha) */}
+                {gameAverages && (
+                  <div className="rounded-xl border border-border/50 bg-secondary/10 p-3 space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <TrendingUp className="w-3 h-3 text-primary" /> Conformidade dos Volantes Gerados:
+                    </span>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-center text-xs pt-1">
+                      <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                        <p className="text-[9px] text-muted-foreground uppercase">Média Soma</p>
+                        <p className="font-mono font-bold text-foreground">{gameAverages.avgSum}</p>
+                      </div>
+                      <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                        <p className="text-[9px] text-muted-foreground uppercase">Par / Ímpar</p>
+                        <p className="font-mono font-bold text-foreground">{gameAverages.avgEven} / {gameAverages.avgOdd}</p>
+                      </div>
+                      <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                        <p className="text-[9px] text-muted-foreground uppercase">Média Moldura</p>
+                        <p className="font-mono font-bold text-foreground">{gameAverages.avgMoldura}</p>
+                      </div>
+                      <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                        <p className="text-[9px] text-muted-foreground uppercase">Média Primos</p>
+                        <p className="font-mono font-bold text-foreground">{gameAverages.avgPrimes}</p>
+                      </div>
+                      <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                        <p className="text-[9px] text-muted-foreground uppercase">Média Repetidas</p>
+                        <p className="font-mono font-bold text-foreground">{gameAverages.avgRepeated}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Resumo Financeiro da Premiação da Simulação */}
                 {canGenerate && (
@@ -661,9 +839,9 @@ export default function PlanilhasMatrizPage() {
                   <div className="rounded-xl border border-dashed border-border/60 p-12 text-center text-sm text-muted-foreground space-y-3">
                     <Target className="w-10 h-10 mx-auto text-primary/40 animate-pulse" />
                     <div>
-                      <p className="font-semibold text-foreground text-base">Selecione {inputSize} dezenas para gerar a planilha</p>
+                      <p className="font-semibold text-foreground text-base">Selecione {inputSize} dezenas para gerar a matriz</p>
                       <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                        Clique em <strong>Top Farol</strong> ou <strong>9 Rep. + Aus.</strong> para preenchimento rápido em 1 clique.
+                        Clique em <strong>Top Radar</strong> ou <strong>9 Rep. + Aus.</strong> para preenchimento rápido em 1 clique.
                       </p>
                     </div>
                   </div>

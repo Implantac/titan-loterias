@@ -258,7 +258,7 @@ export default function LotofacilPremiumPage() {
               { value: "strategy", label: "Finanças", icon: TrendingUp },
               { value: "matrix", label: "Matriz HP", icon: Table2 },
               { value: "generation", label: "Geradores", icon: Sparkles },
-              { value: "spreadsheets", label: "Fechamentos", icon: Layers },
+              { value: "spreadsheets", label: "Matrizes", icon: Layers },
               { value: "history", label: "Sorteios", icon: History },
             ].map((tab) => (
               <TabsTrigger 
@@ -586,7 +586,7 @@ export default function LotofacilPremiumPage() {
               <CardHeader>
                 <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                   <FileSpreadsheet className="w-5 h-5 text-primary" />
-                  Modelos de Planilha (Farol)
+                  Matrizes Estratégicas Titan
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">

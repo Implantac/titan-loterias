@@ -35,7 +35,7 @@ const workflowGroups: { label: string; items: { title: string; url: string; icon
       { title: "Central de Inteligência", url: "/dashboard", icon: BarChart3, tooltip: "Terminal central de inteligência e resumo de fluxos." },
       { title: "Painel de Comando", url: "/comando", icon: Command, tooltip: "Todos os sinais críticos consolidados para decisão rápida.", badge: "PRO" },
       { title: "Módulo de Bolão", url: "/bolao", icon: Users, tooltip: "Gestão de bolões colaborativos, rateio de cotas e envio WhatsApp.", badge: "NEW" },
-      { title: "Planilhas Farol", url: "/planilhas", icon: FileSpreadsheet, tooltip: "Desdobramentos Lotofácil no estilo Farol (21x50, 19x5, 17x8 e mais).", badge: "LOTOFÁCIL" },
+      { title: "Matrizes Titan", url: "/matrizes", icon: FileSpreadsheet, tooltip: "Desdobramentos estratégicos exclusivos para Lotofácil (21x50, 19x5, 17x8 e mais).", badge: "LOTOFÁCIL" },
       { title: "Titan AI Center", url: "/ia-chat", icon: MessageCircle, tooltip: "O motor de inteligência central do seu ecossistema.", badge: "NEW" },
       { title: "Gerador Estratégico", url: "/gerador", icon: Sparkles, tooltip: "Geração assistida de coleções inteligentes (Loto Data)." },
       { title: "Análise VIP", url: "/lotofacil-premium", icon: Crown, tooltip: "Ambiente profissional exclusivo.", badge: "PREMIUM" },

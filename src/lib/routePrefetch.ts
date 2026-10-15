@@ -25,6 +25,7 @@ const loaders: Record<string, Loader> = {
   "/historico-legacy": () => import("@/pages/HistoricoPage"),
   "/jogos-salvos": () => import("@/pages/JogosSalvosPage"),
   "/matriz": () => import("@/pages/MatrizAnalisePage"),
+  "/matrizes": () => import("@/pages/PlanilhasMatrizPage"),
   "/planilhas": () => import("@/pages/PlanilhasMatrizPage"),
   "/roi": () => import("@/pages/ROIDashboardPage"),
   "/simulacoes": () => import("@/pages/SimulacoesPage"),
