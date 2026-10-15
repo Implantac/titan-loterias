@@ -877,6 +877,57 @@ export default function PlanilhasMatrizPage() {
                   </div>
                 )}
 
+                {/* Conferência em todos os concursos */}
+                {allDrawsCheck && (
+                  <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                        Conferência em todos os {allDrawsCheck.drawCount} concursos salvos
+                      </span>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        Prêmios est. R$ {allDrawsCheck.prizes.toFixed(2)} · Custo R$ {allDrawsCheck.cost.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      {[11, 12, 13, 14, 15].map((h) => (
+                        <div key={h} className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                          <p className="text-[9px] text-muted-foreground uppercase">{h} pts</p>
+                          <p className="font-mono font-bold text-foreground">{allDrawsCheck.totals[h]}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-lg border border-border/50 overflow-x-auto max-h-[320px] overflow-y-auto">
+                      <Table>
+                        <TableHeader className="bg-secondary/40 sticky top-0 z-10">
+                          <TableRow>
+                            <TableHead className="text-xs font-bold">Jogo</TableHead>
+                            {[11, 12, 13, 14, 15].map((h) => (
+                              <TableHead key={h} className="text-center text-xs font-bold">{h}</TableHead>
+                            ))}
+                            <TableHead className="text-xs font-bold">15 pts em</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allDrawsCheck.rows.map((r) => (
+                            <TableRow key={r.index} className={r.counts[15] > 0 ? "bg-emerald-500/10 font-bold" : undefined}>
+                              <TableCell className="font-mono text-xs font-bold text-muted-foreground">J{String(r.index).padStart(2, "0")}</TableCell>
+                              {[11, 12, 13, 14, 15].map((h) => (
+                                <TableCell key={h} className="text-center font-mono text-xs">{r.counts[h]}</TableCell>
+                              ))}
+                              <TableCell className="font-mono text-xs">
+                                {r.fifteen.length ? r.fifteen.map((c) => `#${c}`).join(", ") : "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Conferência retroativa: mostra quantas vezes cada jogo teria acertado no passado. Não indica chance de sair no futuro.
+                    </p>
+                  </div>
+                )}
+
                 {/* Tabela de Jogos */}
                 {!canGenerate ? (
                   <div className="rounded-xl border border-dashed border-border/60 p-12 text-center text-sm text-muted-foreground space-y-3">
