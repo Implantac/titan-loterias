@@ -16,6 +16,7 @@ export const LOTTERY_BET_COST: Record<string, number> = {
   supersete: 3.0,
   maismilionaria: 6.0,
   mais_milionaria: 6.0,
+  loteca: 4.0,
   federal: 4.0,
 };
 

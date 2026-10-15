@@ -27,6 +27,7 @@ const LOTTERY_BET_COST: Record<string, number> = {
   diadesorte: 2.5,
   supersete: 3.0,
   maismilionaria: 6.0,
+  loteca: 4.0,
   federal: 4.0,
 };
 

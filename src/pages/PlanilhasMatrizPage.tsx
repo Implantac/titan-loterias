@@ -461,7 +461,7 @@ export default function PlanilhasMatrizPage() {
                   {calcDezenas === 21 ? "99,91% de Economia" : ">95% de Economia"}
                 </p>
                 <p className="text-[10px] text-emerald-400 mt-0.5">
-                  {calcDezenas === 21 ? "Jogue com apenas 50 jogos (R$ 150,00)" : "Fechamentos balanceados por fração do custo"}
+                  {calcDezenas === 21 ? "Jogue com apenas 50 jogos (R$ 175,00)" : "Fechamentos balanceados por fração do custo"}
                 </p>
               </div>
             </div>
