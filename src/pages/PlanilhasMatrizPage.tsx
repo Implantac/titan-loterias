@@ -45,6 +45,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Slider } from "@/components/ui/slider";
 import { formatDrawDate } from "@/lib/draw-date";
+import { cn } from "@/lib/utils";
+import { validateWheelCoverage } from "@/engine/wheeling/coverageValidator";
 
 // Tabela de combinações brutas C(n, 15) para a Calculadora Combinatória Lotofácil
 const COMBINATIONS_LOTOFACIL: Record<number, number> = {
@@ -168,6 +170,17 @@ export default function PlanilhasMatrizPage() {
 
   const canGenerate = selectedNumbers.length >= inputSize && generatedGames.length > 0;
 
+  // Validação combinatória da matriz (garantia real e status de verificação exaustiva vs amostral)
+  const matrixValidation = useMemo(() => {
+    if (!canGenerate || generatedGames.length === 0 || selectedNumbers.length < 15) return null;
+    const numToIndex = new Map(selectedNumbers.map((n, i) => [n, i]));
+    const indexGames = generatedGames.map((g) =>
+      g.map((n) => numToIndex.get(n)).filter((idx): idx is number => idx !== undefined)
+    );
+    const hitsInBase = Math.min(15, selectedNumbers.length);
+    return validateWheelCoverage(indexGames, selectedNumbers.length, 15, hitsInBase, 11);
+  }, [canGenerate, generatedGames, selectedNumbers]);
+
   // Identificação de fixas / pool para modelos híbridos
   const fixedCount = preset.fixedCount || 0;
   const eliminatedCount = preset.eliminatedCount || 0;
@@ -242,7 +255,11 @@ export default function PlanilhasMatrizPage() {
     if (!canGenerate) return;
     const header = `TITAN LOTERIAS - ${preset.sheetName}\n` +
       `Data: ${new Date().toLocaleDateString("pt-BR")}\n` +
-      `Jogos: ${preset.gameCount} | Custo: R$ ${(preset.gameCount * 3).toFixed(2)}\n\n`;
+      `Jogos: ${preset.gameCount} | Custo: R$ ${(preset.gameCount * 3).toFixed(2)}\n` +
+      (matrixValidation
+        ? `Validacao: ${matrixValidation.exhaustive ? `100% EXAUSTIVA (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenarios provados)` : `AMOSTRAL (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenarios simulados)`}\n`
+        : "") +
+      `\n`;
 
     const lines = generatedGames.map((game, i) => {
       const formatted = game.map((n) => String(n).padStart(2, "0")).join(" ");
@@ -520,6 +537,21 @@ export default function PlanilhasMatrizPage() {
                           Premiação ≥11: {preset.minPrizeChance}
                         </Badge>
                       )}
+                      {matrixValidation && (
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs font-mono",
+                            matrixValidation.exhaustive
+                              ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                              : "border-amber-500/40 text-amber-400 bg-amber-500/10"
+                          )}
+                        >
+                          {matrixValidation.exhaustive
+                            ? `Garantia 100% Exaustiva (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenários)`
+                            : `Garantia Amostral (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenários)`}
+                        </Badge>
+                      )}
                     </div>
                   )}
                 </div>
@@ -740,6 +772,54 @@ export default function PlanilhasMatrizPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 
+                {/* Status de Verificação Exaustiva vs Amostral */}
+                {matrixValidation && (
+                  <div
+                    className={cn(
+                      "rounded-xl border p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs glass-card",
+                      matrixValidation.exhaustive
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : "border-amber-500/30 bg-amber-500/5"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      {matrixValidation.exhaustive ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                      )}
+                      <div>
+                        <p
+                          className={cn(
+                            "font-bold text-xs sm:text-sm",
+                            matrixValidation.exhaustive ? "text-emerald-400" : "text-amber-400"
+                          )}
+                        >
+                          {matrixValidation.exhaustive
+                            ? "Garantia Matematicamente Provada (100% Exaustiva)"
+                            : "Garantia Estimada por Amostragem (Monte Carlo)"}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {matrixValidation.exhaustive
+                            ? `Todos os ${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenários possíveis dentro da base foram testados. Pior caso garantido: ${matrixValidation.guaranteedHits} acertos (${matrixValidation.meetsGoalPercent.toFixed(1)}% de cobertura na faixa de prêmio).`
+                            : `${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenários simulados via amostragem de Monte Carlo. Menor acerto verificado: ${matrixValidation.guaranteedHits} acertos.`}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={matrixValidation.exhaustive ? "default" : "outline"}
+                      className={cn(
+                        "shrink-0 font-mono text-[10px] uppercase font-bold px-2.5 py-1",
+                        matrixValidation.exhaustive
+                          ? "bg-emerald-600 hover:bg-emerald-600 text-white"
+                          : "border-amber-500 text-amber-400"
+                      )}
+                    >
+                      {matrixValidation.exhaustive ? "100% EXAUSTIVO" : "AMOSTRAL (ESTIMADO)"}
+                    </Badge>
+                  </div>
+                )}
+
                 {/* Resumo com Métricas */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   <Metric label="Melhor Acerto" value={canGenerate ? `${analysis.bestHits}/15` : "-"} highlight />

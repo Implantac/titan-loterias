@@ -233,9 +233,27 @@ const FechamentosPage = () => {
                         <h4 className="font-black text-2xl uppercase tracking-tighter italic leading-none group-hover:text-primary transition-colors">{m.name}</h4>
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">Matriz Profissional</p>
                       </div>
-                      <Badge className="bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] border-primary/20 px-4 py-1.5 rounded-xl">
-                        {m.guarantee}+ SYNC
-                      </Badge>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <Badge className="bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] border-primary/20 px-3 py-1 rounded-xl">
+                          {m.guarantee}+ SYNC
+                        </Badge>
+                        {(() => {
+                          const v = validateMatrix(m.id);
+                          return (
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[9px] font-mono px-2 py-0.5 uppercase font-bold",
+                                v.exhaustive
+                                  ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                                  : "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                              )}
+                            >
+                              {v.exhaustive ? "100% Exaustivo" : "Amostral"}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                     </div>
                     
                     <div className="space-y-6 pt-6 border-t border-border/40 relative z-10">
@@ -273,6 +291,22 @@ const FechamentosPage = () => {
               <div className="text-center space-y-3">
                 <h3 className="text-2xl font-black uppercase tracking-tighter italic">Seleção de <span className="gradient-brand-text">Dataset Alpha</span></h3>
                 <p className="text-sm text-muted-foreground font-medium italic opacity-60">Selecione <span className="text-primary font-black">{currentMatrix.baseSize}</span> dezenas para o deploy da matriz.</p>
+                <div className="flex items-center justify-center gap-2 pt-1">
+                  <Badge variant="outline" className="text-xs font-mono">
+                    {currentMatrix.name} — Meta: {currentMatrix.guarantee} acertos
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px] font-mono uppercase font-bold",
+                      matrixValidation?.exhaustive
+                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                        : "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                    )}
+                  >
+                    {matrixValidation?.exhaustive ? "Garantia 100% Exaustiva" : "Garantia Amostral"}
+                  </Badge>
+                </div>
               </div>
 
               <Card className="glass-card border-primary/20 p-10 rounded-[2.5rem] relative overflow-hidden shadow-2xl">

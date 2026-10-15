@@ -4,6 +4,7 @@ import {
   generateWorksheetMatrixGames,
   LOTOFACIL_WORKSHEET_PRESETS,
 } from "@/engine/worksheet-matrices";
+import { validateWheelCoverage } from "@/engine/wheeling/coverageValidator";
 
 describe("worksheet matrices", () => {
   it("generates Lotofacil worksheet games with 15 numbers", () => {
@@ -55,5 +56,27 @@ describe("worksheet matrices", () => {
       expect(lowerLabel).not.toContain("tribo da sorte");
       expect(lowerLabel).not.toContain("farol selecionador");
     }
+  });
+
+  it("valida status de cobertura exaustiva vs amostral para matrizes da planilha", () => {
+    // plan17x8: C(17, 15) = 136 cenários <= 5000 -> 100% EXAUSTIVO
+    const preset17 = LOTOFACIL_WORKSHEET_PRESETS.find((p) => p.id === "plan17x8")!;
+    const selected17 = Array.from({ length: 17 }, (_, i) => i + 1);
+    const games17 = generateWorksheetMatrixGames(preset17, selected17);
+    const numToIndex17 = new Map(selected17.map((n, i) => [n, i]));
+    const indexGames17 = games17.map((g) => g.map((n) => numToIndex17.get(n)!));
+    const val17 = validateWheelCoverage(indexGames17, 17, 15, 15, 11);
+    expect(val17.exhaustive).toBe(true);
+    expect(val17.testedScenarios).toBe(136);
+
+    // plan21x50: C(21, 15) = 54.264 cenários > 5000 -> AMOSTRAL (Monte Carlo)
+    const preset21 = LOTOFACIL_WORKSHEET_PRESETS.find((p) => p.id === "plan21x50")!;
+    const selected21 = Array.from({ length: 21 }, (_, i) => i + 1);
+    const games21 = generateWorksheetMatrixGames(preset21, selected21);
+    const numToIndex21 = new Map(selected21.map((n, i) => [n, i]));
+    const indexGames21 = games21.map((g) => g.map((n) => numToIndex21.get(n)!));
+    const val21 = validateWheelCoverage(indexGames21, 21, 15, 15, 11);
+    expect(val21.exhaustive).toBe(false);
+    expect(val21.testedScenarios).toBe(5000);
   });
 });

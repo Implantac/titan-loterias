@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { CHART_TOOLTIP_STYLE, CHART_AXIS_TICK, CHART_COLORS } from "@/lib/chart-theme";
-import { BarChart3, Shield, Coins, Hash, Layers, TrendingUp } from "lucide-react";
+import { BarChart3, Shield, Coins, Hash, Layers, TrendingUp, CheckCircle2, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   lotteryId: string;
@@ -167,7 +168,7 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
                 <TableHead className="text-xs text-center">
                   <div className="flex items-center justify-center gap-1"><Coins className="w-3 h-3" />Custo</div>
                 </TableHead>
-                <TableHead className="text-xs text-center">Cobertura</TableHead>
+                <TableHead className="text-xs text-center">Cobertura & Status</TableHead>
                 <TableHead className="text-xs text-center">
                   <div className="flex items-center justify-center gap-1"><TrendingUp className="w-3 h-3" />Eficiência</div>
                 </TableHead>
@@ -198,6 +199,22 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xs font-mono text-foreground">{Math.round(c.validation.coveragePercent)}%</span>
                       <Progress value={c.validation.coveragePercent} className="h-1 w-16" />
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[8px] font-mono px-1 py-0 uppercase font-semibold",
+                          c.validation.exhaustive
+                            ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                            : "text-amber-400 border-amber-500/30 bg-amber-500/10"
+                        )}
+                        title={
+                          c.validation.exhaustive
+                            ? `100% Exaustivo: todos os ${c.validation.totalDraws} cenários combinatórios foram testados.`
+                            : `Amostral: ${c.validation.totalDraws} cenários simulados via amostragem estocástica.`
+                        }
+                      >
+                        {c.validation.exhaustive ? "Exaustivo" : "Amostral"}
+                      </Badge>
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
@@ -214,6 +231,10 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
           <div className="p-3 rounded-lg bg-muted/10 border border-border text-xs text-muted-foreground space-y-1">
             <p><strong className="text-foreground">Eficiência</strong> = Cobertura% ÷ Nº de jogos (maior = melhor custo-benefício)</p>
             <p><strong className="text-foreground">R$/Cob.</strong> = Custo por ponto de cobertura (menor = mais econômico)</p>
+            <p className="text-[11px] pt-1">
+              <span className="text-emerald-400 font-semibold">Exaustivo</span> = 100% dos cenários possíveis comprovados matematicamente.{" "}
+              <span className="text-amber-400 font-semibold">Amostral</span> = validação com até 5.000 cenários simulados (estimativa estatística).
+            </p>
           </div>
         )}
       </CardContent>

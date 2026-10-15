@@ -640,6 +640,37 @@ export default function BolaoPage() {
                       <option value="lf_20_15_14_356">Lotofácil: 20 dezenas → 356 jogos (profissional)</option>
                     </select>
                   </div>
+                  {selectedMatrixId && WHEELING_MATRICES[selectedMatrixId as WheelingMatrixId] && (() => {
+                    const v = validateMatrix(selectedMatrixId as WheelingMatrixId);
+                    return (
+                      <div className={cn(
+                        "p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2",
+                        v.exhaustive ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
+                      )}>
+                        <div className="flex items-center gap-2">
+                          {v.exhaustive ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          ) : (
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          )}
+                          <span className={cn("text-[11px] font-medium", v.exhaustive ? "text-emerald-400" : "text-amber-400")}>
+                            {v.exhaustive ? "Garantia 100% Exaustiva (Provada)" : "Garantia Amostral (Estimativa)"}
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-[9px] font-mono",
+                            v.exhaustive
+                              ? "text-emerald-400 border-emerald-500/40 bg-emerald-500/10"
+                              : "text-amber-400 border-amber-500/40 bg-amber-500/10"
+                          )}
+                        >
+                          {v.exhaustive ? `${formatNumber(v.totalDraws)} cenários testados` : `${formatNumber(v.totalDraws)} amostras`}
+                        </Badge>
+                      </div>
+                    );
+                  })()}
                   <Button onClick={handleGenerateFromMatrix} className="w-full text-xs font-bold">
                     Gerar Fechamento para o Bolão
                   </Button>
