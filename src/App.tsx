@@ -54,6 +54,7 @@ const ROIDashboardPage = lazy(() => import("@/pages/ROIDashboardPage"));
 const SimulacoesPage = lazy(() => import("@/pages/SimulacoesPage"));
 const StrategyLabPage = lazy(() => import("@/pages/StrategyLabPage"));
 const GestaoBancaPage = lazy(() => import("@/pages/GestaoBancaPage"));
+const LotecaPage = lazy(() => import("@/pages/LotecaPage"));
 const BolaoPage = lazy(() => import("@/pages/BolaoPage"));
 const ComandoApostadorPage = lazy(() => import("@/pages/ComandoApostadorPage"));
 const ClosingSharePage = lazy(() => import("@/pages/ClosingSharePage"));
@@ -166,6 +167,7 @@ const AppContent = () => {
           <Route path="/comando" element={<ComandoApostadorPage />} />
           <Route path="/gerador" element={<GeradorPage />} />
           <Route path="/bolao" element={<BolaoPage />} />
+          <Route path="/loteca" element={<LotecaPage />} />
           <Route path="/fechamentos" element={<FechamentosPage />} />
           <Route path="/fechamento-universal" element={<FechamentoUniversalPage />} />
           <Route path="/analise" element={<AnaliseCentralPage />} />
