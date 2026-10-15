@@ -53,7 +53,7 @@ export default function LotecaPage() {
     <div className="space-y-6 p-4 md:p-6 max-w-5xl mx-auto">
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">🏈 Loteca</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><Trophy className="h-6 w-6 text-primary" />Loteca</h1>
           <p className="text-sm text-muted-foreground">14 jogos de futebol · palpite 1 (casa), X (empate) ou 2 (fora) · aposta simples {brl(LOTECA_PRICE)}</p>
         </div>
         <form className="flex gap-2" onSubmit={e => { e.preventDefault(); load(concurso || undefined); }}>
