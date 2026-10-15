@@ -31,10 +31,10 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center gap-3 group no-underline"
+            className="flex items-center gap-3.5 group no-underline"
             onMouseEnter={() => prefetchRoute("/")}
           >
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-primary/30 shadow-md shadow-primary/20 group-hover:border-primary transition-all duration-300">
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary/40 shadow-xl shadow-primary/20 group-hover:border-primary group-hover:shadow-primary/40 transition-all duration-300 shrink-0 bg-black">
               <img 
                 src="/logo.png" 
                 alt="Titan Loterias" 
@@ -42,10 +42,10 @@ export function Navbar() {
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-primary transition-colors leading-tight">
+              <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-white group-hover:text-primary transition-colors leading-tight">
                 Titan<span className="text-primary">Loterias</span>
               </span>
-              <span className="text-[10px] text-muted-foreground font-medium leading-none">
+              <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold tracking-wider uppercase leading-none mt-0.5">
                 Inteligência Quantitativa
               </span>
             </div>

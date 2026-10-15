@@ -266,11 +266,11 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 mb-12">
             <div className="md:col-span-2 space-y-4">
-              <div className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/30 shadow-sm shrink-0">
-                  <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <div className="flex items-center gap-3.5 group">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary/40 shadow-lg shadow-primary/20 shrink-0 bg-black">
+                  <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-white">
+                <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
                   Titan<span className="text-primary">Loterias</span>
                 </span>
               </div>

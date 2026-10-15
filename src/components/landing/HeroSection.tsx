@@ -45,12 +45,26 @@ export function HeroSection({
             custom={0}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md shadow-sm"
+            className="flex flex-col items-center gap-4"
           >
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-semibold text-primary tracking-wide">
-              Lote Fundador Liberado • Acesso Vitalício por R$ 99,90
-            </span>
+            {/* Heroic Brand Emblem */}
+            <div className="relative group cursor-pointer" onClick={(e) => handleCtaClick(e, "/planos")}>
+              <div className="absolute -inset-1.5 bg-gradient-to-r from-primary/60 via-amber-500/30 to-primary/60 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-700 animate-pulse" />
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-primary/60 bg-black/80 shadow-2xl shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                <img 
+                  src="/logo.png" 
+                  alt="Titan Loterias" 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold text-primary tracking-wide">
+                Lote Fundador Liberado • Acesso Vitalício por R$ 99,90
+              </span>
+            </div>
           </motion.div>
 
           <motion.div 
