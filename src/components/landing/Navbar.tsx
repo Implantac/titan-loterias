@@ -31,21 +31,21 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center gap-3.5 group no-underline"
+            className="flex items-center gap-3.5 sm:gap-4 group no-underline"
             onMouseEnter={() => prefetchRoute("/")}
           >
-            <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary/40 shadow-xl shadow-primary/20 group-hover:border-primary group-hover:shadow-primary/40 transition-all duration-300 shrink-0 bg-black">
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 sm:border-[2.5px] border-primary/60 shadow-xl shadow-primary/25 group-hover:border-primary group-hover:shadow-primary/50 group-hover:scale-105 transition-all duration-300 shrink-0 bg-black flex items-center justify-center">
               <img 
                 src="/logo.png" 
                 alt="Titan Loterias" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                className="w-full h-full object-cover transition-transform duration-300" 
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-white group-hover:text-primary transition-colors leading-tight">
+              <span className="text-xl sm:text-2xl md:text-[26px] font-extrabold tracking-tight text-white group-hover:text-primary transition-colors leading-tight">
                 Titan<span className="text-primary">Loterias</span>
               </span>
-              <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold tracking-wider uppercase leading-none mt-0.5">
+              <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold tracking-wider uppercase leading-none mt-1">
                 Inteligência Quantitativa
               </span>
             </div>

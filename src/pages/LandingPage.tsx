@@ -266,13 +266,18 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 mb-12">
             <div className="md:col-span-2 space-y-4">
-              <div className="flex items-center gap-3.5 group">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary/40 shadow-lg shadow-primary/20 shrink-0 bg-black">
-                  <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
+              <div className="flex items-center gap-4 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 sm:border-[2.5px] border-primary/60 shadow-2xl shadow-primary/30 shrink-0 bg-black group-hover:border-primary group-hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                  <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover transition-transform duration-300" loading="lazy" decoding="async" />
                 </div>
-                <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
-                  Titan<span className="text-primary">Loterias</span>
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white group-hover:text-primary transition-colors">
+                    Titan<span className="text-primary">Loterias</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground font-semibold tracking-wider uppercase mt-1">
+                    Inteligência Quantitativa & Bolões
+                  </span>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
                 Plataforma de inteligência estatística e combinatória aplicada às loterias oficiais da Caixa. Analise, simule e monte apostas com base em dados empíricos.

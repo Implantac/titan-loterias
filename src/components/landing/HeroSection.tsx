@@ -49,12 +49,18 @@ export function HeroSection({
           >
             {/* Heroic Brand Emblem */}
             <div className="relative group cursor-pointer" onClick={(e) => handleCtaClick(e, "/planos")}>
-              <div className="absolute -inset-1.5 bg-gradient-to-r from-primary/60 via-amber-500/30 to-primary/60 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-700 animate-pulse" />
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-primary/60 bg-black/80 shadow-2xl shadow-primary/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+              {/* Outer Pulsing Glow */}
+              <div className="absolute -inset-3 sm:-inset-5 bg-gradient-to-r from-primary/50 via-amber-500/35 to-emerald-400/50 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-all duration-700 animate-pulse" />
+              
+              {/* Concentric Rotating / Glowing Accent Ring */}
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary/80 via-amber-400/50 to-emerald-400/80 opacity-60 group-hover:opacity-100 blur-sm transition-all duration-500" />
+              
+              {/* Emblem Frame */}
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-full overflow-hidden border-2 sm:border-[3px] border-primary/70 bg-black/90 shadow-[0_0_60px_rgba(var(--primary),0.35)] flex items-center justify-center group-hover:scale-105 group-hover:border-primary transition-all duration-500">
                 <img 
                   src="/logo.png" 
-                  alt="Titan Loterias" 
-                  className="w-full h-full object-cover" 
+                  alt="Titan Loterias — Inteligência Quantitativa" 
+                  className="w-full h-full object-cover select-none drop-shadow-2xl" 
                 />
               </div>
             </div>
