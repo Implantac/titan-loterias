@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, RefreshCw, Trophy } from "lucide-react";
-import { LOTECA_MATCHES, LOTECA_PRICE, lotecaCombos, lotecaHits, type LotecaPick } from "@/engine/loteca";
+import { LOTECA_MATCHES, LOTECA_PRICE, lotecaCombos, lotecaHits, normalizeLoteca, LOTECA_CAIXA_URL, type LotecaPick } from "@/engine/loteca";
 
 interface Jogo { seq: number; casa: string; fora: string; golsCasa: number | null; golsFora: number | null; resultado: LotecaPick | null; data: string; dia: string }
 interface Resultado {
@@ -25,6 +25,13 @@ export default function LotecaPage() {
   const load = useCallback(async (num?: string) => {
     setLoading(true); setError(null);
     try {
+      // 1) portal oficial da Caixa direto do navegador; 2) função de backend como reserva
+      try {
+        const r = await fetch(num ? `${LOTECA_CAIXA_URL}/${num}` : LOTECA_CAIXA_URL, { headers: { Accept: "application/json" } });
+        if (!r.ok) throw new Error(`Caixa ${r.status}`);
+        setData(normalizeLoteca(await r.json()) as Resultado);
+        return;
+      } catch { /* tenta a reserva */ }
       const { data: d, error: e } = await supabase.functions.invoke("loteca-results", { body: num ? { concurso: num } : {} });
       if (e) throw e;
       if (d?.error) throw new Error(d.error);
