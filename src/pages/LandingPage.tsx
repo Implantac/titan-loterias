@@ -267,7 +267,9 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 mb-12">
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3 group">
-                <img src="/logo.png" alt="Titan Loterias" className="w-9 h-9 object-contain opacity-80" loading="lazy" decoding="async" />
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/30 shadow-sm shrink-0">
+                  <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                </div>
                 <span className="text-xl font-bold tracking-tight text-white">
                   Titan<span className="text-primary">Loterias</span>
                 </span>

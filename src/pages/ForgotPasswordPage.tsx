@@ -40,9 +40,9 @@ export default function ForgotPasswordPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/login" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden">
-              <img src="/logo.png" alt="Titan Loterias" className="w-10 h-10 object-contain" />
+          <Link to="/login" className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20 overflow-hidden border border-primary/30">
+              <img src="/logo.png" alt="Titan Loterias" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold gradient-brand-text font-display">Titan Loterias</span>
           </Link>

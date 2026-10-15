@@ -34,12 +34,11 @@ export function Navbar() {
             className="flex items-center gap-3 group no-underline"
             onMouseEnter={() => prefetchRoute("/")}
           >
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
-              <div className="absolute inset-0 bg-primary/20 rounded-xl group-hover:rotate-45 transition-transform duration-500 shadow-sm" />
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-primary/30 shadow-md shadow-primary/20 group-hover:border-primary transition-all duration-300">
               <img 
                 src="/logo.png" 
-                alt="Titan" 
-                className="relative z-10 w-6 h-6 sm:w-7 sm:h-7 object-contain drop-shadow" 
+                alt="Titan Loterias" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
               />
             </div>
             <div className="flex flex-col">
