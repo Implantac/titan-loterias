@@ -136,7 +136,7 @@ export const LOTOFACIL_WORKSHEET_PRESETS: WorksheetMatrixPreset[] = [
   },
 ];
 
-const LOTOFACIL_PRICE = 3;
+const LOTOFACIL_PRICE = 3.5; // preço oficial Caixa (jul/2025)
 const PRIMES = new Set([2, 3, 5, 7, 11, 13, 17, 19, 23]);
 const FIBONACCI = new Set([1, 2, 3, 5, 8, 13, 21]);
 const MOLDURA = new Set([1, 2, 3, 4, 5, 6, 10, 11, 15, 16, 20, 21, 22, 23, 24, 25]);

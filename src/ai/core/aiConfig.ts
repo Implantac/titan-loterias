@@ -31,7 +31,7 @@ export const AI_CONFIG = {
     monte_carlo:  { hotBias: 0.4, coldBias: 0.25, diversityWeight: 0.85, sequencePenalty: 1.2 },
     prime_focus:  { hotBias: 0.35, coldBias: 0.3, diversityWeight: 0.8, sequencePenalty: 1.0 },
   },
-  lotofacilTicketPrice: 3.0,
-  megasenaTicketPrice: 5.0,
-  quinaTicketPrice: 2.5,
+  lotofacilTicketPrice: 3.5,
+  megasenaTicketPrice: 6.0,
+  quinaTicketPrice: 3.0,
 } as const;
