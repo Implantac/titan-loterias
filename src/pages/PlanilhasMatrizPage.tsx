@@ -169,6 +169,38 @@ export default function PlanilhasMatrizPage() {
 
   const canGenerate = selectedNumbers.length >= inputSize && generatedGames.length > 0;
 
+  // Conferência de cada jogo contra TODOS os concursos salvos (mesma regra do concurso a concurso)
+  const [checkAll, setCheckAll] = useState(false);
+  const allDrawsCheck = useMemo(() => {
+    if (!checkAll || !canGenerate || draws.length === 0) return null;
+    const toMask = (nums: number[]) => nums.reduce((m, n) => m | (1 << n), 0);
+    const popcount = (x: number) => {
+      let c = 0;
+      while (x) { x &= x - 1; c++; }
+      return c;
+    };
+    const drawMasks = draws.map((d) => toMask(d.numbers));
+    const totals: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+    const rows = generatedGames.map((game, i) => {
+      const gm = toMask(game);
+      const counts: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+      const fifteen: number[] = [];
+      drawMasks.forEach((dm, di) => {
+        const h = popcount(gm & dm);
+        if (h >= 11) {
+          counts[h]++;
+          totals[h]++;
+          if (h === 15) fifteen.push(draws[di].concurso);
+        }
+      });
+      return { index: i + 1, numbers: game, counts, fifteen };
+    });
+    let prizes = 0;
+    for (const h of [11, 12, 13, 14, 15]) prizes += totals[h] * (PRIZE_ESTIMATES[h] || 0);
+    const cost = generatedGames.length * draws.length * LOTOFACIL_PRICE;
+    return { rows, totals, prizes, cost, drawCount: draws.length };
+  }, [checkAll, canGenerate, draws, generatedGames]);
+
   // Identificação de fixas / pool para modelos híbridos
   const fixedCount = preset.fixedCount || 0;
   const eliminatedCount = preset.eliminatedCount || 0;
@@ -687,6 +719,16 @@ export default function PlanilhasMatrizPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button
+                    variant={checkAll ? "default" : "outline"}
+                    size="sm"
+                    className="w-full h-9 text-xs gap-1.5"
+                    disabled={!canGenerate}
+                    onClick={() => setCheckAll((v) => !v)}
+                  >
+                    <Table2 className="w-3.5 h-3.5" />
+                    {checkAll ? "Ocultar conferência em todos os concursos" : `Conferir em todos os ${draws.length} concursos`}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
