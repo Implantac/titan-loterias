@@ -13,7 +13,7 @@ export const NeuralSynergyCore = ({ analytics }: NeuralSynergyCoreProps) => {
     { name: "Engine GA-X (Genético)", status: "SYNCED", load: 42, color: "from-primary/40 to-primary" },
     { name: "Matrix Markov v2.4", status: "ACTIVE", load: 68, color: "from-neon-blue/40 to-neon-blue" },
     { name: "Annealing Estocástico", status: "OPTIMIZING", load: 25, color: "from-accent/40 to-accent" },
-    { name: "Entropia Quântica", status: "CALIBRATED", load: 89, color: "from-neon-purple/40 to-neon-purple" }
+    { name: "Entropia Informacional", status: "CALIBRATED", load: 89, color: "from-neon-purple/40 to-neon-purple" }
   ];
 
   return (

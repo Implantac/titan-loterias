@@ -84,11 +84,26 @@ describe("generateByStrategy — reprodutibilidade", () => {
     }
   });
 
-  it("STRATEGIES inclui os modelos de posicionamento para cobertura", () => {
+  it("STRATEGIES inclui os modelos de posicionamento com rótulos honestos e realistas", () => {
     const positioningIds = ["quantum", "randomForest", "xgboost", "lstm", "bayesian", "markov_model"];
     const ids = STRATEGIES.map(s => s.id);
     for (const pId of positioningIds) {
       expect(ids).toContain(pId);
     }
+
+    // Garante que nenhum modelo na UI use nomes falsos de marketing (Quantum, XGBoost, Random Forest, Rede Neural)
+    const fakeMarketingTerms = ["quantum", "xgboost", "random forest", "rede neural"];
+    for (const strat of STRATEGIES) {
+      const lowerLabel = strat.label.toLowerCase();
+      for (const term of fakeMarketingTerms) {
+        expect(lowerLabel, `Estratégia ${strat.id} não deve conter termo de hype '${term}'`).not.toContain(term);
+      }
+    }
+
+    // Verifica que os rótulos honestos estão corretos
+    expect(STRATEGIES.find(s => s.id === "quantum")?.label).toBe("Padrões Multi-Dimensionais");
+    expect(STRATEGIES.find(s => s.id === "randomForest")?.label).toBe("Frequência & Tendência");
+    expect(STRATEGIES.find(s => s.id === "xgboost")?.label).toBe("Multi-Fatorial Estatístico");
+    expect(STRATEGIES.find(s => s.id === "lstm")?.label).toBe("Padrões Temporais");
   });
 });

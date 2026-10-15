@@ -976,7 +976,7 @@ export function AIAutonomousDashboard({ config, draws, stats }: Props) {
                   </div>
                   <div>
                     <CardTitle className="text-xl font-black uppercase tracking-tight italic">Relatório Estatístico Detalhado</CardTitle>
-                    <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-40">Síntese de Redes Neurais e Probabilidade Bayesiana</CardDescription>
+                    <CardDescription className="text-[10px] font-black uppercase tracking-widest opacity-40">Síntese de Modelos Estatísticos e Probabilidade Bayesiana</CardDescription>
                   </div>
                 </div>
               </div>

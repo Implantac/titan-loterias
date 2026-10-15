@@ -65,20 +65,13 @@ export const STRATEGIES: StrategyInfo[] = [
   { id: "lowDelay", label: "Baixo Atraso", desc: "Números com maior atraso + detecção de ciclo vencido", category: "math" },
   { id: "pattern", label: "Padrão", desc: "Padrões par/ímpar, alto/baixo e consecutividade", category: "math" },
   { id: "cycle", label: "Ciclo", desc: "Seleção baseada no desvio padrão e regularidade de gaps", category: "math" },
-  // Modelos Estatísticos e Heurísticos de Posicionamento (Quantum, LSTM, XGBoost, Random Forest, Bayesiana, Markov)
-  { id: "quantum", label: "Análise Quantum", desc: "Padrões multi-dimensionais e ressonância estatística para cobertura", category: "ai" },
-  { id: "randomForest", label: "Random Forest", desc: "Ensemble de árvores de decisão e ponderação de frequência histórica", category: "ai" },
-  { id: "xgboost", label: "XGBoost", desc: "Algoritmo de gradiente multi-fatorial com alto desempenho para cobertura", category: "ai" },
-  { id: "lstm", label: "Rede Neural (LSTM)", desc: "Reconhecimento de padrões profundos e recência em séries temporais", category: "ai" },
-  { id: "bayesian", label: "Inferência Bayesiana", desc: "Atualização Bayesiana de probabilidades históricas", category: "ai" },
-  { id: "markov_model", label: "Cadeia de Markov", desc: "Matriz de transição de estados numéricos", category: "ai" },
-  // Modelos Estatísticos e Heurísticos (nomes analíticos complementares)
-  { id: "frequencyTrend", label: "Frequência & Tendência", desc: "Heurística de frequência histórica ponderada, tendência e momentum", category: "math" },
-  { id: "multiFactor", label: "Multi-Fatorial", desc: "Algoritmo estatístico multi-fatorial com desvio padrão e análise de gaps", category: "math" },
-  { id: "temporalPattern", label: "Padrões Temporais", desc: "Heurística de séries temporais e recência de dezenas", category: "math" },
-  { id: "bayesianScore", label: "Inferência Bayesiana (Score)", desc: "Heurística de atualização Bayesiana de priors históricos", category: "math" },
-  { id: "transitionScore", label: "Transição de Estados", desc: "Matriz de transição estatística de ocorrência consecutiva", category: "math" },
-  { id: "multiDimensionalPattern", label: "Padrões Multi-Dimensionais", desc: "Detecção de padrões estatísticos por ressonância e dispersão", category: "math" },
+  // Modelos Estatísticos e Heurísticos (nomenclatura honesta para cobertura e conformidade)
+  { id: "quantum", label: "Padrões Multi-Dimensionais", desc: "Heurística de padrões multi-dimensionais e ressonância estatística para cobertura", category: "ai" },
+  { id: "randomForest", label: "Frequência & Tendência", desc: "Heurística ponderada de frequência histórica, momentum e cobertura", category: "ai" },
+  { id: "xgboost", label: "Multi-Fatorial Estatístico", desc: "Algoritmo estatístico multi-fatorial com desvio padrão e ciclos para cobertura", category: "ai" },
+  { id: "lstm", label: "Padrões Temporais", desc: "Heurística de séries temporais e recência de dezenas para cobertura", category: "ai" },
+  { id: "bayesian", label: "Inferência Bayesiana", desc: "Atualização Bayesiana de probabilidades a priori e a posteriori para cobertura", category: "ai" },
+  { id: "markov_model", label: "Cadeia de Markov", desc: "Matriz estocástica de transição de estados numéricos para cobertura", category: "ai" },
   // AI / Ensemble
   { id: "ml", label: "Ensemble Estatístico", desc: "Consenso ponderado dos 6 modelos estatísticos e heurísticos", category: "ai" },
   { id: "hybrid", label: "Estratégia Híbrida", desc: "Combina consenso dos modelos + análise de tendência + ciclos", category: "ai" },
@@ -414,7 +407,7 @@ export function generateByStrategy(
     case "xgboost":
     case "randomForest": {
       // Modelos estatísticos e heurísticos (ml-models.ts).
-      // Falsos nomes de marketing (quantum, lstm, xgboost, randomForest) mantidos como aliases para retrocompatibilidade.
+      // Identificadores técnicos com compatibilidade retroativa mapeados para seus respectivos motores de score.
       const models = runAllModels(stats, config);
       const nameMap: Record<string, string> = {
         // Nomes honestos

@@ -21,7 +21,7 @@ const IAAutonomaPage = () => {
             IA <span className="gradient-brand-text not-italic">Autônoma</span>
           </h1>
           <p className="text-sm text-muted-foreground font-medium max-w-2xl leading-relaxed">
-            Redes neurais em regime de aprendizado contínuo para detecção de anomalias estatísticas e padrões ocultos em tempo real.
+            Modelos estatísticos e heurísticos avançados para detecção de anomalias estatísticas e padrões de cobertura em tempo real.
           </p>
         </div>
       </div>

@@ -534,7 +534,7 @@ export default function LotofacilPremiumPage() {
                 </CardTitle>
                 <div className="flex gap-2">
                   <Badge className="bg-primary/20 text-primary border-primary/30">SCORE V9.0</Badge>
-                  <Badge className="bg-accent/20 text-accent border-accent/30">QUANTUM STATS</Badge>
+                  <Badge className="bg-accent/20 text-accent border-accent/30">PADRÕES MULTIDIMENSIONAIS</Badge>
                 </div>
               </div>
             </CardHeader>
