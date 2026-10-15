@@ -1,19 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { burstConfetti } from "@/lib/confetti";
 
 export function FloatingCTA() {
-  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => {
-      setVisible(window.scrollY > 600);
+      setVisible(window.scrollY > 500);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -22,7 +20,7 @@ export function FloatingCTA() {
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     burstConfetti(e);
-    setTimeout(() => navigate("/signup"), 500);
+    setTimeout(() => navigate("/planos"), 400);
   }, [navigate]);
 
   return (
@@ -38,9 +36,10 @@ export function FloatingCTA() {
           <Button
             size="lg"
             onClick={handleClick}
-            className="gradient-brand text-primary-foreground shadow-2xl shadow-primary/30 gap-2 px-6 h-12 text-sm font-semibold"
+            className="gradient-brand text-primary-foreground shadow-2xl shadow-primary/30 gap-2 px-6 h-12 text-sm font-bold rounded-xl hover:scale-105 active:scale-95 transition-all"
           >
-            Acesso Vitalício R$ 99,90 <ArrowRight className="w-4 h-4" />
+            <Sparkles className="w-4 h-4" />
+            Vitalício Fundador R$ 99,90 <ArrowRight className="w-4 h-4" />
           </Button>
         </motion.div>
       )}

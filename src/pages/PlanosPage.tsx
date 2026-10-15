@@ -1,4 +1,4 @@
-import { Crown, Zap, Sparkles, Settings, Loader2, CheckCircle2, Star, ShieldCheck, Gem } from "lucide-react";
+import { Crown, CheckCircle2, Loader2, ShieldCheck, Clock, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -9,165 +9,233 @@ import { useNavigate } from "react-router-dom";
 import { PlanFAQ } from "@/components/plans/PlanFAQ";
 import { PlanTrustBar } from "@/components/plans/PlanTrustBar";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { Badge } from "@/components/ui/badge";
 
 export default function PlanosPage() {
   const { session } = useAuth();
   const { currentPlan, isAdmin, isSuperAdmin } = usePlanAccess();
-  const [loadingPlan, setLoadingPlan] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const LAUNCH_PRICE = "R$ 99,90";
-  const ORIGINAL_PRICE = "R$ 297";
-
-  const handleCheckout = async () => {
+  const handleCheckout = async (planId: "lifetime" | "annual") => {
     if (!session) {
       navigate("/login");
       return;
     }
 
-    setLoadingPlan(true);
+    setLoadingPlan(planId);
     try {
-      const result = await createCheckoutSession("lifetime", session.access_token);
+      const result = await createCheckoutSession(planId, session.access_token);
       if (result?.url) {
-        // Navegação direta (não `window.open`): a abertura de janela depois de um
-        // `await` fica fora da call stack do gesto do usuário e é bloqueada pelo
-        // popup blocker de Chrome/Safari/Firefox — o cliente clicava e nada acontecia.
         window.location.assign(result.url);
         return;
       }
-      // url === null acontece quando a conta já é lifetime/admin.
       toast.info("Seu acesso já está ativo.");
     } catch (e: any) {
       toast.error("Erro ao iniciar checkout: " + (e.message || "Tente novamente"));
     } finally {
-      setLoadingPlan(false);
+      setLoadingPlan(null);
     }
   };
 
   const isLifetime = currentPlan === "lifetime" || isAdmin || isSuperAdmin;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 pb-16">
-      {/* Hero Section */}
+    <div className="max-w-5xl mx-auto px-4 md:px-6 pt-6 pb-20">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center pt-8 pb-10"
+        transition={{ duration: 0.4 }}
+        className="text-center pt-6 pb-10 max-w-3xl mx-auto space-y-4"
       >
-        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-neon-amber/10 border-2 border-neon-amber/30 text-neon-amber text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-neon-amber/5 backdrop-blur-md mb-8">
-          <div className="w-2 h-2 rounded-full bg-neon-amber animate-pulse shadow-[0_0_8px_rgba(var(--neon-amber),1)]" />
-          Acesso Vitalício • Pagamento Único
-        </div>
-        <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase italic leading-[0.9] mb-6">
-          Acesso Vitalício <span className="gradient-brand-text block mt-2">Zero Mensalidade</span>
+        <Badge variant="outline" className="px-4 py-1.5 text-xs font-semibold tracking-wide bg-primary/10 text-primary border-primary/20 rounded-full inline-flex items-center gap-1.5">
+          <Crown className="w-3.5 h-3.5" />
+          Planos Oficiais Titan Loterias
+        </Badge>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          Escolha como deseja acessar a <span className="gradient-brand-text">Plataforma</span>
         </h1>
-        <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70">
-          Acesso permanente às ferramentas de análise estatística Titan, com um único pagamento e sem mensalidade.
+        <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
+          Garanta o Acesso Vitalício com pagamento único ou assine pela temporada de 12 meses. Liberação imediata no Pix e garantia incondicional de 7 dias.
         </p>
-
       </motion.div>
 
-      {/* Main Promo Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        className={`relative rounded-[2.5rem] border-4 p-1 overflow-hidden shadow-2xl transition-all duration-700 ${
-          isLifetime ? "border-primary/40 shadow-primary/20" : "border-neon-amber/40 shadow-neon-amber/20 hover:scale-[1.01]"
-        }`}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(var(--neon-amber),0.15),transparent)] pointer-events-none opacity-50" />
+      {/* Plans Comparison Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-16">
         
-        <div className="relative bg-black/60 backdrop-blur-2xl rounded-[2.2rem] p-8 md:p-14">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-neon-amber/20 flex items-center justify-center border border-neon-amber/30">
-                    <Gem className="w-5 h-5 text-neon-amber" />
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-neon-amber opacity-80">Titan Professional Network</span>
+        {/* Card 1: Plano Anual */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="lg:col-span-5 rounded-2xl border border-white/10 bg-card/40 backdrop-blur-xl p-6 sm:p-8 flex flex-col justify-between hover:border-white/20 transition-all"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-muted-foreground">
+                  <Clock className="w-5 h-5" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Titan <span className="text-neon-amber">Full Node</span></h2>
-                <p className="text-muted-foreground text-sm mt-3 font-medium leading-relaxed opacity-70">
-                  Infraestrutura completa de processamento estatístico para quem opera com seriedade e volume de dados institucional.
-                </p>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Plano Anual</h3>
+                  <p className="text-xs text-muted-foreground">Temporada de 12 meses</p>
+                </div>
               </div>
-
-
-              <ul className="space-y-3">
-                {[
-                  "Acesso vitalício sem renovação",
-                  "Todas as 10 loterias integradas",
-                  "Motor estatístico com backtest e evidência",
-                  "Geradores e Otimizadores Pro",
-                  "Backtests e Simulações massivas",
-                  "Atualizações futuras inclusas",
-                  "Suporte VIP prioritário",
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm">
-                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+              <Badge variant="outline" className="text-[10px] font-mono border-white/10 text-muted-foreground">
+                12 Meses
+              </Badge>
             </div>
 
-            <div className="bg-white/[0.03] border-2 border-white/10 rounded-[2rem] p-10 flex flex-col items-center text-center relative overflow-hidden group/price">
-              <div className="absolute inset-0 bg-gradient-to-b from-neon-amber/5 via-transparent to-transparent opacity-0 group-hover/price:opacity-100 transition-opacity" />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-50 mb-4 relative z-10">Unique Node Activation</p>
-              <div className="flex items-baseline gap-1 mb-8 relative z-10 group-hover:scale-105 transition-transform duration-500">
-                <span className="text-6xl font-black font-mono tracking-tighter italic text-foreground">{LAUNCH_PRICE}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 ml-1">Paid Once</span>
+            <div className="p-4 rounded-xl bg-background/50 border border-white/5 mb-6">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-3xl font-black font-mono text-foreground">R$ 69,90</span>
+                <span className="text-xs text-muted-foreground">/ ano</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Equivalente a R$ 5,82 por mês com renovação anual.
+              </p>
+            </div>
+
+            <ul className="space-y-3 mb-8">
+              {[
+                "Acesso por 12 meses a todas as 9 loterias oficiais",
+                "Gerador com modelos estatísticos e heurísticos",
+                "Módulo de Bolão com divisão de cotas e rateio",
+                "Fechamentos matemáticos e conferência de jogos",
+                "Exportação de bilhetes em PDF e planilhas",
+                "Renovação anual recorrente",
+              ].map((feat, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                  <CheckCircle2 className="w-4 h-4 text-muted-foreground/60 shrink-0 mt-0.5" />
+                  <span>{feat}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <Button
+              variant="outline"
+              disabled={loadingPlan !== null}
+              onClick={() => handleCheckout("annual")}
+              className="w-full h-11 rounded-xl text-sm font-semibold border-white/15 hover:bg-white/5 text-foreground"
+            >
+              {loadingPlan === "annual" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Escolher Plano Anual"}
+            </Button>
+            <p className="text-[10px] text-center text-muted-foreground/60 mt-2">
+              Cobrança única de R$ 69,90 por 1 ano.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Card 2: Acesso Vitalício (⭐ RECOMENDADO) */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-7 rounded-2xl border-2 border-primary/50 bg-card/80 backdrop-blur-2xl p-6 sm:p-9 flex flex-col justify-between shadow-2xl shadow-primary/15 relative overflow-hidden group"
+        >
+          {/* Top highlight ribbon */}
+          <div className="absolute top-0 right-0 bg-gradient-to-l from-primary via-primary/90 to-primary/80 text-primary-foreground font-extrabold text-[10px] tracking-wider uppercase px-4 py-1 rounded-bl-xl shadow-md">
+            ⭐ ESCOLHA DE 94% DOS USUÁRIOS
+          </div>
+
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary shrink-0 shadow-sm">
+                <Crown className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
+                  Acesso Vitalício Fundador
+                </h3>
+                <p className="text-xs text-primary font-medium">
+                  Pague uma vez · Acesso definitivo sem mensalidades
+                </p>
+              </div>
+            </div>
+
+            {/* Price Callout with Anchoring */}
+            <div className="p-4 sm:p-5 rounded-xl bg-primary/5 border border-primary/25 mb-6 relative">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs line-through text-muted-foreground/60 font-semibold">R$ 397,00</span>
+                  <Badge variant="outline" className="text-[10px] border-primary/40 text-primary font-bold bg-primary/10">
+                    -75% DE DESCONTO
+                  </Badge>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> Pix Imediato
+                </span>
               </div>
 
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-foreground">
+                  R$ 99,90
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  à vista no Pix ou até 12x de R$ 9,98
+                </span>
+              </div>
 
-              {isLifetime ? (
-                <div className="w-full space-y-4">
-                  <div className="w-full py-5 rounded-2xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center gap-3 text-primary font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/10 italic">
-                    <ShieldCheck className="w-5 h-5" />
-                    Acesso ativo
-                  </div>
+              <div className="mt-2 pt-2 border-t border-primary/15 text-xs text-foreground/80 font-medium">
+                💡 <span className="text-primary font-semibold">Ancoragem inteligente:</span> Por apenas <span className="font-bold text-foreground">R$ 30 a mais</span> que o plano anual, você leva o vitalício permanente para sempre.
+              </div>
+            </div>
 
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                    Agradecemos pela confiança!
-                  </p>
-                </div>
-              ) : (
-                <Button 
-                  size="lg" 
-                  onClick={handleCheckout} 
-                  disabled={loadingPlan}
-                  className="w-full h-16 rounded-2xl text-lg font-black uppercase tracking-widest gradient-brand text-primary-foreground shadow-2xl shadow-primary/30 hover:scale-[1.03] active:scale-95 transition-all relative z-10"
-                >
-                  {loadingPlan ? <Loader2 className="w-6 h-6 animate-spin" /> : "Ativar Network"}
-                </Button>
+            <ul className="space-y-3 mb-8">
+              {[
+                "Pagamento único definitivo — ZERO mensalidades para sempre",
+                "Acesso permanente garantido a todas as 9 loterias oficiais",
+                "Pronto para todas as futuras Megas da Virada e grandes acumulados",
+                "Módulo de Bolão Pro (divisão de cotas, recibos e WhatsApp)",
+                "Fechamentos matemáticos com verificação exaustiva de garantia",
+                "Filtros de redução de divisão de prêmio (split-avoidance)",
+                "Todas as atualizações e novos modelos liberados para sempre",
+                "Suporte prioritário direto via WhatsApp",
+              ].map((feat, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-foreground/90 font-normal leading-snug">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{feat}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              )}
-              
-              {!isLifetime && (
-                <p className="text-[10px] text-muted-foreground mt-4 uppercase tracking-widest">
-                  Cartão, Pix ou Boleto • 7 Dias de Garantia
-                </p>
-              )}
+          <div>
+            {isLifetime ? (
+              <div className="w-full py-4 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center gap-2 text-primary font-bold text-sm">
+                <ShieldCheck className="w-5 h-5" />
+                Seu Acesso Vitalício está Ativo
+              </div>
+            ) : (
+              <Button
+                disabled={loadingPlan !== null}
+                onClick={() => handleCheckout("lifetime")}
+                className="w-full h-12 sm:h-13 rounded-xl text-sm sm:text-base font-bold gradient-brand text-primary-foreground shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
+              >
+                {loadingPlan === "lifetime" ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Garantir Acesso Vitalício (R$ 99,90)
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            )}
+            
+            <div className="mt-3 flex items-center justify-center gap-2 text-[11px] sm:text-xs text-muted-foreground">
+              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+              <span>Liberação imediata no Pix · Sem cobranças recorrentes · Garantia incondicional de 7 dias</span>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       <PlanTrustBar />
       <PlanFAQ />
-    </div>
-  );
-}
-
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}>
-      {children}
     </div>
   );
 }

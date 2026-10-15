@@ -33,6 +33,9 @@ const HowItWorksSection = lazy(() =>
 const SupportedLotteries = lazy(() =>
   import("@/components/landing/SupportedLotteries").then((m) => ({ default: m.SupportedLotteries }))
 );
+const SeasonalJackpotsSection = lazy(() =>
+  import("@/components/landing/SeasonalJackpotsSection").then((m) => ({ default: m.SeasonalJackpotsSection }))
+);
 const PricingSection = lazy(() =>
   import("@/components/common/PricingSection").then((m) => ({ default: m.PricingSection }))
 );
@@ -244,6 +247,10 @@ export default function LandingPage() {
 
       <Suspense fallback={<SectionFallback />}>
         <SupportedLotteries />
+      </Suspense>
+
+      <Suspense fallback={<SectionFallback />}>
+        <SeasonalJackpotsSection onCtaClick={handleCtaClick} />
       </Suspense>
 
       <Suspense fallback={<SectionFallback />}>
