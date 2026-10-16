@@ -4,17 +4,20 @@ import { buildStrategyBriefing, type StrategyBriefingTone } from "@/engine/strat
 
 export type BudgetRiskProfile = "low" | "medium" | "high";
 
-// Preços oficiais Caixa — vigentes desde nov/2024
+// Preços oficiais Caixa da aposta simples — reajuste de jul/2025 (fonte única do app)
 export const LOTTERY_BET_COST: Record<string, number> = {
   megasena: 6.0,
   lotofacil: 3.5,
   quina: 3.0,
-  lotomania: 3.5,
+  lotomania: 3.0,
   duplasena: 3.0,
-  timemania: 4.5,
-  diadesorte: 3.0,
-  supersete: 2.5,
+  timemania: 3.5,
+  diadesorte: 2.5,
+  supersete: 3.0,
+  maismilionaria: 6.0,
   mais_milionaria: 6.0,
+  loteca: 4.0,
+  federal: 4.0,
 };
 
 const DRAWS_PER_MONTH: Record<string, number> = {

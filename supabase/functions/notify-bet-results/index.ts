@@ -21,12 +21,14 @@ const LOTTERY_BET_COST: Record<string, number> = {
   megasena: 6.0,
   lotofacil: 3.5,
   quina: 3.0,
-  lotomania: 3.5,
+  lotomania: 3.0,
   duplasena: 3.0,
-  timemania: 4.5,
-  diadesorte: 3.0,
-  supersete: 2.5,
+  timemania: 3.5,
+  diadesorte: 2.5,
+  supersete: 3.0,
   maismilionaria: 6.0,
+  loteca: 4.0,
+  federal: 4.0,
 };
 
 // Mapeamento de acertos para faixa de premiação (faixa 1 = prêmio principal)

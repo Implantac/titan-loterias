@@ -1,3 +1,4 @@
+import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { NumberStats } from "@/features/statistics/engine";
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { generateByStrategy, Strategy, STRATEGIES } from "@/features/statistics/strategies";
@@ -43,11 +44,7 @@ export function runBacktest(
 
   const results: BacktestResult[] = [];
 
-  // Preços oficiais Caixa — vigentes desde nov/2024
-  const costs: Record<string, number> = {
-    lotofacil: 3.5, megasena: 6.0, quina: 3.0, lotomania: 3.5,
-    duplasena: 3.0, timemania: 4.5, diadesorte: 3.0, supersete: 2.5,
-  };
+  const costs: Record<string, number> = LOTTERY_BET_COST;
   const costPerGame = costs[config.id] || 3.0;
 
   const prizeMap: Record<string, Record<number, number>> = {

@@ -168,7 +168,7 @@ export const LOTTERY_RULES: Record<string, LotteryRules> = {
   lotomania: {
     id: "lotomania", name: "Lotomania",
     totalNumbers: 100, pick: 50, minBet: 50, maxBet: 50,
-    ticketPrice: 3.5,
+    ticketPrice: 3.0,
     drawDays: ["terça", "sexta"],
     hasGrid: false, gridRows: 10, gridCols: 10,
     prizeTiers: [
@@ -264,7 +264,7 @@ export const LOTTERY_RULES: Record<string, LotteryRules> = {
   timemania: {
     id: "timemania", name: "Timemania",
     totalNumbers: 80, pick: 10, minBet: 10, maxBet: 10,
-    ticketPrice: 4.5,
+    ticketPrice: 3.5,
     drawDays: ["terça", "quinta", "sábado"],
     hasGrid: false, gridRows: 8, gridCols: 10,
     prizeTiers: [
@@ -316,7 +316,7 @@ export const LOTTERY_RULES: Record<string, LotteryRules> = {
   diadesorte: {
     id: "diadesorte", name: "Dia de Sorte",
     totalNumbers: 31, pick: 7, minBet: 7, maxBet: 15,
-    ticketPrice: 3.0,
+    ticketPrice: 2.5,
     drawDays: ["terça", "quinta", "sábado"],
     hasGrid: false, gridRows: 4, gridCols: 8,
     prizeTiers: [
@@ -367,7 +367,7 @@ export const LOTTERY_RULES: Record<string, LotteryRules> = {
   supersete: {
     id: "supersete", name: "Super Sete",
     totalNumbers: 10, pick: 7, minBet: 7, maxBet: 21,
-    ticketPrice: 2.5,
+    ticketPrice: 3.0,
     drawDays: ["segunda", "quarta", "sexta"],
     hasGrid: false, gridRows: 1, gridCols: 7,
     prizeTiers: [

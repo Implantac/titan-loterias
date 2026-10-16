@@ -1,3 +1,4 @@
+const LOTOFACIL_PRICE = 3.5; // aposta simples Lotofácil (Caixa)
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -182,6 +183,43 @@ export default function PlanilhasMatrizPage() {
     const hitsInBase = Math.min(15, selectedNumbers.length);
     return validateWheelCoverage(indexGames, selectedNumbers.length, 15, hitsInBase, 11);
   }, [canGenerate, generatedGames, selectedNumbers]);
+
+  // Conferência de cada jogo contra TODOS os concursos salvos (mesma regra do concurso a concurso)
+  const [checkAll, setCheckAll] = useState(false);
+  const allDrawsCheck = useMemo(() => {
+    if (!checkAll || !canGenerate || draws.length === 0) return null;
+    const toMask = (nums: number[]) => nums.reduce((m, n) => m | (1 << n), 0);
+    const popcount = (x: number) => {
+      let c = 0;
+      while (x) { x &= x - 1; c++; }
+      return c;
+    };
+    const drawMasks = draws.map((d) => toMask(d.numbers));
+    const totals: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+    let bestHits = 0;
+    let overlapSum = 0;
+    const rows = generatedGames.map((game, i) => {
+      const gm = toMask(game);
+      const counts: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
+      const fifteen: number[] = [];
+      drawMasks.forEach((dm, di) => {
+        const h = popcount(gm & dm);
+        overlapSum += h;
+        if (h > bestHits) bestHits = h;
+        if (h >= 11) {
+          counts[h]++;
+          totals[h]++;
+          if (h === 15) fifteen.push(draws[di].concurso);
+        }
+      });
+      return { index: i + 1, numbers: game, counts, fifteen };
+    });
+    let prizes = 0;
+    for (const h of [11, 12, 13, 14, 15]) prizes += totals[h] * (PRIZE_ESTIMATES[h] || 0);
+    const cost = generatedGames.length * draws.length * LOTOFACIL_PRICE;
+    const avgOverlap = (overlapSum / (generatedGames.length * draws.length)).toFixed(1);
+    return { rows, totals, prizes, cost, drawCount: draws.length, bestHits, avgOverlap, net: prizes - cost };
+  }, [checkAll, canGenerate, draws, generatedGames]);
 
   // Identificação de fixas / pool para modelos híbridos
   const fixedCount = preset.fixedCount || 0;
@@ -720,6 +758,16 @@ export default function PlanilhasMatrizPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <Button
+                    variant={checkAll ? "default" : "outline"}
+                    size="sm"
+                    className="w-full h-9 text-xs gap-1.5"
+                    disabled={!canGenerate}
+                    onClick={() => setCheckAll((v) => !v)}
+                  >
+                    <Table2 className="w-3.5 h-3.5" />
+                    {checkAll ? "Ocultar conferência em todos os concursos" : `Conferir em todos os ${draws.length} concursos`}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -824,13 +872,13 @@ export default function PlanilhasMatrizPage() {
 
                 {/* Resumo com Métricas */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <Metric label="Melhor Acerto" value={canGenerate ? `${analysis.bestHits}/15` : "-"} highlight />
-                  <Metric label="Concurso Alvo" value={selectedDraw?.concurso ?? "-"} />
-                  <Metric label="Custo Fechamento" value={`R$ ${analysis.totalCost.toFixed(2)}`} />
+                  <Metric label="Melhor Acerto" value={canGenerate ? `${allDrawsCheck ? allDrawsCheck.bestHits : analysis.bestHits}/15` : "-"} highlight />
+                  <Metric label="Concurso Alvo" value={allDrawsCheck ? `Todos (${allDrawsCheck.drawCount})` : selectedDraw?.concurso ?? "-"} />
+                  <Metric label="Custo Fechamento" value={`R$ ${(allDrawsCheck ? allDrawsCheck.cost : analysis.totalCost).toFixed(2)}`} />
                   <Metric
                     label="Retorno Estimado"
-                    value={canGenerate ? `R$ ${financialSummary.totalPrizesValue.toFixed(2)}` : "-"}
-                    color={financialSummary.isProfitable ? "text-emerald-400" : undefined}
+                    value={canGenerate ? `R$ ${(allDrawsCheck ? allDrawsCheck.prizes : financialSummary.totalPrizesValue).toFixed(2)}` : "-"}
+                    color={(allDrawsCheck ? allDrawsCheck.net > 0 : financialSummary.isProfitable) ? "text-emerald-400" : undefined}
                   />
                 </div>
 
@@ -858,61 +906,117 @@ export default function PlanilhasMatrizPage() {
                         <p className="font-mono font-bold text-foreground">{gameAverages.avgPrimes}</p>
                       </div>
                       <div className="bg-background/40 p-1.5 rounded-lg border border-border/40">
-                        <p className="text-[9px] text-muted-foreground uppercase">Média Repetidas</p>
-                        <p className="font-mono font-bold text-foreground">{gameAverages.avgRepeated}</p>
+                        <p className="text-[9px] text-muted-foreground uppercase">{allDrawsCheck ? "Média Acertos (todos)" : "Média Repetidas"}</p>
+                        <p className="font-mono font-bold text-foreground">{allDrawsCheck ? allDrawsCheck.avgOverlap : gameAverages.avgRepeated}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Resumo Financeiro da Premiação da Simulação */}
-                {canGenerate && (
+                {canGenerate && (() => {
+                  const fin = allDrawsCheck
+                    ? { prizeCounts: allDrawsCheck.totals, netResult: allDrawsCheck.net, isProfitable: allDrawsCheck.net > 0 }
+                    : financialSummary;
+                  return (
                   <div className="rounded-xl border border-border/50 bg-secondary/15 p-3.5 flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-0.5">
                       <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                        Resultado Financeiro da Simulação
+                        Resultado Financeiro da Simulação{allDrawsCheck ? ` — todos os ${allDrawsCheck.drawCount} concursos` : ""}
                       </span>
                       <div className="flex items-center gap-2">
                         <span
                           className={`text-lg font-black font-mono ${
-                            financialSummary.isProfitable ? "text-emerald-400" : "text-amber-400"
+                            fin.isProfitable ? "text-emerald-400" : "text-amber-400"
                           }`}
                         >
-                          {financialSummary.netResult >= 0 ? "+" : ""}
-                          R$ {financialSummary.netResult.toFixed(2)}
+                          {fin.netResult >= 0 ? "+" : ""}
+                          R$ {fin.netResult.toFixed(2)}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          ({financialSummary.isProfitable ? "Lucro Líquido" : "Saldo"})
+                          ({fin.isProfitable ? "Lucro Líquido" : "Saldo"})
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-1.5 text-xs">
-                      {financialSummary.prizeCounts[11] > 0 && (
+                      {fin.prizeCounts[11] > 0 && (
                         <Badge variant="outline" className="text-xs bg-background/50">
-                          {financialSummary.prizeCounts[11]}x 11 pts (R$ {(financialSummary.prizeCounts[11] * PRIZE_ESTIMATES[11]).toFixed(2)})
+                          {fin.prizeCounts[11]}x 11 pts (R$ {(fin.prizeCounts[11] * PRIZE_ESTIMATES[11]).toFixed(2)})
                         </Badge>
                       )}
-                      {financialSummary.prizeCounts[12] > 0 && (
+                      {fin.prizeCounts[12] > 0 && (
                         <Badge variant="outline" className="text-xs bg-background/50">
-                          {financialSummary.prizeCounts[12]}x 12 pts (R$ {(financialSummary.prizeCounts[12] * PRIZE_ESTIMATES[12]).toFixed(2)})
+                          {fin.prizeCounts[12]}x 12 pts (R$ {(fin.prizeCounts[12] * PRIZE_ESTIMATES[12]).toFixed(2)})
                         </Badge>
                       )}
-                      {financialSummary.prizeCounts[13] > 0 && (
+                      {fin.prizeCounts[13] > 0 && (
                         <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                          {financialSummary.prizeCounts[13]}x 13 pts (R$ {(financialSummary.prizeCounts[13] * PRIZE_ESTIMATES[13]).toFixed(2)})
+                          {fin.prizeCounts[13]}x 13 pts (R$ {(fin.prizeCounts[13] * PRIZE_ESTIMATES[13]).toFixed(2)})
                         </Badge>
                       )}
-                      {financialSummary.prizeCounts[14] > 0 && (
+                      {fin.prizeCounts[14] > 0 && (
                         <Badge className="text-xs bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold">
-                          {financialSummary.prizeCounts[14]}x 14 PONTOS! 🏆
+                          {fin.prizeCounts[14]}x 14 PONTOS! 🏆
                         </Badge>
                       )}
-                      {financialSummary.prizeCounts[15] > 0 && (
+                      {fin.prizeCounts[15] > 0 && (
                         <Badge className="text-xs bg-emerald-500 text-white font-extrabold animate-pulse">
-                          {financialSummary.prizeCounts[15]}x 15 PONTOS MÁXIMOS! 🎉
+                          {fin.prizeCounts[15]}x 15 PONTOS MÁXIMOS! 🎉
                         </Badge>
                       )}
                     </div>
+                  </div>
+                );
+                })()}
+
+                {/* Conferência em todos os concursos */}
+                {allDrawsCheck && (
+                  <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                        Conferência em todos os {allDrawsCheck.drawCount} concursos salvos
+                      </span>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        Prêmios est. R$ {allDrawsCheck.prizes.toFixed(2)} · Custo R$ {allDrawsCheck.cost.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2 text-center">
+                      {[11, 12, 13, 14, 15].map((h) => (
+                        <div key={h} className="bg-background/40 p-1.5 rounded-lg border border-border/40">
+                          <p className="text-[9px] text-muted-foreground uppercase">{h} pts</p>
+                          <p className="font-mono font-bold text-foreground">{allDrawsCheck.totals[h]}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="rounded-lg border border-border/50 overflow-x-auto max-h-[320px] overflow-y-auto">
+                      <Table>
+                        <TableHeader className="bg-secondary/40 sticky top-0 z-10">
+                          <TableRow>
+                            <TableHead className="text-xs font-bold">Jogo</TableHead>
+                            {[11, 12, 13, 14, 15].map((h) => (
+                              <TableHead key={h} className="text-center text-xs font-bold">{h}</TableHead>
+                            ))}
+                            <TableHead className="text-xs font-bold">15 pts em</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allDrawsCheck.rows.map((r) => (
+                            <TableRow key={r.index} className={r.counts[15] > 0 ? "bg-emerald-500/10 font-bold" : undefined}>
+                              <TableCell className="font-mono text-xs font-bold text-muted-foreground">J{String(r.index).padStart(2, "0")}</TableCell>
+                              {[11, 12, 13, 14, 15].map((h) => (
+                                <TableCell key={h} className="text-center font-mono text-xs">{r.counts[h]}</TableCell>
+                              ))}
+                              <TableCell className="font-mono text-xs">
+                                {r.fifteen.length ? r.fifteen.map((c) => `#${c}`).join(", ") : "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Conferência retroativa: mostra quantas vezes cada jogo teria acertado no passado. Não indica chance de sair no futuro.
+                    </p>
                   </div>
                 )}
 

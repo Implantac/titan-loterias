@@ -1,4 +1,4 @@
-import {
+import { Trophy,
   BarChart3, Sparkles, History, Zap, Grid3X3,
   Brain, ShieldCheck, Crown, PieChart, Lock,
   MessageCircle, User, Wallet, Command, FileCode,
@@ -35,6 +35,7 @@ const workflowGroups: { label: string; items: { title: string; url: string; icon
       { title: "Central de Inteligência", url: "/dashboard", icon: BarChart3, tooltip: "Terminal central de inteligência e resumo de fluxos." },
       { title: "Painel de Comando", url: "/comando", icon: Command, tooltip: "Todos os sinais críticos consolidados para decisão rápida.", badge: "PRO" },
       { title: "Módulo de Bolão", url: "/bolao", icon: Users, tooltip: "Gestão de bolões colaborativos, rateio de cotas e envio WhatsApp.", badge: "NEW" },
+      { title: "Loteca", url: "/loteca", icon: Trophy, tooltip: "Resultados oficiais dos 14 jogos e montagem de palpites com custo.", badge: "NEW" },
       { title: "Matrizes Titan", url: "/matrizes", icon: FileSpreadsheet, tooltip: "Desdobramentos estratégicos exclusivos para Lotofácil (21x50, 19x5, 17x8 e mais).", badge: "LOTOFÁCIL" },
       { title: "Titan AI Center", url: "/ia-chat", icon: MessageCircle, tooltip: "O motor de inteligência central do seu ecossistema.", badge: "NEW" },
       { title: "Gerador Estratégico", url: "/gerador", icon: Sparkles, tooltip: "Geração assistida de coleções inteligentes (Loto Data)." },
