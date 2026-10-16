@@ -153,7 +153,7 @@ const HistoricoApostasPage = () => {
                 <p className="text-xl font-bold font-mono text-foreground">
                   {globalStats.total > 0 ? ((globalStats.withPrizes / globalStats.total) * 100).toFixed(0) : 0}%
                 </p>
-                <p className="text-[10px] text-muted-foreground">Taxa de Acerto</p>
+                <p className="text-[10px] text-muted-foreground">Taxa de Cobertura</p>
               </CardContent>
             </Card>
           </div>

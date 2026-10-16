@@ -469,7 +469,7 @@ export default function GestaoBancaPage() {
                   </div>
                   <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[10px] text-muted-foreground">
                     <span>{r.bets} apostas</span>
-                    <span>{(r.hitRate * 100).toFixed(1)}% acerto</span>
+                    <span>{(r.hitRate * 100).toFixed(1)}% cobertura</span>
                   </div>
                 </div>
               );

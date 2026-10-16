@@ -70,7 +70,7 @@ export function BacktestPanel({ stats, config, draws }: Props) {
 
   const chartData = results?.map(r => ({
     name: r.label,
-    "Taxa Acerto (%)": r.winRate,
+    "Taxa de Cobertura (%)": r.winRate,
     "Média Acertos": r.avgHits,
     "Consistência (%)": Math.round(r.consistency * 100),
   })) ?? [];
@@ -196,7 +196,7 @@ export function BacktestPanel({ stats, config, draws }: Props) {
                         }}
                       />
                       <Legend />
-                      <Bar dataKey="Taxa Acerto (%)" fill={COLORS[0]} radius={[2, 2, 0, 0]} />
+                      <Bar dataKey="Taxa de Cobertura (%)" fill={COLORS[0]} radius={[2, 2, 0, 0]} />
                       <Bar dataKey="Consistência (%)" fill={COLORS[1]} radius={[2, 2, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
