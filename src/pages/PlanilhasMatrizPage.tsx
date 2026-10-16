@@ -63,12 +63,14 @@ const COMBINATIONS_LOTOFACIL: Record<number, number> = {
   25: 3268760,
 };
 
-// Estimativa de prêmios oficiais da Lotofácil da Caixa
+const LOTOFACIL_PRICE = 3.5;
+
+// Estimativa de prêmios oficiais da Lotofácil da Caixa (vigentes desde jul/2025)
 const PRIZE_ESTIMATES: Record<number, number> = {
-  11: 6,       // Fixo R$ 6,00
-  12: 12,      // Fixo R$ 12,00
-  13: 30,      // Fixo R$ 30,00
-  14: 1500,    // Média estimada de rateio
+  11: 7,       // Fixo R$ 7,00 (vigente desde jul/2025)
+  12: 14,      // Fixo R$ 14,00 (vigente desde jul/2025)
+  13: 35,      // Fixo R$ 35,00 (vigente desde jul/2025)
+  14: 1800,    // Média estimada de rateio
   15: 1500000, // Média estimada de rateio principal
 };
 
@@ -234,7 +236,7 @@ export default function PlanilhasMatrizPage() {
     if (!canGenerate) return;
     const header = `=== TITAN LOTERIAS — MATRIZ ${preset.sheetName} ===\n` +
       `Modelo: ${preset.label} (${preset.gameCount} jogos)\n` +
-      `Custo total: R$ ${(preset.gameCount * 3).toFixed(2)}\n\n`;
+      `Custo total: R$ ${(preset.gameCount * LOTOFACIL_PRICE).toFixed(2)}\n\n`;
 
     const lines = generatedGames.map((game, i) => {
       const formatted = game.map((n) => String(n).padStart(2, "0")).join(" ");
@@ -255,7 +257,7 @@ export default function PlanilhasMatrizPage() {
     if (!canGenerate) return;
     const header = `TITAN LOTERIAS - ${preset.sheetName}\n` +
       `Data: ${new Date().toLocaleDateString("pt-BR")}\n` +
-      `Jogos: ${preset.gameCount} | Custo: R$ ${(preset.gameCount * 3).toFixed(2)}\n` +
+      `Jogos: ${preset.gameCount} | Custo: R$ ${(preset.gameCount * LOTOFACIL_PRICE).toFixed(2)}\n` +
       (matrixValidation
         ? `Validacao: ${matrixValidation.exhaustive ? `100% EXAUSTIVA (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenarios provados)` : `AMOSTRAL (${matrixValidation.testedScenarios.toLocaleString("pt-BR")} cenarios simulados)`}\n`
         : "") +
@@ -345,7 +347,7 @@ export default function PlanilhasMatrizPage() {
 
   // Cálculos da Calculadora Combinatória
   const combRawCount = COMBINATIONS_LOTOFACIL[calcDezenas] || 1;
-  const combRawCost = combRawCount * 3;
+  const combRawCost = combRawCount * LOTOFACIL_PRICE;
 
   return (
     <div className="space-y-6">
@@ -478,7 +480,7 @@ export default function PlanilhasMatrizPage() {
                   {calcDezenas === 21 ? "99,91% de Economia" : ">95% de Economia"}
                 </p>
                 <p className="text-[10px] text-emerald-400 mt-0.5">
-                  {calcDezenas === 21 ? "Jogue com apenas 50 jogos (R$ 150,00)" : "Fechamentos balanceados por fração do custo"}
+                  {calcDezenas === 21 ? `Jogue com apenas 50 jogos (R$ ${(50 * LOTOFACIL_PRICE).toFixed(2)})` : "Fechamentos balanceados por fração do custo"}
                 </p>
               </div>
             </div>
@@ -559,7 +561,7 @@ export default function PlanilhasMatrizPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <Metric label="Dezenas" value={inputSize} />
                   <Metric label="Total Jogos" value={preset.gameCount} />
-                  <Metric label="Custo (R$)" value={`R$ ${(preset.gameCount * 3).toFixed(2)}`} highlight />
+                  <Metric label="Custo (R$)" value={`R$ ${(preset.gameCount * LOTOFACIL_PRICE).toFixed(2)}`} highlight />
                 </div>
 
                 {/* --- SELETOR DE DEZENAS VISUAL (ESTILO RADAR) --- */}
@@ -887,17 +889,17 @@ export default function PlanilhasMatrizPage() {
                     <div className="flex flex-wrap gap-1.5 text-xs">
                       {financialSummary.prizeCounts[11] > 0 && (
                         <Badge variant="outline" className="text-xs bg-background/50">
-                          {financialSummary.prizeCounts[11]}x 11 pts (R$ {(financialSummary.prizeCounts[11] * 6).toFixed(2)})
+                          {financialSummary.prizeCounts[11]}x 11 pts (R$ {(financialSummary.prizeCounts[11] * PRIZE_ESTIMATES[11]).toFixed(2)})
                         </Badge>
                       )}
                       {financialSummary.prizeCounts[12] > 0 && (
                         <Badge variant="outline" className="text-xs bg-background/50">
-                          {financialSummary.prizeCounts[12]}x 12 pts (R$ {(financialSummary.prizeCounts[12] * 12).toFixed(2)})
+                          {financialSummary.prizeCounts[12]}x 12 pts (R$ {(financialSummary.prizeCounts[12] * PRIZE_ESTIMATES[12]).toFixed(2)})
                         </Badge>
                       )}
                       {financialSummary.prizeCounts[13] > 0 && (
                         <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                          {financialSummary.prizeCounts[13]}x 13 pts (R$ {(financialSummary.prizeCounts[13] * 30).toFixed(2)})
+                          {financialSummary.prizeCounts[13]}x 13 pts (R$ {(financialSummary.prizeCounts[13] * PRIZE_ESTIMATES[13]).toFixed(2)})
                         </Badge>
                       )}
                       {financialSummary.prizeCounts[14] > 0 && (

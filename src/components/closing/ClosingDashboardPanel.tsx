@@ -33,7 +33,7 @@ interface Props {
 }
 
 const DEFAULT_TIERS: Record<string, Record<number, number>> = {
-  lotofacil: { 15: 1_500_000, 14: 2_000, 13: 30, 12: 12, 11: 6 },
+  lotofacil: { 15: 1_500_000, 14: 2_000, 13: 35, 12: 14, 11: 7 },
   megasena: { 6: 50_000_000, 5: 60_000, 4: 1_500 },
   quina: { 5: 8_000_000, 4: 8_000, 3: 100, 2: 3 },
   lotomania: { 20: 4_000_000, 19: 40_000, 18: 800, 17: 40, 16: 6, 0: 2_000_000 },

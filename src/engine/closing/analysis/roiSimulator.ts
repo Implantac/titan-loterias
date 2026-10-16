@@ -11,7 +11,7 @@
  * mais baixa quando não há rateio; user deve interpretar como piso.
  */
 const AVG_PRIZES: Record<string, Record<number, number>> = {
-  lotofacil: { 11: 6, 12: 12, 13: 30, 14: 3000, 15: 1_500_000 },
+  lotofacil: { 11: 7, 12: 14, 13: 35, 14: 1800, 15: 1_500_000 },
   megasena: { 4: 1200, 5: 60_000, 6: 40_000_000 },
   quina: { 2: 3.5, 3: 130, 4: 8500, 5: 8_000_000 },
   lotomania: { 15: 6, 16: 20, 17: 100, 18: 1500, 19: 30_000, 20: 3_000_000, 0: 3_000_000 },

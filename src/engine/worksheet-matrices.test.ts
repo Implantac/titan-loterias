@@ -32,7 +32,7 @@ describe("worksheet matrices", () => {
 
     expect(result.games).toHaveLength(5);
     expect(result.bestHits).toBeGreaterThan(0);
-    expect(result.totalCost).toBe(15);
+    expect(result.totalCost).toBe(17.5);
   });
 
   it("garante que todos os 7 presets geram jogos válidos de 15 dezenas com contagem exata", () => {
