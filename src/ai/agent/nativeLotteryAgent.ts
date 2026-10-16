@@ -11,13 +11,14 @@
 
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { NumberStats } from "@/engine/stats/statistics";
-import { LOTTERY_RULES, getLotteryRules } from "../knowledge/lotteriesKnowledge";
+import { LOTTERY_RULES, getLotteryRules, PRIMES, FIBONACCI, LOTOFACIL_FRAME } from "../knowledge/lotteriesKnowledge";
 import { STRATEGIES } from "../knowledge/strategiesKnowledge";
 import { generateGames } from "../generators/universalGameGenerator";
 import { detectIntent } from "../intent/detectIntent";
 import { createXorshift32, hashStringToSeed } from "../core/rng";
 import { ScoredGame } from "../core/aiTypes";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
+import { scoreGame } from "../engines/rankingEngine";
 
 export interface NativeAgentRequest {
   input: string;
@@ -60,19 +61,67 @@ export class NativeLotteryAgent {
     const suggestions: string[] = [];
 
     // 1. Identificar padrões e tópicos específicos
+    const numbersInInput = (input.match(/\b\d{1,2}\b/g) || [])
+      .map(Number)
+      .filter((n) => n >= 1 && n <= rules.totalNumbers);
+    const uniqueNumbers = [...new Set(numbersInInput)].sort((a, b) => a - b);
+
+    const isAuditQuery =
+      (uniqueNumbers.length >= Math.min(rules.pick - 2, 6) &&
+        (/analis|audit|veja|olh|bom|o que acha|meu jogo|palpite|volante|confer/i.test(lower) || uniqueNumbers.length === rules.pick)) ||
+      (/avali|confer|audit|analis.*jogo/i.test(lower) && uniqueNumbers.length >= 5);
+
+    const budgetMatch = lower.match(/(?:r\$\s*|or[çc]amento\s+de\s+|tenho\s+|gastar\s+|com\s+|investir\s+)(\d+(?:[.,]\d{1,2})?)\s*(?:reais|r\$)?/i);
+    const isBudgetQuery =
+      !!budgetMatch &&
+      (/jogar|gastar|apostar|or[çc]amento|bol[aã]o|fazer|estrat[ée]gia|recomen|caber|quanto/i.test(lower) || /tenho\s+r?\$?\s*\d+/i.test(lower));
+
+    const isSurpresinha = /surpresinha/i.test(lower);
+    const isTeimosinha = /teimosinha/i.test(lower);
+    const isSameNumbers = /mesmos?\s+n[uú]meros|mudar\s+(de\s+)?n[uú]meros/i.test(lower);
+    const isFallacy = /fal[aá]cia|globo\s+tem\s+mem[oó]ria|vicia(do|r)|obrigad[ao]\s+a\s+sair|mais\s+chance\s+de\s+sair\s+(hoje|agora)|est[aá]\s+para\s+sair/i.test(lower);
+    const isMythQuery = isSurpresinha || isTeimosinha || isSameNumbers || isFallacy;
+
     const isHotQuery = /quente|mais\s+sai[mu]|frequen/i.test(lower);
     const isColdQuery = /frio|menos\s+sai[mu]/i.test(lower);
     const isDueQuery = /atrasad|demorad|ciclo|tempo\s+sem\s+sair/i.test(lower);
     const isLatestDrawQuery = /último\s+sorteio|resultado\s+(de\s+ontem|recente|anterior)|concurso\s+anterior/i.test(lower);
     const isSplitAvoidanceQuery = /split|divis[aã]o|popular|anivers[aá]rio|evitar\s+divi/i.test(lower);
     const isWheelingQuery = /fecha(mento|r)|wheel|desdobr|matriz/i.test(lower);
-    const isPriceQuery = /pre[çc]o|custo|valor\s+da\s+aposta|quanto\s+custa/i.test(lower);
+    const isPriceQuery = /pre[çc]o|custo|valor\s+da\s+aposta|quanto\s+custa/i.test(lower) && !isBudgetQuery;
     const isOddsQuery = /chance|probabilida|probabilidade|qual\s+a\s+chance/i.test(lower);
     const isBestApproach = /melhor\s+(abordagem|estrat[ée]gia|dica|jogada)|como\s+jogar\s+hoje/i.test(lower);
     const isExplicitGenerate = /ger(ar|e|ador)|cri(ar|e)|mont(ar|e)|palpites?|d[êe]\s+\d+\s+jog|\d+\s+jogos/i.test(lower);
 
-    // ── ROTA: PREÇOS OFICIAIS ──
-    if (isPriceQuery) {
+    // ── ROTA 1: AUDITORIA / RAIO-X DE JOGO DO USUÁRIO ──
+    if (isAuditQuery && uniqueNumbers.length >= 5) {
+      markdown = this.buildAuditResponse(rules, uniqueNumbers, stats, draws);
+      suggestions.push(
+        `Como posso ajustar esse jogo para atingir Score 95+?`,
+        `Gerar 3 jogos equilibrados para comparar com o meu`,
+        `Simular o desempenho desse volante no histórico`
+      );
+    }
+    // ── ROTA 2: CONSULTORIA DE ORÇAMENTO & GESTÃO DE BANCA ──
+    else if (isBudgetQuery && budgetMatch) {
+      markdown = this.buildBudgetResponse(rules, budgetMatch[1], draws);
+      suggestions.push(
+        `Gerar as apostas recomendadas para esse orçamento`,
+        `Como dividir essas cotas em um bolão no WhatsApp?`,
+        `Qual o melhor fechamento para este valor?`
+      );
+    }
+    // ── ROTA 3: DESMISTIFICAÇÃO DE MITOS LOTÉRICOS ──
+    else if (isMythQuery) {
+      markdown = this.buildMythResponse(rules, lower);
+      suggestions.push(
+        `Como o Titan Loterias supera a Surpresinha?`,
+        `Qual a melhor estratégia para o próximo concurso?`,
+        `Gerar 3 jogos calibrados agora`
+      );
+    }
+    // ── ROTA 4: PREÇOS OFICIAIS ──
+    else if (isPriceQuery) {
       markdown = this.buildPriceResponse(rules);
       suggestions.push(
         `Qual a probabilidade de acertar cada faixa?`,
@@ -80,7 +129,7 @@ export class NativeLotteryAgent {
         `Como funciona a divisão de cotas no bolão?`
       );
     }
-    // ── ROTA: PROBABILIDADES E CHANCES ──
+    // ── ROTA 5: PROBABILIDADES E CHANCES ──
     else if (isOddsQuery) {
       markdown = this.buildOddsResponse(rules);
       suggestions.push(
@@ -89,7 +138,7 @@ export class NativeLotteryAgent {
         `Gerar 3 jogos equilibrados`
       );
     }
-    // ── ROTA: DEZENAS QUENTES / FREQUENTES ──
+    // ── ROTA 6: DEZENAS QUENTES / FREQUENTES ──
     else if (isHotQuery && !isExplicitGenerate) {
       markdown = this.buildHotNumbersResponse(rules, stats, draws);
       suggestions.push(
@@ -98,7 +147,7 @@ export class NativeLotteryAgent {
         `Qual a melhor abordagem para a ${rules.name}?`
       );
     }
-    // ── ROTA: DEZENAS ATRASADAS / CICLOS ──
+    // ── ROTA 7: DEZENAS ATRASADAS / CICLOS ──
     else if ((isDueQuery || isColdQuery) && !isExplicitGenerate) {
       markdown = this.buildDueNumbersResponse(rules, stats, draws);
       suggestions.push(
@@ -107,7 +156,7 @@ export class NativeLotteryAgent {
         `Analisar padrões do último concurso`
       );
     }
-    // ── ROTA: ÚLTIMO CONCURSO ──
+    // ── ROTA 8: ÚLTIMO CONCURSO ──
     else if (isLatestDrawQuery && draws.length > 0) {
       markdown = this.buildLatestDrawResponse(rules, draws);
       suggestions.push(
@@ -116,7 +165,7 @@ export class NativeLotteryAgent {
         `Qual a melhor estratégia para o próximo concurso?`
       );
     }
-    // ── ROTA: FECHAMENTOS E MATRIZES ──
+    // ── ROTA 9: FECHAMENTOS E MATRIZES ──
     else if (isWheelingQuery && !isExplicitGenerate) {
       markdown = this.buildWheelingExplanation(rules);
       suggestions.push(
@@ -125,7 +174,7 @@ export class NativeLotteryAgent {
         `Gerar 5 jogos econômicos agora`
       );
     }
-    // ── ROTA: SPLIT-AVOIDANCE / ANTI-DIVISÃO DE PRÊMIO ──
+    // ── ROTA 10: SPLIT-AVOIDANCE / ANTI-DIVISÃO DE PRÊMIO ──
     else if (isSplitAvoidanceQuery && !isExplicitGenerate) {
       markdown = this.buildSplitAvoidanceExplanation(rules);
       suggestions.push(
@@ -134,7 +183,7 @@ export class NativeLotteryAgent {
         `Quais são as dezenas mais jogadas pelo público?`
       );
     }
-    // ── ROTA: MELHOR ABORDAGEM / DICAS TÁTICAS ──
+    // ── ROTA 11: MELHOR ABORDAGEM / DICAS TÁTICAS ──
     else if (isBestApproach && !isExplicitGenerate) {
       markdown = this.buildBestApproachResponse(rules, draws);
       suggestions.push(
@@ -143,7 +192,7 @@ export class NativeLotteryAgent {
         `Explique como montar um bolão com essa estratégia`
       );
     }
-    // ── ROTA: GERAÇÃO DE JOGOS ──
+    // ── ROTA 12: GERAÇÃO DE JOGOS ──
     else if (isExplicitGenerate) {
       const quantity = parsedIntent.quantity || 3;
       const riskProfile = parsedIntent.riskProfile || "balanced";
@@ -168,7 +217,7 @@ export class NativeLotteryAgent {
         "Como aplicar fechamento com esses números?"
       );
     }
-    // ── ROTA: CONSULTORIA GERAL / ESTRATÉGICA ──
+    // ── ROTA 13: CONSULTORIA GERAL / ESTRATÉGICA ──
     else {
       markdown = this.buildGeneralAdvisoryResponse(rules, input, draws);
       suggestions.push(
@@ -188,10 +237,177 @@ export class NativeLotteryAgent {
       metadata: {
         processingTimeMs: elapsed,
         tokensConsumed: 0,
-        model: "Titan Native Quant Agent v8.0",
+        model: "Titan Native Quant Agent v8.5",
         engine: "client-side-deterministic-inference",
       },
     };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // MÉTODOS DE CONSTRUÇÃO DE RESPOSTAS (NLG - Natural Language Generation)
+  // ══════════════════════════════════════════════════════════════════════
+
+  private buildAuditResponse(rules: any, numbers: number[], stats: NumberStats[], draws: DrawResult[]): string {
+    const scored = scoreGame(numbers, rules.id, stats, draws);
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    const evens = numbers.filter((n) => n % 2 === 0).length;
+    const odds = numbers.length - evens;
+    const primesCount = numbers.filter((n) => PRIMES.has(n)).length;
+    const fibCount = numbers.filter((n) => FIBONACCI.has(n)).length;
+
+    const latest = draws[0];
+    let repeats = 0;
+    if (latest) {
+      const latestSet = new Set(latest.numbers);
+      repeats = numbers.filter((n) => latestSet.has(n)).length;
+    }
+
+    // Sequências consecutivas
+    let maxRun = 1, curRun = 1;
+    for (let i = 1; i < numbers.length; i++) {
+      if (numbers[i] === numbers[i - 1] + 1) { curRun++; maxRun = Math.max(maxRun, curRun); }
+      else curRun = 1;
+    }
+
+    // Split avoidance (abaixo de 31)
+    const below31 = numbers.filter((n) => n <= 31).length;
+    const allBelow31 = numbers.length >= 6 && below31 === numbers.length && rules.totalNumbers > 31;
+
+    // Moldura (Lotofácil)
+    let frameCount = 0;
+    if (rules.id === "lotofacil") {
+      frameCount = numbers.filter((n) => LOTOFACIL_FRAME.has(n)).length;
+    }
+
+    const lines: string[] = [
+      `### 🩺 Raio-X & Auditoria de Jogo — ${rules.name}`,
+      `Analisei o seu volante de **${numbers.length} dezenas** no motor quantitativo Titan:`,
+      "",
+      `\`${numbers.map((n) => String(n).padStart(2, "0")).join("  ")}\``,
+      "",
+      `⭐ **Titan Score:** \`${scored.totalScore}/100\` — **Grau ${scored.grade}**`,
+      "",
+      `#### 📊 Diagnóstico Estrutural:`,
+      `| Métrica | Seu Volante | Faixa Ideal Histórica | Avaliação |`,
+      `| :--- | :---: | :---: | :---: |`,
+      `| **Soma Total** | \`${sum}\` | ${rules.idealSumRange ? `${rules.idealSumRange[0]}–${rules.idealSumRange[1]}` : "Equilibrada"} | ${rules.idealSumRange && (sum < rules.idealSumRange[0] || sum > rules.idealSumRange[1]) ? "⚠️ Alerta" : "✅ Ótimo"} |`,
+      `| **Paridade** | \`${evens}P / ${odds}I\` | ${rules.idealParityRange ? `${rules.idealParityRange[0]}–${rules.idealParityRange[1]} pares` : "Equilibrada"} | ${rules.idealParityRange && (evens < rules.idealParityRange[0] || evens > rules.idealParityRange[1]) ? "⚠️ Desbalanceado" : "✅ Harmônico"} |`,
+      `| **Primos / Fibonacci** | \`${primesCount} primos / ${fibCount} fib\` | Dispersão uniforme | ✅ Normal |`,
+    ];
+
+    if (rules.id === "lotofacil") {
+      lines.push(`| **Moldura (Borda)** | \`${frameCount} na borda\` | 8 a 11 na borda | ${frameCount < 8 || frameCount > 11 ? "⚠️ Fora da curva" : "✅ Alinhado"} |`);
+    }
+
+    if (latest) {
+      lines.push(`| **Repetidas do #${latest.concurso}** | \`${repeats} dezenas\` | ${rules.avgRepeatFromPrevious ? `${rules.avgRepeatFromPrevious[0]}–${rules.avgRepeatFromPrevious[1]}` : "8 a 10"} | ${repeats < 7 || repeats > 11 ? "⚠️ Risco" : "✅ Seguro"} |`);
+    }
+
+    lines.push("");
+    lines.push(`#### 🔍 Parecer Técnico:`);
+    if (maxRun >= 4) {
+      lines.push(`• ⚠️ **Alerta de Sequência:** O jogo possui sequência direta de ${maxRun} números consecutivos. Menos de 1% dos concursos apresentam sequências tão longas.`);
+    }
+    if (allBelow31) {
+      lines.push(`• ⚠️ **Risco de Divisão de Prêmio:** Todas as suas dezenas estão entre 01 e 31 (zona de aniversários). Se for premiado, o rateio tenderá a ser dividido com muitos apostadores.`);
+    }
+    if (scored.totalScore >= 85) {
+      lines.push(`• ✅ **Volante de Alta Eficiência:** O jogo cumpre com rigor os principais pilares estatísticos e possui alta probabilidade de capturar faixas premiadas.`);
+    } else {
+      lines.push(`• 💡 **Oportunidade de Melhoria:** Ajuste as dezenas nos pontos indicados com alerta para elevar seu Titan Score acima de 90 pontos.`);
+    }
+
+    return lines.join("\n");
+  }
+
+  private buildBudgetResponse(rules: any, rawBudget: string, draws: DrawResult[]): string {
+    const budget = parseFloat(rawBudget.replace(",", "."));
+    const price = LOTTERY_BET_COST[rules.id] || rules.ticketPrice || 3.5;
+    const maxGames = Math.floor(budget / price);
+    const totalCost = maxGames * price;
+    const change = budget - totalCost;
+
+    const lines: string[] = [
+      `### 💼 Planejamento Orçamentário — ${rules.name}`,
+      `Com o orçamento de **R$ ${budget.toFixed(2).replace(".", ",")}**, preparei o melhor plano tático para maximizar seu investimento:`,
+      "",
+      `• **Preço por jogo oficial Caixa:** \`R$ ${price.toFixed(2).replace(".", ",")}\``,
+      `• **Total de jogos possíveis:** **${maxGames} apostas simples**`,
+      `• **Investimento total:** \`R$ ${totalCost.toFixed(2).replace(".", ",")}\` (sobra: R$ ${change.toFixed(2).replace(".", ",")})`,
+      "",
+      `#### 🎯 Plano Tático Recomendado:`,
+    ];
+
+    if (rules.id === "lotofacil") {
+      if (maxGames >= 50) {
+        lines.push(`1. **Recomendação Principal:** Jogue a **Matriz Titan 21x50** (50 jogos = R$ 175,00 cravados).`);
+        lines.push(`   • Cobre **21 dezenas** com garantia comprovada de 14 e 15 pontos se a base for acertada.`);
+      } else if (maxGames >= 8) {
+        lines.push(`1. **Recomendação Principal:** Jogue o **Fechamento Econômico 17x8** (8 jogos = R$ 28,00).`);
+        if (maxGames > 8) {
+          const extra = maxGames - 8;
+          lines.push(`2. **Apostas Complementares:** Complete com mais **${extra} jogos individuais anti-divisão** (R$ ${(extra * price).toFixed(2).replace(".", ",")}).`);
+        }
+      } else {
+        lines.push(`1. **Recomendação Principal:** Distribua os **${maxGames} jogos individuais** com filtros balanceados (paridade 7/8, soma 185–205 e 9 repetidas).`);
+      }
+    } else {
+      if (maxGames >= 24) {
+        lines.push(`1. **Recomendação Principal:** Fechamento de **18 dezenas em 24 jogos** (R$ ${(24 * price).toFixed(2).replace(".", ",")}). Excelente para bolões!`);
+      } else {
+        lines.push(`1. **Recomendação Principal:** Gere **${maxGames} jogos com o Filtro Anti-Divisão (Split-Avoidance)** para não concentrar números em datas de aniversário.`);
+      }
+    }
+
+    lines.push("");
+    lines.push(`Deseja que eu gere agora os **${Math.min(maxGames, 5)} primeiros jogos prontos** dentro desse orçamento?`);
+
+    return lines.join("\n");
+  }
+
+  private buildMythResponse(rules: any, lower: string): string {
+    const lines: string[] = [];
+
+    if (/surpresinha/i.test(lower)) {
+      lines.push(
+        `### 🎲 Surpresinha da Lotérica: Vale a pena?`,
+        `A **Surpresinha** é um gerador de números puramente pseudo-aleatório da máquina da Caixa.`,
+        "",
+        `#### ⚠️ O Problema da Surpresinha Cega:`,
+        `• O computador da lotérica não aplica nenhum filtro estatístico. Ele pode sortear para você uma aposta como \`01 02 03 04 05 06\` ou \`10 20 30 40 50 60\` ou um volante com 10 números pares seguidos.`,
+        `• Todas as combinações têm a mesma probabilidade teórica pura, **mas as distribuições agregadas históricas não são uniformes**. Mais de 80% dos concursos caem em faixas normais de soma e paridade.`,
+        "",
+        `#### 💡 A Diferença no Titan:`,
+        `O Titan Loterias gera jogos com **entropia calibrada**. Você obtém a surpresa aleatória necessária para ganhar, mas sem cair em combinações extremas ou desequilibradas que quase nunca ocorrem na prática.`
+      );
+    } else if (/teimosinha/i.test(lower)) {
+      lines.push(
+        `### 🔄 Teimosinha da Caixa: Ela aumenta suas chances?`,
+        `**Não.** A Teimosinha é exclusivamente um recurso de **conveniência operacional**, e não uma alavanca matemática.`,
+        "",
+        `• Jogar o mesmo volante por 3, 6, 12 ou 24 concursos seguidos tem **exatamente a mesma probabilidade cumulativa** de jogar um volante diferente a cada concurso.`,
+        `• A única vantagem real da Teimosinha é evitar o esquecimento e economizar idas à lotérica.`,
+        `• Estrategicamente, a desvantagem é que você fica engessado em um único volante e não consegue acompanhar a rotação de dezenas quentes, frias e fechamentos de ciclo.`
+      );
+    } else {
+      lines.push(
+        `### 🧠 Falácia do Apostador & Estatística Real nas Loterias`,
+        `Muitos apostadores acreditam em dois grandes mitos:`,
+        `1. *"Essa dezena está muito atrasada, então ela TEM que sair hoje."*`,
+        `2. *"Essa dezena acabou de sair duas vezes, então é impossível sair de novo."*`,
+        "",
+        `#### 🔬 A Verdade Científica:`,
+        `O globo de sorteio **não tem memória**. Em cada extração, as bolinhas têm exatamente o mesmo peso e probabilidade.`,
+        "",
+        `#### 🎯 Onde a Estratégia Realmente Atua?`,
+        `Na **Gestão Combinatória**. Você não altera a sorte de uma única bolinha, mas você pode:`,
+        `• Não jogar o dinheiro no lixo com jogos absurdos (como 6 pares na Mega ou 15 números na moldura na Lotofácil).`,
+        `• Usar **fechamentos matemáticos comprovados** para premiar múltiplos volantes simultaneamente.`,
+        `• Usar **split-avoidance** para não dividir o prêmio com milhares de apostadores desavisados.`
+      );
+    }
+
+    return lines.join("\n");
   }
 
   // ══════════════════════════════════════════════════════════════════════

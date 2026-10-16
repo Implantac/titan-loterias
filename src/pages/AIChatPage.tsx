@@ -7,7 +7,7 @@ import { useUserLearning } from "@/hooks/useUserLearning";
 import { useSavedBets } from "@/hooks/useSavedBets";
 import {
   MessageCircle, Send, Trash2, Sparkles, Bot, User, StopCircle, Copy, Check,
-  Brain, Zap, Cloud, Layers, BookmarkCheck, ArrowRight
+  Brain, Zap, Cloud, Layers, BookmarkCheck, ArrowRight, Volume2, VolumeX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,11 +32,13 @@ interface ChatMessage {
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
 const QUICK_PROMPTS = [
-  { emoji: "🔥", text: "Quais os números mais quentes?" },
   { emoji: "🎯", text: "Gere 5 jogos equilibrados" },
-  { emoji: "📊", text: "Analise os padrões recentes" },
+  { emoji: "🔥", text: "Quais os números mais quentes?" },
   { emoji: "❄️", text: "Quais números estão atrasados?" },
+  { emoji: "💼", text: "Tenho R$ 50, qual a melhor estratégia?" },
   { emoji: "🧮", text: "Explique a estratégia de fechamento" },
+  { emoji: "🛡️", text: "O que é o filtro Anti-Divisão de Prêmio?" },
+  { emoji: "🎲", text: "A Surpresinha da lotérica vale a pena?" },
   { emoji: "⚡", text: "Qual a melhor abordagem para hoje?" },
 ];
 
@@ -142,6 +144,7 @@ const AIChatPage = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [savingGamesIdx, setSavingGamesIdx] = useState<number | null>(null);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -151,6 +154,42 @@ const AIChatPage = () => {
   useEffect(() => {
     if (user?.id) refreshLearning();
   }, [user?.id, config.id]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleSpeak = (text: string, msgIdx: number) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.error("Seu dispositivo não suporta síntese de voz nativa.");
+      return;
+    }
+    if (speakingIdx === msgIdx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIdx(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    // Limpar símbolos markdown para pronúncia natural
+    const clean = text
+      .replace(/[#*`_~[\]]/g, "")
+      .replace(/\|.*?\|/g, "")
+      .replace(/https?:\/\/\S+/g, "")
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang = "pt-BR";
+    utterance.rate = 1.05;
+    utterance.onend = () => setSpeakingIdx(null);
+    utterance.onerror = () => setSpeakingIdx(null);
+
+    setSpeakingIdx(msgIdx);
+    window.speechSynthesis.speak(utterance);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -408,8 +447,26 @@ const AIChatPage = () => {
                       : "bg-card border border-border/40 rounded-tl-sm text-foreground w-full"
                   )}>
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-secondary/20 prose-pre:border prose-pre:border-border/10 prose-th:bg-primary/5 prose-th:text-primary">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      <div>
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-secondary/20 prose-pre:border prose-pre:border-border/10 prose-th:bg-primary/5 prose-th:text-primary">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                        </div>
+                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-border/30 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-[9px] font-mono text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
+                              ⚡ Zero Tokens
+                            </Badge>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleSpeak(msg.content, i)}
+                            className="h-7 px-2.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground rounded-lg"
+                          >
+                            {speakingIdx === i ? <VolumeX className="w-3.5 h-3.5 text-primary" /> : <Volume2 className="w-3.5 h-3.5" />}
+                            {speakingIdx === i ? "Parar Áudio" : "Ouvir"}
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <p className="font-medium">{msg.content}</p>

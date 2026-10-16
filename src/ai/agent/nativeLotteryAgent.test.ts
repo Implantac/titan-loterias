@@ -106,4 +106,61 @@ describe("NativeLotteryAgent — Zero Token AI", () => {
     expect(deltas.length).toBeGreaterThan(0);
     expect(deltas.join("")).toContain("Guia Tático Recomendado");
   });
+
+  it("audita volante fornecido pelo apostador com cálculo do Titan Score e X-Ray", () => {
+    const res = nativeLotteryAgent.process({
+      input: "Audite o meu volante da Lotofácil: 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15",
+      lotteryId: "lotofacil",
+      draws: mockDraws,
+      stats: mockStats,
+    });
+
+    expect(res.metadata.tokensConsumed).toBe(0);
+    expect(res.markdown).toContain("Raio-X & Auditoria de Jogo");
+    expect(res.markdown).toContain("Titan Score");
+    expect(res.markdown).toContain("Soma Total");
+    expect(res.markdown).toContain("Paridade");
+    expect(res.markdown).toContain("Moldura");
+  });
+
+  it("calcula planejamento orçamentário de bancada e bolão com preços reais", () => {
+    const res = nativeLotteryAgent.process({
+      input: "Tenho R$ 50 para jogar na Lotofácil, como distribuir?",
+      lotteryId: "lotofacil",
+      draws: mockDraws,
+      stats: mockStats,
+    });
+
+    expect(res.metadata.tokensConsumed).toBe(0);
+    expect(res.markdown).toContain("Planejamento Orçamentário");
+    expect(res.markdown).toContain("R$ 3,50");
+    expect(res.markdown).toContain("apostas simples");
+    expect(res.suggestions.length).toBeGreaterThan(0);
+  });
+
+  it("desmistifica Surpresinha e Teimosinha com base probabilística", () => {
+    const res = nativeLotteryAgent.process({
+      input: "A Surpresinha da lotérica vale a pena?",
+      lotteryId: "lotofacil",
+      draws: mockDraws,
+      stats: mockStats,
+    });
+
+    expect(res.metadata.tokensConsumed).toBe(0);
+    expect(res.markdown).toContain("Surpresinha da Lotérica");
+    expect(res.markdown).toContain("entropia calibrada");
+  });
+
+  it("combate a falácia do apostador e explica independência estatística", () => {
+    const res = nativeLotteryAgent.process({
+      input: "O número 10 está muito atrasado, ele tem mais chance de sair hoje?",
+      lotteryId: "lotofacil",
+      draws: mockDraws,
+      stats: mockStats,
+    });
+
+    expect(res.metadata.tokensConsumed).toBe(0);
+    expect(res.markdown).toContain("Falácia do Apostador");
+    expect(res.markdown).toContain("não tem memória");
+  });
 });
