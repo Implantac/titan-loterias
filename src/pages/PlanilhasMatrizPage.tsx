@@ -1,4 +1,3 @@
-const LOTOFACIL_PRICE = 3.5; // aposta simples Lotofácil (Caixa)
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
