@@ -7,7 +7,7 @@ import { useUserLearning } from "@/hooks/useUserLearning";
 import { useSavedBets } from "@/hooks/useSavedBets";
 import {
   MessageCircle, Send, Trash2, Sparkles, Bot, User, StopCircle, Copy, Check,
-  Brain, Zap, Cloud, Layers, BookmarkCheck, ArrowRight, Volume2, VolumeX
+  Brain, Zap, Cloud, Layers, BookmarkCheck, ArrowRight, Volume2, VolumeX, Mic, MicOff, Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import remarkGfm from "remark-gfm";
 import { m, AnimatePresence } from "framer-motion";
 import { nativeLotteryAgent, type NativeAgentResponse } from "@/ai/agent/nativeLotteryAgent";
 import type { ScoredGame } from "@/ai/core/aiTypes";
+import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -146,6 +147,12 @@ const AIChatPage = () => {
   const [savingGamesIdx, setSavingGamesIdx] = useState<number | null>(null);
   const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
 
+  // Ditado por Voz (STT) & Exportação para Caixa
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [gamesToExport, setGamesToExport] = useState<number[][]>([]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -160,8 +167,77 @@ const AIChatPage = () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          /* ignore */
+        }
+      }
     };
   }, []);
+
+  const toggleListening = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast.error("Reconhecimento de voz não suportado pelo seu navegador (recomendado Google Chrome, Edge ou Safari).");
+      return;
+    }
+
+    if (isListening) {
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        /* ignore */
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "pt-BR";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        toast.info("🎙️ Ouvindo... Pode falar sua pergunta ou dezenas!");
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition:", event.error);
+        setIsListening(false);
+        if (event.error !== "no-speech") {
+          toast.error(`Aviso do microfone: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.error(err);
+      setIsListening(false);
+      toast.error("Não foi possível acessar o microfone.");
+    }
+  };
 
   const handleSpeak = (text: string, msgIdx: number) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -513,6 +589,18 @@ const AIChatPage = () => {
                           <ArrowRight className="w-3 h-3" />
                           Enviar para o Bolão
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setGamesToExport(msg.generatedGames!.map((g) => g.numbers));
+                            setExportDialogOpen(true);
+                          }}
+                          className="h-8 text-xs gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+                        >
+                          <Zap className="w-3 h-3 text-amber-400" />
+                          Exportar Caixa / TXT
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -561,6 +649,20 @@ const AIChatPage = () => {
               className="min-h-[60px] max-h-[180px] rounded-3xl border-border/40 bg-background/80 backdrop-blur-sm px-6 py-4 shadow-inner resize-none focus-visible:ring-primary/20"
               disabled={isStreaming}
             />
+            <Button
+              type="button"
+              onClick={toggleListening}
+              size="icon"
+              variant={isListening ? "destructive" : "secondary"}
+              className={cn(
+                "h-[60px] w-[60px] rounded-3xl shrink-0 shadow-md transition-all duration-200 border border-border/40",
+                isListening && "animate-pulse ring-4 ring-destructive/30 bg-destructive text-white"
+              )}
+              title={isListening ? "Parar de ouvir" : "Falar por voz (Ditado nativo)"}
+              disabled={isStreaming}
+            >
+              {isListening ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-foreground" />}
+            </Button>
             {isStreaming ? (
               <Button onClick={stopStreaming} size="icon" variant="destructive" className="h-[60px] w-[60px] rounded-3xl shrink-0 shadow-lg">
                 <StopCircle className="w-6 h-6" />
@@ -573,11 +675,19 @@ const AIChatPage = () => {
           </div>
           <p className="text-[9px] text-muted-foreground text-center mt-4 font-black uppercase tracking-widest opacity-40 italic">
             {aiMode === "native"
-              ? "⚡ Agente Nativo Titan Core • Zero Tokens • 100% Offline e Ilimitado"
+              ? "⚡ Agente Nativo Titan Core • Zero Tokens • Reconhecimento de Voz & Síntese Integrados"
               : "☁️ Conectado ao Gateway em Nuvem"}
           </p>
         </div>
       </div>
+
+      <ExportCaixaDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        games={gamesToExport}
+        lotteryName={config.name}
+        lotteryId={config.id}
+      />
     </div>
   );
 };

@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
   Users, UserPlus, Trash2, Copy, Share2, Download, Save, Shield,
-  FileDown, CheckCircle2, AlertTriangle, Coins, Sparkles, RefreshCw, Send, ArrowRight
+  FileDown, CheckCircle2, AlertTriangle, Coins, Sparkles, RefreshCw, Send, ArrowRight,
+  QrCode, Check, Zap, DollarSign
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
@@ -23,12 +24,20 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Progress } from "@/components/ui/progress";
+import {
+  generatePixPayload,
+  generatePixQrCodeDataUrl,
+  formatBolaoWhatsAppMessage,
+} from "@/utils/pix";
+import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
 
 interface Participant {
   id: string;
   name: string;
   shares: number;
   phone?: string;
+  paid?: boolean;
 }
 
 interface CotaAssignment {
@@ -68,16 +77,34 @@ export default function BolaoPage() {
 
   // Participants
   const [participants, setParticipants] = useState<Participant[]>([
-    { id: "1", name: "Organizador (Você)", shares: 2 },
-    { id: "2", name: "Participante 2", shares: 1 },
-    { id: "3", name: "Participante 3", shares: 1 },
+    { id: "1", name: "Organizador (Você)", shares: 2, paid: true },
+    { id: "2", name: "Participante 2", shares: 1, paid: false },
+    { id: "3", name: "Participante 3", shares: 1, paid: false },
   ]);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [savingBets, setSavingBets] = useState(false);
 
+  // PIX e Automação Caixa
+  const [pixKey, setPixKey] = useState<string>(() => localStorage.getItem("titan_bolao_pix_key") || "");
+  const [pixName, setPixName] = useState<string>(() => localStorage.getItem("titan_bolao_pix_name") || "");
+  const [pixCity, setPixCity] = useState<string>(() => localStorage.getItem("titan_bolao_pix_city") || "SAO PAULO");
+  const [pixQrCodeUrl, setPixQrCodeUrl] = useState<string>("");
+  const [exportCaixaOpen, setExportCaixaOpen] = useState(false);
+
   // Ticket price from official Caixa pricing table
   const ticketPrice = LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
+
+  // Persistir configs de PIX
+  useEffect(() => {
+    try {
+      localStorage.setItem("titan_bolao_pix_key", pixKey);
+      localStorage.setItem("titan_bolao_pix_name", pixName);
+      localStorage.setItem("titan_bolao_pix_city", pixCity);
+    } catch {
+      /* ignore */
+    }
+  }, [pixKey, pixName, pixCity]);
 
   // Restore from storage if no games passed via route
   useEffect(() => {
@@ -261,6 +288,41 @@ export default function BolaoPage() {
 
   const pad = (n: number) => n.toString().padStart(2, "0");
 
+  // Payload PIX oficial do BACEN
+  const pixPayload = useMemo(() => {
+    if (!pixKey.trim()) return "";
+    return generatePixPayload({
+      key: pixKey.trim(),
+      name: pixName.trim() || "ORGANIZADOR BOLAO",
+      city: pixCity.trim() || "SAO PAULO",
+      amount: costPerShare > 0 ? Number(costPerShare.toFixed(2)) : undefined,
+      txid: "BOLAO",
+      description: `COTA ${activeConfig.name.toUpperCase()}`,
+    });
+  }, [pixKey, pixName, pixCity, costPerShare, activeConfig.name]);
+
+  useEffect(() => {
+    if (pixPayload) {
+      generatePixQrCodeDataUrl(pixPayload).then(setPixQrCodeUrl);
+    } else {
+      setPixQrCodeUrl("");
+    }
+  }, [pixPayload]);
+
+  // Estatísticas de Arrecadação
+  const paidStats = useMemo(() => {
+    const paidParticipants = participants.filter((p) => p.paid);
+    const paidShares = paidParticipants.reduce((acc, p) => acc + (p.shares || 1), 0);
+    const paidAmount = totalShares > 0 ? (paidShares / totalShares) * totalCost : 0;
+    const progressPercent = totalCost > 0 ? Math.min(100, Math.round((paidAmount / totalCost) * 100)) : 0;
+    return {
+      paidCount: paidParticipants.length,
+      paidShares,
+      paidAmount,
+      progressPercent,
+    };
+  }, [participants, totalShares, totalCost]);
+
   // WhatsApp individual message
   const makeParticipantMessage = (cota: CotaAssignment) => {
     const lines: string[] = [];
@@ -268,8 +330,18 @@ export default function BolaoPage() {
     lines.push(`Modalidade: *${activeConfig.name}*`);
     lines.push(`Participante: *${cota.participant.name}*`);
     lines.push(`Cotas: *${cota.participant.shares}* de *${totalShares}* (${cota.percentage.toFixed(1)}% do bolão)`);
-    lines.push(`Valor da Cota: *${formatCurrency(cota.cost)}*`);
-    lines.push(`Total de jogos no bolão: *${games.length} jogos*`);
+    lines.push(`Valor a Pagar: *${formatCurrency(cota.cost)}*`);
+    lines.push(`Total de jogos no bolão: *${games.length} apostas*`);
+    if (pixKey.trim()) {
+      lines.push("");
+      lines.push(`⚡ *DADOS PARA PAGAMENTO PIX:*`);
+      lines.push(`• Chave PIX: \`${pixKey.trim()}\``);
+      if (pixName.trim()) lines.push(`• Titular: *${pixName.trim()}*`);
+      if (pixPayload) {
+        lines.push(`• PIX Copia e Cola:`);
+        lines.push(`\`${pixPayload}\``);
+      }
+    }
     lines.push("");
     lines.push(`📋 *Seus Jogos Atribuídos (${cota.gameIndices.length}):*`);
     cota.gameIndices.forEach((idx) => {
@@ -284,22 +356,19 @@ export default function BolaoPage() {
 
   // WhatsApp group summary
   const makeGroupMessage = () => {
-    const lines: string[] = [];
-    lines.push(`🎯 *BOLÃO OFICIAL — ${bolaoTitle.toUpperCase()}*`);
-    lines.push(`Modalidade: *${activeConfig.name}*`);
-    lines.push(`Total de Jogos: *${games.length} apostas*`);
-    lines.push(`Investimento Total: *${formatCurrency(totalCost)}*`);
-    lines.push(`Total de Cotas: *${totalShares}*`);
-    lines.push(`Valor por Cota: *${formatCurrency(costPerShare)}*`);
-    lines.push("");
-    lines.push("👥 *Participantes & Quotas:*");
-    cotas.forEach((c) => {
-      lines.push(`• ${c.participant.name}: ${c.participant.shares} cota(s) — ${formatCurrency(c.cost)}`);
+    return formatBolaoWhatsAppMessage({
+      bolaoTitle,
+      lotteryName: activeConfig.name,
+      concurso: draws?.[0]?.concurso ? draws[0].concurso + 1 : undefined,
+      gamesCount: games.length,
+      totalCost,
+      costPerShare,
+      totalShares,
+      pixKey: pixKey.trim(),
+      pixPayload,
+      organizerName: pixName.trim(),
+      strategySummary: creationMode === "closing" ? "Fechamento Matemático com Matrizes Titan" : "Filtro Anti-Divisão & Alta Entropia",
     });
-    lines.push("");
-    lines.push("🔒 *Segurança:* Todos os volantes serão autenticados nas lotéricas Caixa. Comprovantes e conferência centralizados.");
-    lines.push("Titan Loterias • Inteligência Estatística");
-    return lines.join("\n");
   };
 
   const sendParticipantWhatsApp = (cota: CotaAssignment) => {
@@ -462,7 +531,15 @@ export default function BolaoPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setExportCaixaOpen(true)}
+            disabled={games.length === 0}
+            className="gap-2 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+          >
+            <Zap className="w-4 h-4 text-amber-400" /> Exportar Caixa / TXT
+          </Button>
           <Button
             variant="outline"
             onClick={downloadBolaoPDF}
@@ -777,7 +854,88 @@ export default function BolaoPage() {
                 Defina o número de cotas de cada participante para rateio proporcional dos prêmios.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
+              {/* Painel de Cobrança PIX e Arrecadação */}
+              <div className="p-4 rounded-xl bg-secondary/30 border border-border/50 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-foreground">
+                      Cobrança PIX Automática das Cotas
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
+                    BACEN EMV Padrão
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Sua Chave PIX (CPF, Celular, E-mail ou Aleatória):</Label>
+                    <Input
+                      value={pixKey}
+                      onChange={(e) => setPixKey(e.target.value)}
+                      placeholder="Ex: 11999998888 ou chave@pix.com"
+                      className="h-8 text-xs font-mono mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground">Nome do Titular da Conta (Organizador):</Label>
+                    <Input
+                      value={pixName}
+                      onChange={(e) => setPixName(e.target.value)}
+                      placeholder="Ex: Carlos Silva"
+                      className="h-8 text-xs mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Status da Arrecadação */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Progresso de Arrecadação:</span>
+                    <span className="font-mono font-bold text-emerald-400">
+                      {formatCurrency(paidStats.paidAmount)} de {formatCurrency(totalCost)} ({paidStats.progressPercent}%)
+                    </span>
+                  </div>
+                  <Progress value={paidStats.progressPercent} className="h-2 bg-secondary" />
+                  <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                    <span>{paidStats.paidCount} de {participants.length} participantes confirmados</span>
+                    <span>Falta arrecadar: {formatCurrency(Math.max(0, totalCost - paidStats.paidAmount))}</span>
+                  </div>
+                </div>
+
+                {/* Exibição do QR Code e Código Copia e Cola */}
+                {pixKey.trim() && pixPayload && (
+                  <div className="pt-2 border-t border-border/30 flex flex-col sm:flex-row items-center gap-4">
+                    {pixQrCodeUrl && (
+                      <div className="p-1.5 bg-white rounded-lg shadow-sm shrink-0">
+                        <img src={pixQrCodeUrl} alt="QR Code PIX Cota" className="w-24 h-24" />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2 w-full text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-foreground">
+                          PIX Copia e Cola da Cota ({formatCurrency(costPerShare)}):
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyText(pixPayload, "pix", "PIX Copia e Cola")}
+                          className="h-7 px-2.5 text-[11px] gap-1"
+                        >
+                          <Copy className="w-3 h-3" />
+                          {copiedId === "pix" ? "Copiado!" : "Copiar Código"}
+                        </Button>
+                      </div>
+                      <div className="font-mono text-[10px] text-muted-foreground bg-background/80 p-2 rounded border border-border/30 truncate select-all">
+                        {pixPayload}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Participant Input List */}
               <div className="space-y-2 max-h-72 overflow-y-auto pr-2 scrollbar-thin">
                 {participants.map((p, idx) => (
@@ -793,7 +951,7 @@ export default function BolaoPage() {
                       value={p.phone || ""}
                       onChange={(e) => updateParticipant(p.id, { phone: e.target.value })}
                       placeholder="DDD + WhatsApp"
-                      className="w-32 h-9 text-xs"
+                      className="w-28 h-9 text-xs"
                     />
                     <div className="flex items-center gap-1">
                       <Label className="text-[10px] text-muted-foreground">Cotas:</Label>
@@ -807,14 +965,29 @@ export default function BolaoPage() {
                             shares: Math.max(1, Number(e.target.value) || 1),
                           })
                         }
-                        className="w-16 h-9 text-xs text-center font-bold font-mono"
+                        className="w-14 h-9 text-xs text-center font-bold font-mono"
                       />
                     </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateParticipant(p.id, { paid: !p.paid })}
+                      className={cn(
+                        "h-9 px-2 text-[11px] font-bold gap-1 rounded-md shrink-0 transition-colors",
+                        p.paid
+                          ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30"
+                          : "bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30"
+                      )}
+                      title="Alternar status de pagamento da cota"
+                    >
+                      {p.paid ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+                      {p.paid ? "Pago" : "Pendente"}
+                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => removeParticipant(p.id)}
-                      className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -920,6 +1093,14 @@ export default function BolaoPage() {
           </Card>
         </div>
       </div>
+
+      <ExportCaixaDialog
+        open={exportCaixaOpen}
+        onOpenChange={setExportCaixaOpen}
+        games={games}
+        lotteryName={activeConfig.name}
+        lotteryId={activeConfig.id}
+      />
     </div>
   );
 }

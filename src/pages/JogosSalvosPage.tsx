@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bookmark, Trophy, TrendingUp, BarChart3, ChevronDown, ChevronUp, Loader2, Calendar, Star, Trash2, Target, Download, FileSpreadsheet } from "lucide-react";
+import { Bookmark, Trophy, TrendingUp, BarChart3, ChevronDown, ChevronUp, Loader2, Calendar, Star, Trash2, Target, Download, FileSpreadsheet, Zap } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import { useSavedBets, SavedBet } from "@/hooks/useSavedBets";
 import { useLotteryContext } from "@/contexts/LotteryContext";
@@ -17,6 +17,7 @@ import { QuickBacktestDialog } from "@/components/lottery/QuickBacktestDialog";
 import { ClosingHistoryPanel } from "@/components/closing/ClosingHistoryPanel";
 import { PostDrawAuditPanel } from "@/components/lottery/PostDrawAuditPanel";
 import { exportToCsv, exportToExcel } from "@/utils/export";
+import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
 import { toast } from "sonner";
 
 
@@ -33,6 +34,7 @@ const JogosSalvosPage = () => {
   const { draws, drawsWithPrizes } = useLotteryContext();
   const [drawRange, setDrawRange] = useState("10");
   const [expandedBet, setExpandedBet] = useState<string | null>(null);
+  const [exportCaixaOpen, setExportCaixaOpen] = useState(false);
 
   const rangeNum = parseInt(drawRange);
 
@@ -109,7 +111,17 @@ const JogosSalvosPage = () => {
             {DRAW_RANGE_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
           </SelectContent>
         </Select>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+            onClick={() => setExportCaixaOpen(true)}
+            disabled={!savedBets.length}
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            Exportar Caixa / TXT
+          </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => handleExport("csv")} disabled={!savedBets.length}>
             <Download className="w-3.5 h-3.5" />
             CSV
@@ -183,6 +195,14 @@ const JogosSalvosPage = () => {
       </div>
 
       <ClosingHistoryPanel lotteryId={selectedLottery} />
+
+      <ExportCaixaDialog
+        open={exportCaixaOpen}
+        onOpenChange={setExportCaixaOpen}
+        games={savedBets.map((b) => b.numbers)}
+        lotteryName={config.name}
+        lotteryId={config.id}
+      />
     </div>
   );
 };
