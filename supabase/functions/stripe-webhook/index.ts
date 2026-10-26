@@ -189,7 +189,9 @@ serve(async (req) => {
     let syncFailed = false;
 
     switch (event.type) {
-      case "checkout.session.completed": {
+      case "checkout.session.completed":
+      // Pix é assíncrono: o pagamento só se confirma neste evento posterior.
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         const customerId = (session.customer as string) || null;
         const email = session.customer_details?.email || session.customer_email || (customerId ? await getEmailForCustomer(customerId) : null);
