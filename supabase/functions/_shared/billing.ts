@@ -39,6 +39,8 @@ export const PLAN_PRICES: Record<string, { price_id: string; mode: "subscription
   },
   lifetime: { price_id: LIFETIME_PRICE_ID, mode: "payment" },
 };
+// A página de planos envia "annual"; sem este alias o checkout anual falhava com "Invalid plan".
+PLAN_PRICES.annual = PLAN_PRICES.premium_annual;
 
 export const PLAN_RANK: Record<string, number> = {
   free: 0,

@@ -51,6 +51,9 @@ serve(async (req) => {
       customer_email: customerId ? undefined : auth.email,
       line_items: [{ price: planConfig.price_id, quantity: 1 }],
       mode: planConfig.mode,
+      // Pagamento único sem cliente prévio não cria cliente no Stripe por padrão —
+      // o webhook ficaria sem customerId e não liberaria o acesso vitalício.
+      ...(planConfig.mode === "payment" && !customerId ? { customer_creation: "always" as const } : {}),
       success_url: `${origin}/payment-success?plan=${planId}`,
       cancel_url: `${origin}/planos`,
       metadata: { user_id: auth.userId, plan_id: planId },
