@@ -19,8 +19,8 @@ import {
   Zap,
   FileText,
   Bookmark,
-  CheckCircle2,
   Info,
+  FileDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,6 +29,7 @@ import {
   generateCaixaAutomationScript,
   generateBookmarkletUrl,
 } from "@/utils/caixaAutomation";
+import { generateVolantesGabaritoPdf } from "@/utils/printableVolantesPdf";
 
 interface ExportCaixaDialogProps {
   open: boolean;
@@ -231,18 +232,32 @@ export function ExportCaixaDialog({
           {/* ABA 3: IMPRESSÃO & GABARITO */}
           <TabsContent value="print" className="space-y-4 pt-3">
             <div className="p-4 rounded-xl bg-secondary/20 border border-border/40 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-xs font-bold text-foreground">
                   Gabarito de Conferência ({games.length} Jogos):
                 </span>
-                <Button
-                  size="sm"
-                  onClick={handlePrint}
-                  className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Imprimir Folha
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      generateVolantesGabaritoPdf({ games, lotteryName, lotteryId });
+                      toast.success("Gabarito de marcação em PDF gerado!");
+                    }}
+                    className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs font-bold"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    Baixar Gabarito em PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handlePrint}
+                    className="gap-1.5 h-8 text-xs"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    Imprimir Direto
+                  </Button>
+                </div>
               </div>
 
               <div className="max-h-60 overflow-y-auto space-y-2 pr-1">

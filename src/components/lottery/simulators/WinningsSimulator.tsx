@@ -9,11 +9,12 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { formatCurrency, formatNumber, formatPercent } from "@/utils/formatters";
+import { formatCurrency, formatNumber } from "@/utils/formatters";
 import {
   Calculator, TrendingUp, History, Sparkles, Plus, X, Trophy,
-  Coins, ChartLine, Bot, User as UserIcon, AlertTriangle
+  Coins, ChartLine, Bot, User as UserIcon, AlertTriangle, Landmark
 } from "lucide-react";
+import { CaixaPrizeRedemptionDialog } from "@/components/lottery/CaixaPrizeRedemptionDialog";
 
 interface Props {
   lotteryId: string;
@@ -98,6 +99,7 @@ export function WinningsSimulator({ lotteryId, pick, maxNumbers, draws, drawsWit
   const [manualInput, setManualInput] = useState("");
   const [futureDraws, setFutureDraws] = useState(52);
   const [historyWindow, setHistoryWindow] = useState(100);
+  const [redemptionOpen, setRedemptionOpen] = useState(false);
 
   const drawsByConcurso = useMemo(() => {
     const map = new Map<number, DrawResultWithPrizes>();
@@ -321,9 +323,21 @@ export function WinningsSimulator({ lotteryId, pick, maxNumbers, draws, drawsWit
       {sim && (
         <div className="space-y-4">
           <div>
-            <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-              <History className="w-3.5 h-3.5 text-primary" /> Resultado histórico ({sim.totalDraws} sorteios)
-            </h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5 text-primary" /> Resultado histórico ({sim.totalDraws} sorteios)
+              </h4>
+              {sim.totalPrize > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setRedemptionOpen(true)}
+                  className="h-6 text-[10px] gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                >
+                  <Landmark className="w-3 h-3" /> Resgate Líquido Caixa
+                </Button>
+              )}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <StatBox label="Investido" value={fmtBRL(sim.totalCost)} tone="neutral" />
               <StatBox label="Premiação" value={fmtBRL(sim.totalPrize)} tone="positive" icon={<Trophy className="w-3 h-3" />} />
@@ -402,6 +416,13 @@ export function WinningsSimulator({ lotteryId, pick, maxNumbers, draws, drawsWit
           )}
         </div>
       )}
+
+      <CaixaPrizeRedemptionDialog
+        open={redemptionOpen}
+        onOpenChange={setRedemptionOpen}
+        initialPrize={sim?.totalPrize || 50000}
+        lotteryName={lotteryId.toUpperCase()}
+      />
     </div>
   );
 }

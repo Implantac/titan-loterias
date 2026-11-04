@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bookmark, Trophy, TrendingUp, BarChart3, ChevronDown, ChevronUp, Loader2, Calendar, Star, Trash2, Target, Download, FileSpreadsheet, Zap } from "lucide-react";
-import { m, AnimatePresence } from "framer-motion";
+import { Bookmark, Loader2, Trash2, Target, Download, FileSpreadsheet, Zap, Ticket, Repeat } from "lucide-react";
 import { useSavedBets, SavedBet } from "@/hooks/useSavedBets";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { StatsCard } from "@/components/common/StatsCard";
@@ -18,6 +17,8 @@ import { ClosingHistoryPanel } from "@/components/closing/ClosingHistoryPanel";
 import { PostDrawAuditPanel } from "@/components/lottery/PostDrawAuditPanel";
 import { exportToCsv, exportToExcel } from "@/utils/export";
 import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
+import { PhysicalTicketCheckerDialog } from "@/components/lottery/PhysicalTicketCheckerDialog";
+import { TeimosinhaCycleTrackerDialog } from "@/components/lottery/TeimosinhaCycleTrackerDialog";
 import { toast } from "sonner";
 
 
@@ -31,10 +32,11 @@ const DRAW_RANGE_OPTIONS = [
 const JogosSalvosPage = () => {
   const { selectedLottery, config } = useLotteryContext();
   const { savedBets, loading, deleteBet } = useSavedBets(selectedLottery);
-  const { draws, drawsWithPrizes } = useLotteryContext();
+  const { draws } = useLotteryContext();
   const [drawRange, setDrawRange] = useState("10");
-  const [expandedBet, setExpandedBet] = useState<string | null>(null);
   const [exportCaixaOpen, setExportCaixaOpen] = useState(false);
+  const [ticketCheckerOpen, setTicketCheckerOpen] = useState(false);
+  const [teimosinhaOpen, setTeimosinhaOpen] = useState(false);
 
   const rangeNum = parseInt(drawRange);
 
@@ -112,6 +114,25 @@ const JogosSalvosPage = () => {
           </SelectContent>
         </Select>
         <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            onClick={() => setTicketCheckerOpen(true)}
+          >
+            <Ticket className="w-3.5 h-3.5" />
+            Conferir Bilhete Físico
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+            onClick={() => setTeimosinhaOpen(true)}
+            disabled={!savedBets.length}
+          >
+            <Repeat className="w-3.5 h-3.5" />
+            Ciclo Teimosinha
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -202,6 +223,17 @@ const JogosSalvosPage = () => {
         games={savedBets.map((b) => b.numbers)}
         lotteryName={config.name}
         lotteryId={config.id}
+      />
+
+      <PhysicalTicketCheckerDialog
+        open={ticketCheckerOpen}
+        onOpenChange={setTicketCheckerOpen}
+      />
+
+      <TeimosinhaCycleTrackerDialog
+        open={teimosinhaOpen}
+        onOpenChange={setTeimosinhaOpen}
+        games={savedBets.map((b) => b.numbers)}
       />
     </div>
   );

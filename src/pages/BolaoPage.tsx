@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
-  Users, UserPlus, Trash2, Copy, Share2, Download, Save, Shield,
-  FileDown, CheckCircle2, AlertTriangle, Coins, Sparkles, RefreshCw, Send, ArrowRight,
-  QrCode, Check, Zap, DollarSign
+  Users, UserPlus, Trash2, Copy, Share2, Save, Shield,
+  FileDown, CheckCircle2, AlertTriangle, Coins, Sparkles, Send,
+  QrCode, Zap, Repeat
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
@@ -31,6 +31,9 @@ import {
   formatBolaoWhatsAppMessage,
 } from "@/utils/pix";
 import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
+import { CaixaPrizeRedemptionDialog } from "@/components/lottery/CaixaPrizeRedemptionDialog";
+import { BolaoContractDialog } from "@/components/lottery/BolaoContractDialog";
+import { TeimosinhaCycleTrackerDialog } from "@/components/lottery/TeimosinhaCycleTrackerDialog";
 
 interface Participant {
   id: string;
@@ -91,6 +94,9 @@ export default function BolaoPage() {
   const [pixCity, setPixCity] = useState<string>(() => localStorage.getItem("titan_bolao_pix_city") || "SAO PAULO");
   const [pixQrCodeUrl, setPixQrCodeUrl] = useState<string>("");
   const [exportCaixaOpen, setExportCaixaOpen] = useState(false);
+  const [redemptionOpen, setRedemptionOpen] = useState(false);
+  const [contractOpen, setContractOpen] = useState(false);
+  const [teimosinhaOpen, setTeimosinhaOpen] = useState(false);
 
   // Ticket price from official Caixa pricing table
   const ticketPrice = LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
@@ -531,29 +537,52 @@ export default function BolaoPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setContractOpen(true)}
+            disabled={games.length === 0}
+            className="gap-1.5 font-bold border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-xs h-9"
+          >
+            <Shield className="w-3.5 h-3.5" /> Contrato Blindado (SHA-256)
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setRedemptionOpen(true)}
+            className="gap-1.5 font-bold border-primary/30 text-primary hover:bg-primary/10 text-xs h-9"
+          >
+            <Coins className="w-3.5 h-3.5" /> Resgate & IRRF Caixa
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setTeimosinhaOpen(true)}
+            disabled={games.length === 0}
+            className="gap-1.5 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs h-9"
+          >
+            <Repeat className="w-3.5 h-3.5" /> Ciclo Teimosinha
+          </Button>
           <Button
             variant="outline"
             onClick={() => setExportCaixaOpen(true)}
             disabled={games.length === 0}
-            className="gap-2 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10"
+            className="gap-1.5 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs h-9"
           >
-            <Zap className="w-4 h-4 text-amber-400" /> Exportar Caixa / TXT
+            <Zap className="w-3.5 h-3.5 text-amber-400" /> Exportar Caixa / TXT
           </Button>
           <Button
             variant="outline"
             onClick={downloadBolaoPDF}
             disabled={games.length === 0}
-            className="gap-2 font-bold"
+            className="gap-1.5 font-bold text-xs h-9"
           >
-            <FileDown className="w-4 h-4 text-primary" /> Exportar PDF
+            <FileDown className="w-3.5 h-3.5 text-primary" /> Recibo PDF
           </Button>
           <Button
             onClick={sendGroupWhatsApp}
             disabled={games.length === 0}
-            className="gap-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/20"
+            className="gap-1.5 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/20 text-xs h-9"
           >
-            <Send className="w-4 h-4" /> WhatsApp Grupo
+            <Send className="w-3.5 h-3.5" /> WhatsApp Grupo
           </Button>
         </div>
       </div>
@@ -1100,6 +1129,44 @@ export default function BolaoPage() {
         games={games}
         lotteryName={activeConfig.name}
         lotteryId={activeConfig.id}
+      />
+
+      <CaixaPrizeRedemptionDialog
+        open={redemptionOpen}
+        onOpenChange={setRedemptionOpen}
+        initialPrize={50000}
+        lotteryName={activeConfig.name}
+        isBolao={true}
+        sharesCount={totalShares}
+      />
+
+      <BolaoContractDialog
+        open={contractOpen}
+        onOpenChange={setContractOpen}
+        config={{
+          lotteryId: activeConfig.id,
+          lotteryName: activeConfig.name,
+          concurso: draws?.[0]?.concurso ? draws[0].concurso + 1 : undefined,
+          organizerName: pixName.trim() || "ORGANIZADOR DO BOLÃO",
+          organizerPixKey: pixKey.trim(),
+          organizerCity: pixCity.trim() || "SAO PAULO",
+          totalCost,
+          totalShares,
+          costPerShare,
+          participants: participants.map((p) => ({
+            name: p.name,
+            shares: p.shares,
+            cost: p.shares * costPerShare,
+            paid: !!p.paid,
+          })),
+          games,
+        }}
+      />
+
+      <TeimosinhaCycleTrackerDialog
+        open={teimosinhaOpen}
+        onOpenChange={setTeimosinhaOpen}
+        games={games}
       />
     </div>
   );
