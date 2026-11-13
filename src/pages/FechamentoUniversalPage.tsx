@@ -612,7 +612,7 @@ function ResultPanel({ result }: { result: ClosingResult }) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Stat label="Jogos" value={result.gameCount.toString()} sub={`min. teórico: ${result.lowerBound}`} />
+            <Stat label="Jogos" value={result.gameCount.toString()} sub={result.request.guarantee.hitsInBase === result.request.guarantee.minHits ? `cota Schönheim: ${result.lowerBound}` : "cota de otimização não aplicável"} />
             <Stat label="Custo" value={formatCurrency(result.cost)} sub={`${result.request.lottery.ticketPrice.toFixed(2)}/jogo`} />
             <Stat label={v.exhaustive ? "Pior caso provado" : "Menor acerto na amostra"} value={`${v.guaranteedHits} acertos`} sub={`Se ${result.request.guarantee.hitsInBase} dezenas saírem na base · meta: ${v.targetMinHits}`} ok={v.meetsGuarantee} />
             <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.exhaustive ? "exaustiva (provada)" : "amostral (estimativa)"} />

@@ -14,6 +14,7 @@
  */
 
 import { greedyCover } from "./GreedyOptimizer";
+import { makeRng } from "../../rng";
 import {
   makeContext, coveragePct, pruneRedundant, randomGame,
   type CoverContext,
@@ -26,6 +27,7 @@ export interface GAOptions {
   mutationRate?: number;      // taxa base
   elitism?: number;
   seedGames?: number[][];
+  seed?: number;
   patience?: number;          // gerações sem melhora antes de parar (default = generations)
   diversityWeight?: number;   // 0..1 peso da diversidade no fitness composto (default 0.15)
   onProgress?: (gen: number, best: number, avg: number) => void;
@@ -90,27 +92,27 @@ function compositeFitness(
 }
 
 // ─── Operadores ──────────────────────────────────────────────────────
-function crossover(a: number[][], b: number[][]): number[][] {
+function crossover(a: number[][], b: number[][], rng: () => number): number[][] {
   const size = Math.max(a.length, b.length);
   const child: number[][] = [];
   for (let i = 0; i < size; i++) {
-    const src = Math.random() < 0.5 ? a : b;
+    const src = rng() < 0.5 ? a : b;
     if (src[i]) child.push(src[i]);
   }
   return child;
 }
 
-function mutate(games: number[][], ctx: CoverContext, rate: number): number[][] {
+function mutate(games: number[][], ctx: CoverContext, rate: number, rng: () => number): number[][] {
   return games.map(g =>
-    Math.random() < rate ? randomGame(ctx.baseSize, ctx.pick) : g,
+    rng() < rate ? randomGame(ctx.baseSize, ctx.pick, rng) : g,
   );
 }
 
-function tournamentPick(scored: { ind: number[][]; fit: number }[]): number[][] {
+function tournamentPick(scored: { ind: number[][]; fit: number }[], rng: () => number): number[][] {
   const k = 3;
-  let best = scored[Math.floor(Math.random() * scored.length)];
+  let best = scored[Math.floor(rng() * scored.length)];
   for (let i = 1; i < k; i++) {
-    const c = scored[Math.floor(Math.random() * scored.length)];
+    const c = scored[Math.floor(rng() * scored.length)];
     if (c.fit > best.fit) best = c;
   }
   return best.ind;
@@ -121,6 +123,7 @@ export function runGeneticAlgorithm(
   baseSize: number, pick: number, m: number, opts: GAOptions = {},
 ): GAOutput {
   const ctx = makeContext(baseSize, pick, m);
+  const rng = makeRng(opts.seed ?? (Math.imul(baseSize, 73856093) ^ Math.imul(pick, 19349663) ^ m));
   const popSize = opts.populationSize ?? 20;
   const generations = opts.generations ?? 60;
   const baseMutation = opts.mutationRate ?? 0.15;
@@ -133,7 +136,7 @@ export function runGeneticAlgorithm(
   const target = seed.length;
 
   let population: number[][][] = [seed];
-  while (population.length < popSize) population.push(mutate(seed, ctx, 0.3));
+  while (population.length < popSize) population.push(mutate(seed, ctx, 0.3, rng));
 
   const history: GAHistoryPoint[] = [];
   let best = seed;
@@ -180,11 +183,11 @@ export function runGeneticAlgorithm(
     // Nova geração: elitismo + descendentes
     const next: number[][][] = scored.slice(0, elitism).map(s => s.ind);
     while (next.length < popSize) {
-      const p1 = tournamentPick(scored);
-      const p2 = tournamentPick(scored);
-      let child = crossover(p1, p2);
-      child = mutate(child, ctx, mutationRate);
-      if (child.length === 0) child = [randomGame(baseSize, pick)];
+      const p1 = tournamentPick(scored, rng);
+      const p2 = tournamentPick(scored, rng);
+      let child = crossover(p1, p2, rng);
+      child = mutate(child, ctx, mutationRate, rng);
+      if (child.length === 0) child = [randomGame(baseSize, pick, rng)];
       next.push(child);
     }
     population = next;

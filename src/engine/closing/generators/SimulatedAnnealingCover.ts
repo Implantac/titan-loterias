@@ -4,6 +4,7 @@
  */
 
 import { greedyCover } from "./GreedyOptimizer";
+import { makeRng } from "../../rng";
 import {
   makeContext, coveragePct, pruneRedundant, randomGame,
 } from "../core/CoverEval";
@@ -14,6 +15,7 @@ export interface SAOptions {
   coolingRate?: number;
   iterations?: number;
   seedGames?: number[][];
+  seed?: number;
 }
 
 export interface SAOutput {
@@ -28,6 +30,7 @@ export function runSimulatedAnnealing(
   baseSize: number, pick: number, m: number, opts: SAOptions = {},
 ): SAOutput {
   const ctx = makeContext(baseSize, pick, m);
+  const rng = makeRng(opts.seed ?? (Math.imul(baseSize, 73856093) ^ Math.imul(pick, 19349663) ^ m));
   const initialTemp = opts.initialTemp ?? 100;
   const coolingRate = opts.coolingRate ?? 0.99;
   const iterations = opts.iterations ?? 500;
@@ -46,13 +49,13 @@ export function runSimulatedAnnealing(
 
   for (let i = 0; i < iterations; i++) {
     // Movimento: substitui um jogo aleatório por um vizinho.
-    const idx = Math.floor(Math.random() * current.length);
+    const idx = Math.floor(rng() * current.length);
     const trial = current.slice();
-    trial[idx] = randomGame(baseSize, pick);
+    trial[idx] = randomGame(baseSize, pick, rng);
     const trialCov = coveragePct(trial, ctx);
     const delta = trialCov - currentCov;
 
-    if (delta >= 0 || Math.random() < Math.exp(delta / temp)) {
+    if (delta >= 0 || rng() < Math.exp(delta / temp)) {
       current = trial;
       currentCov = trialCov;
       accepted++;

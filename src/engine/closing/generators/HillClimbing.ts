@@ -6,6 +6,7 @@
  */
 
 import { greedyCover } from "./GreedyOptimizer";
+import { makeRng } from "../../rng";
 import {
   makeContext, coveragePct, pruneRedundant, randomGame,
   type CoverContext,
@@ -15,6 +16,7 @@ export interface HCOptions {
   maxGames?: number;
   maxIterations?: number;
   seedGames?: number[][];
+  seed?: number;
 }
 
 export interface HCOutput {
@@ -28,6 +30,7 @@ export function runHillClimbing(
   baseSize: number, pick: number, m: number, opts: HCOptions = {},
 ): HCOutput {
   const ctx = makeContext(baseSize, pick, m);
+  const rng = makeRng(opts.seed ?? (Math.imul(baseSize, 73856093) ^ Math.imul(pick, 19349663) ^ m));
   const maxIter = opts.maxIterations ?? 300;
 
   let solution = opts.seedGames
@@ -44,7 +47,7 @@ export function runHillClimbing(
     // aceita se cobertura sobe ou (=100% e jogos menos redundantes).
     let improved = false;
     for (let i = 0; i < solution.length; i++) {
-      const candidate = randomGame(baseSize, pick);
+      const candidate = randomGame(baseSize, pick, rng);
       const trial = solution.slice();
       trial[i] = candidate;
       const cov = coveragePct(trial, ctx);

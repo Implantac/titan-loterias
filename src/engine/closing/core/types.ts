@@ -46,6 +46,8 @@ export interface ClosingRequest {
   };
   /** Máximo de jogos permitido (orçamento). undefined = sem limite. */
   maxGames?: number;
+  /** Semente para repetir a geração estocástica (padrão estável). */
+  seed?: number;
   /** Estratégia principal (default "greedy"). */
   strategy?: ClosingStrategy;
   kind?: ClosingKind;
@@ -86,7 +88,7 @@ export interface ClosingResult {
   validation: ClosingValidation;
   score: ClosingScore;
   elapsedMs: number;
-  /** Schönheim lower bound (mínimo teórico de jogos). */
+  /** Cota inferior válida para a hipótese solicitada; Schönheim só quando K = M. */
   lowerBound: number;
   notes: string[];
 }

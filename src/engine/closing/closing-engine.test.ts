@@ -53,3 +53,28 @@ describe("ClosingEngine — Fase 1 (Greedy + Validação)", () => {
     expect(schonheimBound(7, 6, 6)).toBeGreaterThanOrEqual(7);
   });
 });
+
+describe("reprodutibilidade e cota inferior", () => {
+  const request = {
+    lottery: { id: "megasena", name: "Mega-Sena", totalNumbers: 60, pick: 6, ticketPrice: 5 },
+    baseNumbers: [1, 2, 3, 4, 5, 6, 7, 8],
+    guarantee: { hitsInBase: 6, minHits: 5 },
+    maxGames: 12,
+    seed: 2026,
+  };
+  it.each(["hill_climbing", "simulated_annealing", "genetic", "covering_design"] as const)(
+    "%s produz os mesmos jogos com a mesma semente",
+    strategy => {
+      const a = generateClosing({ ...request, strategy });
+      const b = generateClosing({ ...request, strategy });
+      expect(b.games).toEqual(a.games);
+      expect(b.validation).toEqual(a.validation);
+    },
+  );
+
+  it("não trata Schönheim para todos M-subconjuntos como mínimo do problema K > M", () => {
+    const r = generateClosing({ ...request, strategy: "greedy" });
+    expect(r.lowerBound).toBe(1);
+    expect(r.notes.join(" ")).not.toContain("Ótimo alcançado");
+  });
+});

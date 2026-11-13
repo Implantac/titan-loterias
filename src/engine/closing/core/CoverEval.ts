@@ -82,11 +82,11 @@ export function pruneRedundant(games: number[][], ctx: CoverContext): number[][]
 }
 
 /** Gera um jogo aleatório com `pick` índices distintos em [0..baseSize-1]. */
-export function randomGame(baseSize: number, pick: number): number[] {
+export function randomGame(baseSize: number, pick: number, rng: () => number = Math.random): number[] {
   const pool = Array.from({ length: baseSize }, (_, i) => i);
   const out: number[] = [];
   for (let i = 0; i < pick; i++) {
-    const j = Math.floor(Math.random() * pool.length);
+    const j = Math.floor(rng() * pool.length);
     out.push(pool[j]);
     pool.splice(j, 1);
   }

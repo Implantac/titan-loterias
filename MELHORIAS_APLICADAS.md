@@ -35,3 +35,9 @@ Pendente: auditar os demais relatórios/telas de matrizes, garantir reprodutibil
 - O validador de fechamentos e o validador de matrizes aceitam semente opcional e devolvem resultados repetíveis para os mesmos parâmetros. Estratégias diferentes podem ser comparadas sob a mesma amostra.
 - Testes cobrem repetição com mesma semente e mudança de amostra com sementes diferentes.
 - **Limitação:** geração de jogos por alguns algoritmos continua estocástica; repetição da *validação* não garante repetição da matriz gerada. A amostra não substitui prova exaustiva.
+
+## Etapa seguinte: geração estocástica e limites matemáticos
+- Algoritmos hill climbing, simulated annealing, genético e covering design aceitam uma semente opcional; a geração padrão também é determinística para os mesmos parâmetros. Testes verificam igualdade de jogos/validação com a mesma semente.
+- Corrigida a interpretação da cota de Schönheim: ela se aplica à cobertura de **todos os M-subconjuntos**, não necessariamente ao problema mais fraco "M acertos se K > M dezenas estiverem na base". Para K > M, o resultado não afirma atingir mínimo teórico ou ótimo.
+- Os relatórios principais deixam explícito quando a cota de Schönheim não se aplica à hipótese selecionada.
+- Limitação: nota dependente do tempo de execução e preços fornecidos pelo cliente não constituem evidência reproduzível de desempenho ou custo oficial.

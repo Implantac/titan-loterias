@@ -7,6 +7,7 @@
  */
 
 import { greedyCover } from "./GreedyOptimizer";
+import { makeRng } from "../../rng";
 import { runHillClimbing } from "./HillClimbing";
 import {
   makeContext, coveragePct, pruneRedundant, randomGame,
@@ -16,6 +17,7 @@ import { schonheimBound } from "../core/combinatorics";
 export interface CDOptions {
   maxGames?: number;
   refinementPasses?: number;
+  seed?: number;
 }
 
 export interface CDOutput {
@@ -30,6 +32,8 @@ export function runCoveringDesign(
   baseSize: number, pick: number, m: number, opts: CDOptions = {},
 ): CDOutput {
   const ctx = makeContext(baseSize, pick, m);
+  const seed = opts.seed ?? (Math.imul(baseSize, 73856093) ^ Math.imul(pick, 19349663) ^ m);
+  const rng = makeRng(seed);
   const bound = schonheimBound(baseSize, pick, m);
   const passes = opts.refinementPasses ?? 5;
 
@@ -42,7 +46,7 @@ export function runCoveringDesign(
 
     // Tenta reduzir 1 jogo, se cobertura permanece 100% após substituições locais
     const hc = runHillClimbing(baseSize, pick, m, {
-      seedGames: best, maxIterations: 40,
+      seedGames: best, maxIterations: 40, seed: rng() * 0x100000000,
     });
     if (hc.finalCoverage >= bestCov && hc.games.length <= best.length) {
       best = hc.games;
@@ -51,7 +55,7 @@ export function runCoveringDesign(
 
     // Perturbação: injeta jogo aleatório e faz nova prune
     const perturbed = best.slice();
-    perturbed.push(randomGame(baseSize, pick));
+    perturbed.push(randomGame(baseSize, pick, rng));
     const pruned = pruneRedundant(perturbed, ctx);
     const prunedCov = coveragePct(pruned, ctx);
     if (prunedCov >= bestCov && pruned.length < best.length) {

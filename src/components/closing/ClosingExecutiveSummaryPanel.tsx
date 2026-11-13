@@ -115,7 +115,7 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
             icon={Layers}
             label="Jogos"
             value={formatNumber(stats.games)}
-            sub={`min. teórico ${stats.lowerBound}`}
+            sub={primary.request.guarantee.hitsInBase === primary.request.guarantee.minHits ? `cota Schönheim: ${stats.lowerBound}` : "cota combinatória não aplicável à hipótese K > M"}
           />
           <Kpi
             icon={Coins}
@@ -176,7 +176,9 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
             </div>
             <Progress value={stats.optimality} className="h-1.5" />
             <p className="text-[10px] text-muted-foreground">
-              100% = número de jogos igual ao mínimo teórico (Schönheim).
+              {primary.request.guarantee.hitsInBase === primary.request.guarantee.minHits
+                ? "100% = número de jogos igual à cota inferior de Schönheim."
+                : "Referência conservadora (1 jogo); não demonstra otimização da matriz."}
             </p>
           </div>
           <div className="rounded-lg border bg-muted/20 p-3 space-y-2">

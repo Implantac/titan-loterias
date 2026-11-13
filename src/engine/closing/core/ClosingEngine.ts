@@ -60,28 +60,28 @@ export function generateClosing(request: ClosingRequest): ClosingResult {
 
   switch (strategy) {
     case "hill_climbing": {
-      const r = runHillClimbing(b, pick, m, { maxGames: request.maxGames });
+      const r = runHillClimbing(b, pick, m, { maxGames: request.maxGames, seed: request.seed });
       idxGames = r.games;
       notes.push(`Hill Climbing: ${r.iterations} iterações, ${r.improvements} melhorias.`);
       break;
     }
     case "simulated_annealing": {
-      const r = runSimulatedAnnealing(b, pick, m, { maxGames: request.maxGames });
+      const r = runSimulatedAnnealing(b, pick, m, { maxGames: request.maxGames, seed: request.seed });
       idxGames = r.games;
       notes.push(`Simulated Annealing: ${r.iterations} passos, ${r.accepted} aceitos.`);
       break;
     }
     case "genetic": {
-      const r = runGeneticAlgorithm(b, pick, m, { maxGames: request.maxGames });
+      const r = runGeneticAlgorithm(b, pick, m, { maxGames: request.maxGames, seed: request.seed });
       idxGames = r.games;
       notes.push(`Algoritmo Genético: ${r.generations} gerações, fitness ${r.bestFitness.toFixed(1)}.`);
       break;
     }
     case "covering_design": {
-      const r = runCoveringDesign(b, pick, m, { maxGames: request.maxGames });
+      const r = runCoveringDesign(b, pick, m, { maxGames: request.maxGames, seed: request.seed });
       idxGames = r.games;
       notes.push(
-        r.reachedBound
+        r.reachedBound && request.guarantee.hitsInBase === m
           ? `Covering Design: atingiu lower bound de Schönheim (${r.lowerBound}).`
           : `Covering Design: ${r.passes} passes, cobertura ${r.finalCoverage.toFixed(1)}%.`,
       );
@@ -102,7 +102,10 @@ export function generateClosing(request: ClosingRequest): ClosingResult {
     idxGames, b, request.guarantee.hitsInBase, m,
   );
 
-  const lowerBound = schonheimBound(b, pick, m);
+  // Schönheim limita a cobertura de todos os M-subconjuntos, condição mais
+  // forte que a meta "M acertos se K>M dezenas saírem na base". Nesse caso,
+  // exibir a cota como mínimo do problema solicitado seria incorreto.
+  const lowerBound = request.guarantee.hitsInBase === m ? schonheimBound(b, pick, m) : 1;
   const elapsed = performance.now() - start;
 
   const score = computeScore({
@@ -110,10 +113,11 @@ export function generateClosing(request: ClosingRequest): ClosingResult {
     elapsedMs: elapsed, baseSize: b, pick,
   });
 
+  if (request.guarantee.hitsInBase !== m) notes.push("Schönheim se aplica à cobertura de todos os M-subconjuntos; mínimo exibido é apenas a cota trivial 1 para a hipótese K > M.");
   if (!exhaustiveUniverse) notes.push("Universo de M-subconjuntos muito grande — cobertura estimada por amostragem.");
   if (!exhaustiveCandidates) notes.push("Pool de candidatos amostrado (universo combinatório enorme).");
   if (!validation.exhaustive) notes.push("Validação por amostragem (cenários demais para checagem exaustiva).");
-  if (gamesReal.length === lowerBound && lowerBound > 0 && validation.meetsGuarantee) {
+  if (request.guarantee.hitsInBase === m && gamesReal.length === lowerBound && lowerBound > 0 && validation.meetsGuarantee) {
     notes.push(`Ótimo alcançado: ${gamesReal.length} jogos = lower bound de Schönheim.`);
   }
 
