@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GitCompare, Trophy, TrendingUp, TrendingDown } from "lucide-react";
+import { GitCompare, TrendingUp, TrendingDown } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import type { ClosingResult, ClosingStrategy } from "@/engine/closing";
 import { simulateRoi } from "@/engine/closing/analysis/roiSimulator";
@@ -33,13 +33,11 @@ interface Props {
 }
 
 export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }: Props) {
-  const { draws, config } = useLotteryContext();
+  const { drawsWithPrizes, config } = useLotteryContext();
 
   const rows = useMemo(() => {
-    const win = draws.slice(0, windowSize).map(d => ({
-      concurso: d.concurso, numbers: d.numbers, date: d.date,
-    }));
-    return results.map(r => {
+    const win = drawsWithPrizes.slice(0, windowSize);
+    return results.flatMap(r => {
       const sim = simulateRoi({
         lotteryId: config.id,
         ticketPrice: r.request.lottery.ticketPrice,
@@ -47,29 +45,33 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
         recentDraws: win,
         window: windowSize,
       });
-      return {
+      if (!sim) return [];
+      return [{
         result: r,
         roi: sim.roiPercent,
         prize: sim.totalPrize,
         winRate: sim.hitRatePercent,
-      };
+      }];
     }).sort((a, b) => b.roi - a.roi);
-  }, [results, draws, windowSize, config.id]);
+  }, [results, drawsWithPrizes, windowSize, config.id]);
 
-  const winnerByRoi = rows[0];
+
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 flex-wrap">
           <GitCompare className="h-5 w-5 text-primary" />
-          Matriz de Estratégias — Custo × Cobertura × ROI
+          Matriz de Estratégias — Retrospectiva de Custos e Rateios
           <Badge variant="outline" className="ml-auto text-[10px]">
-            ROI simulado sobre {windowSize} sorteios
+            Até {windowSize} concursos com rateio
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {rows.length === 0 && <p className="text-sm text-muted-foreground mb-4">
+          Comparação monetária indisponível: é necessário rateio oficial completo de cada concurso e modalidade suportada (Mega-Sena, Lotofácil ou Quina).
+        </p>}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-xs text-muted-foreground border-b">
@@ -79,7 +81,7 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
                 <th className="text-right py-2 px-2">Custo</th>
                 <th className="text-right py-2 px-2">Cobertura</th>
                 <th className="text-right py-2 px-2">Garantia</th>
-                <th className="text-right py-2 px-2">Prêmio est.</th>
+                <th className="text-right py-2 px-2">Prêmios (rateio)</th>
                 <th className="text-right py-2 px-2">Win rate</th>
                 <th className="text-right py-2 px-2">ROI</th>
                 <th className="py-2 px-2"></th>
@@ -89,11 +91,10 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
               {rows.map((row, i) => {
                 const r = row.result;
                 const positive = row.roi >= 0;
-                const isWinner = winnerByRoi && r.strategy === winnerByRoi.result.strategy;
+
                 return (
-                  <tr key={r.strategy} className={cn("border-b hover:bg-muted/30", isWinner && "bg-emerald-500/5")}>
+                  <tr key={r.strategy} className="border-b hover:bg-muted/30">
                     <td className="py-2 px-2 font-medium">
-                      {isWinner && <Trophy className="inline h-3 w-3 mr-1 text-emerald-500" />}
                       {STRATEGY_LABELS[r.strategy] ?? r.strategy}
                     </td>
                     <td className="text-right py-2 px-2 font-mono">{r.gameCount}</td>
@@ -128,7 +129,7 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
           </table>
         </div>
         <p className="text-[11px] text-muted-foreground mt-3">
-          ROI é estimativa baseada em prêmios médios históricos. Vencedor destacado prioriza retorno esperado, não apenas cobertura teórica.
+          Ordenado pelo retorno retrospectivo, sem indicar estratégia superior: quantidades de jogos e orçamentos podem diferir. Jogos escolhidos depois dos resultados sofrem viés de seleção. Preço por bilhete é o informado, não o histórico.
         </p>
       </CardContent>
     </Card>

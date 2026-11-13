@@ -41,3 +41,11 @@ Pendente: auditar os demais relatórios/telas de matrizes, garantir reprodutibil
 - Corrigida a interpretação da cota de Schönheim: ela se aplica à cobertura de **todos os M-subconjuntos**, não necessariamente ao problema mais fraco "M acertos se K > M dezenas estiverem na base". Para K > M, o resultado não afirma atingir mínimo teórico ou ótimo.
 - Os relatórios principais deixam explícito quando a cota de Schönheim não se aplica à hipótese selecionada.
 - Limitação: nota dependente do tempo de execução e preços fornecidos pelo cliente não constituem evidência reproduzível de desempenho ou custo oficial.
+
+## Etapa seguinte: retorno monetário sem tabela fictícia
+- Retiradas as tabelas de "prêmios médios" arbitrários do simulador de ROI dos fechamentos.
+- Retrospectiva monetária disponível apenas para Mega-Sena, Lotofácil e Quina quando TODOS os concursos selecionados têm rateio por faixa carregado. Na falta de dados, o retorno fica indisponível em vez de assumir prêmio zero ou inventar valor.
+- A tela informa que o custo é calculado com o preço informado pelo usuário (não preço histórico), e que jogos escolhidos após os sorteios não demonstram poder preditivo. A comparação deixa de destacar uma estratégia como vencedora com orçamentos diferentes.
+- Testes verificam rateio por concurso, pagamento por aposta e ausência de cálculo quando faltam dados.
+
+Pendente: reconciliação de preços históricos, premiações de apostas múltiplas e modalidades com mecânicas especiais, e comparação justa com apostas aleatórias de mesmo orçamento em amostra fora da seleção.

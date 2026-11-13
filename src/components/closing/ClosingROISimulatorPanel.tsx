@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TrendingUp, TrendingDown, Coins, Play, Info } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import type { ClosingResult } from "@/engine/closing";
-import { simulateRoi, getAvgPrizeTable } from "@/engine/closing/analysis/roiSimulator";
+import { simulateRoi } from "@/engine/closing/analysis/roiSimulator";
 import { formatCurrency } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
 
@@ -20,12 +20,11 @@ interface Props {
 }
 
 export function ClosingROISimulatorPanel({ result }: Props) {
-  const { draws, config } = useLotteryContext();
+  const { drawsWithPrizes, config } = useLotteryContext();
   const [windowSize, setWindowSize] = useState(30);
   const [ran, setRan] = useState(false);
 
-  const prizeTable = getAvgPrizeTable(config.id);
-  const hasPrizeData = Object.keys(prizeTable).length > 0;
+  const supported = ["megasena", "lotofacil", "quina"].includes(config.id);
 
   const sim = useMemo(() => {
     if (!ran) return null;
@@ -33,12 +32,10 @@ export function ClosingROISimulatorPanel({ result }: Props) {
       lotteryId: config.id,
       ticketPrice: result.request.lottery.ticketPrice,
       games: result.games,
-      recentDraws: draws.slice(0, windowSize).map(d => ({
-        concurso: d.concurso, numbers: d.numbers, date: d.date,
-      })),
+      recentDraws: drawsWithPrizes.slice(0, windowSize),
       window: windowSize,
     });
-  }, [ran, config.id, result, draws, windowSize]);
+  }, [ran, config.id, result, drawsWithPrizes, windowSize]);
 
   const positive = sim && sim.roiPercent >= 0;
 
@@ -49,16 +46,16 @@ export function ClosingROISimulatorPanel({ result }: Props) {
           <Coins className="h-5 w-5 text-amber-500" />
           Simulador de ROI
           <Badge variant="outline" className="ml-auto text-[10px]">
-            {draws.length} sorteios carregados
+            {drawsWithPrizes.length} sorteios carregados
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!hasPrizeData ? (
+        {!supported ? (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Tabela de prêmios médios não disponível para {config.name}. Estimativa não pode ser calculada.
+              Rateio por faixa ainda não suportado para {config.name}; não será calculado retorno com valores fictícios.
             </AlertDescription>
           </Alert>
         ) : (
@@ -72,21 +69,25 @@ export function ClosingROISimulatorPanel({ result }: Props) {
                 value={[windowSize]}
                 onValueChange={(v) => { setWindowSize(v[0]); setRan(false); }}
                 min={5}
-                max={Math.min(100, Math.max(10, draws.length))}
+                max={Math.min(100, Math.max(10, drawsWithPrizes.length))}
                 step={5}
                 className="mt-2"
               />
             </div>
 
-            <Button onClick={() => setRan(true)} disabled={draws.length === 0}>
+            <Button onClick={() => setRan(true)} disabled={drawsWithPrizes.length === 0}>
               <Play className="h-4 w-4 mr-1" /> Simular ROI
             </Button>
+
+            {ran && !sim && <Alert><Info className="h-4 w-4" /><AlertDescription>
+              Retorno indisponível: faltam rateios oficiais de alguma faixa ou concurso na janela.
+            </AlertDescription></Alert>}
 
             {sim && (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <RoiStat
-                    label="ROI médio"
+                    label="Retorno retrospectivo"
                     value={`${sim.roiPercent >= 0 ? "+" : ""}${sim.roiPercent.toFixed(1)}%`}
                     highlight={positive}
                     negative={!positive}
@@ -99,13 +100,13 @@ export function ClosingROISimulatorPanel({ result }: Props) {
                     negative={!positive}
                   />
                   <RoiStat label="Custo total" value={formatCurrency(sim.totalCost)} />
-                  <RoiStat label="Prêmio estimado" value={formatCurrency(sim.totalPrize)} />
+                  <RoiStat label="Prêmios do rateio" value={formatCurrency(sim.totalPrize)} />
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                   <SmallStat label="Sorteios premiados" value={`${sim.winningDraws}/${sim.drawsConsidered}`} />
                   <SmallStat label="Hit rate" value={`${sim.hitRatePercent.toFixed(1)}%`} />
-                  <SmallStat label="Break-even" value={sim.breakEvenGames ? `${sim.breakEvenGames} jogos/mês` : "—"} />
+
                 </div>
 
                 {sim.bestDraw && sim.bestDraw.prizeTotal > 0 && (
@@ -149,7 +150,7 @@ export function ClosingROISimulatorPanel({ result }: Props) {
                 <Alert variant="default" className="text-[11px]">
                   <Info className="h-3 w-3" />
                   <AlertDescription>
-                    Estimativa baseada em prêmios médios históricos. Faixas de jackpot usam piso conservador — resultado real depende do rateio de cada concurso.
+                    Retrospectiva de jogos fixos com rateios por concurso. O custo usa o preço informado atualmente, não preços históricos. Jogos selecionados após conhecer os resultados não demonstram poder preditivo.
                   </AlertDescription>
                 </Alert>
               </>
