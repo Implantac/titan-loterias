@@ -1,3 +1,5 @@
+import { makeRng } from "../rng";
+
 /**
  * Coverage Validator — valida matematicamente a garantia de um desdobramento.
  *
@@ -27,10 +29,12 @@ export function combinations(n: number, k: number): number[][] {
   return result;
 }
 
-/** Escolhe até `sampleSize` combinações C(n,k) de forma amostrada quando explodir. */
-export function sampleCombinations(n: number, k: number, sampleSize: number): number[][] {
+/** Escolhe até `sampleSize` cenários distintos, com seed opcional; padrão
+ * derivado de (n,k,sampleSize). Amostragem não prova cobertura. */
+export function sampleCombinations(n: number, k: number, sampleSize: number, seed = (Math.imul(n, 73856093) ^ Math.imul(k, 19349663) ^ Math.imul(sampleSize, 83492791)) >>> 0): number[][] {
   const total = binomial(n, k);
   if (total <= sampleSize) return combinations(n, k);
+  const rng = makeRng(seed);
   const seen = new Set<string>();
   const result: number[][] = [];
   let guard = 0;
@@ -39,7 +43,7 @@ export function sampleCombinations(n: number, k: number, sampleSize: number): nu
     const combo: number[] = [];
     const pool = Array.from({ length: n }, (_, i) => i);
     for (let i = 0; i < k; i++) {
-      const j = Math.floor(Math.random() * pool.length);
+      const j = Math.floor(rng() * pool.length);
       combo.push(pool[j]);
       pool.splice(j, 1);
     }
@@ -87,6 +91,7 @@ export function validateWheelCoverage(
   hitsInBase: number,
   targetGuarantee?: number,
   maxScenarios = 5000,
+  seed?: number,
 ): WheelValidationResult {
   if (!Number.isInteger(baseSize) || baseSize <= 0 ||
       !Number.isInteger(pick) || pick <= 0 || pick > baseSize ||
@@ -100,7 +105,7 @@ export function validateWheelCoverage(
 
   const scenarios = binomial(baseSize, hitsInBase) <= maxScenarios
     ? combinations(baseSize, hitsInBase)
-    : sampleCombinations(baseSize, hitsInBase, maxScenarios);
+    : sampleCombinations(baseSize, hitsInBase, maxScenarios, seed);
 
   const exhaustive = binomial(baseSize, hitsInBase) <= maxScenarios;
   const goal = targetGuarantee ?? Math.max(1, pick - 1);

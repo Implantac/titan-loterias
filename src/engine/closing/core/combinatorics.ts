@@ -1,3 +1,5 @@
+import { makeRng } from "../../rng";
+
 /**
  * Utilitários combinatórios do Motor de Fechamentos.
  * Puramente matemático — sem side-effects.
@@ -29,10 +31,12 @@ export function combinations(n: number, k: number): number[][] {
   return out;
 }
 
-/** Amostra `size` combinações C(n,k) distintas (para quando C(n,k) é gigante). */
-export function sampleCombinations(n: number, k: number, size: number): number[][] {
+/** Amostra `size` combinações distintas. Seed opcional; padrão derivado de (n,k,size),
+ * permitindo repetir e comparar estratégias sob os mesmos cenários. Não é prova. */
+export function sampleCombinations(n: number, k: number, size: number, seed = (Math.imul(n, 73856093) ^ Math.imul(k, 19349663) ^ Math.imul(size, 83492791)) >>> 0): number[][] {
   const total = binomial(n, k);
   if (total <= size) return combinations(n, k);
+  const rng = makeRng(seed);
   const seen = new Set<string>();
   const out: number[][] = [];
   let guard = 0;
@@ -41,7 +45,7 @@ export function sampleCombinations(n: number, k: number, size: number): number[]
     const pool = Array.from({ length: n }, (_, i) => i);
     const combo: number[] = [];
     for (let i = 0; i < k; i++) {
-      const j = Math.floor(Math.random() * pool.length);
+      const j = Math.floor(rng() * pool.length);
       combo.push(pool[j]);
       pool.splice(j, 1);
     }

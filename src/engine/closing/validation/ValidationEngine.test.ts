@@ -27,3 +27,14 @@ describe("validação de garantias: falha de forma segura", () => {
     }
   });
 });
+
+describe("amostragem do motor de fechamentos", () => {
+  it("repete a validação amostral com a mesma semente", () => {
+    const games = [Array.from({ length: 10 }, (_, i) => i)];
+    const first = validateClosing(games, 20, 10, 5, 12345);
+    expect(first.exhaustive).toBe(false);
+    expect(validateClosing(games, 20, 10, 5, 12345)).toEqual(first);
+    // Mesmo sem informar semente, a escolha padrão é estável para estes parâmetros.
+    expect(validateClosing(games, 20, 10, 5)).toEqual(validateClosing(games, 20, 10, 5));
+  });
+});

@@ -29,3 +29,9 @@ A conta fornecida é designada `super_admin` nas migrações. A leitura de outro
 - Testes de regressão para garantia amostral, validação exaustiva e entradas inválidas.
 
 Pendente: auditar os demais relatórios/telas de matrizes, garantir reprodutibilidade da amostragem com semente e confirmar preço de bilhete na fonte oficial antes de calcular custo.
+
+## Etapa seguinte: amostragem reproduzível
+- As duas rotinas de amostragem combinatória aceitam uma semente opcional. Sem semente informada, usam uma semente determinística derivada do tamanho da base, acertos na base e limite de cenários.
+- O validador de fechamentos e o validador de matrizes aceitam semente opcional e devolvem resultados repetíveis para os mesmos parâmetros. Estratégias diferentes podem ser comparadas sob a mesma amostra.
+- Testes cobrem repetição com mesma semente e mudança de amostra com sementes diferentes.
+- **Limitação:** geração de jogos por alguns algoritmos continua estocástica; repetição da *validação* não garante repetição da matriz gerada. A amostra não substitui prova exaustiva.

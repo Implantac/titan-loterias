@@ -15,6 +15,7 @@ export function validateClosing(
   baseSize: number,
   hitsInBase: number,
   targetMinHits: number,
+  seed?: number,
 ): ClosingValidation {
   if (games.length === 0 || !Number.isInteger(baseSize) || baseSize <= 0 ||
       !Number.isInteger(hitsInBase) || hitsInBase < 0 || hitsInBase > baseSize ||
@@ -32,7 +33,7 @@ export function validateClosing(
   const exhaustive = totalScenarios <= MAX_SCENARIOS;
   const scenarios = exhaustive
     ? combinations(baseSize, hitsInBase)
-    : sampleCombinations(baseSize, hitsInBase, MAX_SCENARIOS);
+    : sampleCombinations(baseSize, hitsInBase, MAX_SCENARIOS, seed);
 
   const pick = games[0].length;
   const gameSets = games.map(g => new Set(g));

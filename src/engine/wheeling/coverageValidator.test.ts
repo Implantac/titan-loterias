@@ -77,3 +77,13 @@ describe("coverageValidator", () => {
     expect(r.guaranteedHits).toBeGreaterThanOrEqual(14);
   });
 });
+
+describe("amostragem reproduzível", () => {
+  it("mesma base e semente geram a mesma amostra", async () => {
+    const { sampleCombinations } = await import("./coverageValidator");
+    const first = sampleCombinations(25, 12, 100, 2026);
+    expect(first).toHaveLength(100);
+    expect(sampleCombinations(25, 12, 100, 2026)).toEqual(first);
+    expect(sampleCombinations(25, 12, 100, 2027)).not.toEqual(first);
+  });
+});
