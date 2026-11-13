@@ -102,7 +102,9 @@ export function ClosingMatrixEditor({
       toast.warning(`${bad} jogos com números fora da base — validação parcial.`);
     }
     const v = validateClosing(idxGames, activeBase.length, pick, pick);
-    toast.info(`Validação: garantia real ${v.guaranteedHits}, cobertura ${v.coveragePercent.toFixed(1)}%.`);
+    toast.info(v.exhaustive
+      ? `Pior caso provado: ${v.guaranteedHits} acertos; cobertura ${v.coveragePercent.toFixed(1)}%.`
+      : `Amostra de ${v.testedScenarios} cenários: menor acerto ${v.guaranteedHits}; sem prova de garantia.`);
   };
 
   const persist = async () => {

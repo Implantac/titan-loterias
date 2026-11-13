@@ -44,6 +44,15 @@ export function generateClosing(request: ClosingRequest): ClosingResult {
     ]);
   }
 
+  if (!Number.isInteger(request.guarantee.hitsInBase) ||
+      request.guarantee.hitsInBase < 0 || request.guarantee.hitsInBase > Math.min(pick, b) ||
+      !Number.isInteger(m) || m < 1 || m > request.guarantee.hitsInBase ||
+      new Set(base).size !== b || base.some(n => !Number.isInteger(n) || n < 1 || n > request.lottery.totalNumbers)) {
+    return emptyResult(request, strategy, start, [
+      "Parâmetros inválidos: confira base, dezenas por sorteio e meta de acertos.",
+    ]);
+  }
+
   // Executa a estratégia escolhida. Todos retornam índices em [0..b-1].
   let idxGames: number[][] = [];
   let exhaustiveUniverse = true;

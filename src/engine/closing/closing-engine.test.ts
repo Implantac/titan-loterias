@@ -2,6 +2,17 @@ import { describe, it, expect } from "vitest";
 import { generateClosing, schonheimBound } from "./index";
 
 describe("ClosingEngine — Fase 1 (Greedy + Validação)", () => {
+  it("rejeita hipótese de mais dezenas na base do que saem no sorteio", () => {
+    const r = generateClosing({
+      lottery: { id: "megasena", name: "Mega-Sena", totalNumbers: 60, pick: 6, ticketPrice: 5 },
+      baseNumbers: [1, 2, 3, 4, 5, 6, 7],
+      guarantee: { hitsInBase: 7, minHits: 5 },
+    });
+    expect(r.games).toEqual([]);
+    expect(r.validation.meetsGuarantee).toBe(false);
+  });
+
+
   it("gera fechamento clássico da Lotofácil 16→C(16,15)=16 jogos, garante 14", () => {
     const base = Array.from({ length: 16 }, (_, i) => i + 1);
     const r = generateClosing({

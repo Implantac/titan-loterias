@@ -60,7 +60,7 @@ export function binomial(n: number, k: number): number {
 }
 
 export interface WheelValidationResult {
-  /** Menor acerto que o desdobramento entrega para qualquer sorteio C(n, hitsInBase). */
+  /** Menor acerto observado; somente é garantia quando exhaustive=true. */
   guaranteedHits: number;
   /** Distribuição empírica: chave = acertos máximos no melhor jogo, valor = quantos sorteios testados. */
   distribution: Record<number, number>;
@@ -88,6 +88,16 @@ export function validateWheelCoverage(
   targetGuarantee?: number,
   maxScenarios = 5000,
 ): WheelValidationResult {
+  if (!Number.isInteger(baseSize) || baseSize <= 0 ||
+      !Number.isInteger(pick) || pick <= 0 || pick > baseSize ||
+      !Number.isInteger(hitsInBase) || hitsInBase < 0 || hitsInBase > baseSize ||
+      !Number.isInteger(maxScenarios) || maxScenarios < 1 ||
+      games.length === 0 || games.some(game => game.length !== pick ||
+        new Set(game).size !== pick ||
+        game.some(index => !Number.isInteger(index) || index < 0 || index >= baseSize))) {
+    return { guaranteedHits: 0, distribution: {}, meetsGoalPercent: 0, exhaustive: false, testedScenarios: 0 };
+  }
+
   const scenarios = binomial(baseSize, hitsInBase) <= maxScenarios
     ? combinations(baseSize, hitsInBase)
     : sampleCombinations(baseSize, hitsInBase, maxScenarios);

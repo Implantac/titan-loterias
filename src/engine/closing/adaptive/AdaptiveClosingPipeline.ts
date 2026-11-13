@@ -123,7 +123,7 @@ export function runAdaptivePipeline(input: AdaptivePipelineInput): AdaptivePipel
         chosen.request.guarantee.hitsInBase,
         chosen.request.guarantee.minHits,
       );
-      if (validation.guaranteedHits >= chosen.request.guarantee.minHits) {
+      if (validation.meetsGuarantee) {
         dropped = dom.savings;
         chosen = {
           ...chosen,

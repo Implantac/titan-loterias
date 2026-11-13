@@ -53,9 +53,9 @@ export interface ClosingRequest {
 
 /** Resultado da validação matemática de um fechamento. */
 export interface ClosingValidation {
-  guaranteedHits: number;       // menor acerto entregue em todos cenários
+  guaranteedHits: number;       // menor acerto observado; só é garantia quando exhaustive=true
   targetMinHits: number;        // meta pedida
-  meetsGuarantee: boolean;
+  meetsGuarantee: boolean;       // true somente com prova exaustiva e meta satisfeita
   coveragePercent: number;      // % cenários que batem meta
   redundancyPercent: number;    // % cobertura duplicada
   wastedCoveragePercent: number;

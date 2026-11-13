@@ -20,3 +20,12 @@ A conta fornecida é designada `super_admin` nas migrações. A leitura de outro
 - Revisar eventuais textos promocionais restantes e medir integridade real da base antes de mostrar um percentual.
 - Executar build em máquina com memória suficiente: neste ambiente o Vite foi encerrado durante a etapa de geração de chunks (código 137).
 - Não foi feito deploy nem alteração do banco de produção.
+
+## Etapa seguinte: validação de fechamentos
+- `meetsGuarantee` somente é verdadeiro após verificação exaustiva; uma amostra com 100% de acertos não prova garantia.
+- Hipóteses impossíveis, índices inválidos e jogos duplicados deixam de ser aceitos como validação matemática.
+- Pipeline adaptativo só remove jogos dominados se a garantia permanecer comprovada.
+- Interface e exportações principais distinguem **pior caso provado** de **menor acerto na amostra** e mostram a hipótese condicional.
+- Testes de regressão para garantia amostral, validação exaustiva e entradas inválidas.
+
+Pendente: auditar os demais relatórios/telas de matrizes, garantir reprodutibilidade da amostragem com semente e confirmar preço de bilhete na fonte oficial antes de calcular custo.

@@ -11,6 +11,19 @@ import {
 } from "./coverageValidator";
 
 describe("coverageValidator", () => {
+  it("não valida jogos inválidos nem hipóteses impossíveis como prova", () => {
+    for (const result of [
+      validateWheelCoverage([[0, 0]], 4, 2, 2),
+      validateWheelCoverage([[0, 4]], 4, 2, 2),
+      validateWheelCoverage([[0, 1]], 4, 2, 5),
+      validateWheelCoverage([], 4, 2, 2),
+    ]) {
+      expect(result.exhaustive).toBe(false);
+      expect(result.testedScenarios).toBe(0);
+    }
+  });
+
+
   it("binomial + combinations coerentes", () => {
     expect(binomial(8, 6)).toBe(28);
     expect(binomial(7, 5)).toBe(21);

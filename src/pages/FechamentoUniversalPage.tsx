@@ -157,7 +157,9 @@ const FechamentoUniversalPage = () => {
         toast.error(r.notes[0] || "Falha ao gerar.");
       } else {
         if (r.validation.meetsGuarantee) toast.success(`${r.games.length} jogos · garantia ${r.validation.guaranteedHits}.`);
-        else toast.warning(`${r.games.length} jogos, garantia real ${r.validation.guaranteedHits} < meta ${minHits}.`);
+        else toast.warning(r.validation.exhaustive
+          ? `${r.games.length} jogos, menor acerto ${r.validation.guaranteedHits} < meta ${minHits}.`
+          : `${r.games.length} jogos · validação amostral (${r.validation.testedScenarios} cenários); sem garantia comprovada.`);
         // Auto-arquiva no histórico
         saveClosing(r).then(ok => {
           if (ok) toast.info("Fechamento salvo em Meus Jogos.", { duration: 2500 });
@@ -612,7 +614,7 @@ function ResultPanel({ result }: { result: ClosingResult }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Stat label="Jogos" value={result.gameCount.toString()} sub={`min. teórico: ${result.lowerBound}`} />
             <Stat label="Custo" value={formatCurrency(result.cost)} sub={`${result.request.lottery.ticketPrice.toFixed(2)}/jogo`} />
-            <Stat label="Garantia real" value={`${v.guaranteedHits} acertos`} sub={`meta: ${v.targetMinHits}`} ok={v.meetsGuarantee} />
+            <Stat label={v.exhaustive ? "Pior caso provado" : "Menor acerto na amostra"} value={`${v.guaranteedHits} acertos`} sub={`Se ${result.request.guarantee.hitsInBase} dezenas saírem na base · meta: ${v.targetMinHits}`} ok={v.meetsGuarantee} />
             <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.exhaustive ? "exaustiva (provada)" : "amostral (estimativa)"} />
           </div>
           <Separator className="my-4" />

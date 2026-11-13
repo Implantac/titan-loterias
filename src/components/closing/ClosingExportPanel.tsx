@@ -107,14 +107,14 @@ export function ClosingExportPanel({ result }: Props) {
     const info = [
       `Estrategia: ${result.strategy}`,
       `Jogos: ${result.gameCount}   Custo: R$ ${result.cost.toFixed(2)}`,
-      `Garantia: ${result.request.guarantee.minHits} acertos se ${result.request.guarantee.hitsInBase} cairem na base de ${result.request.baseNumbers.length}`,
+      `Meta condicional: ${result.request.guarantee.minHits} acertos se ${result.request.guarantee.hitsInBase} cairem na base de ${result.request.baseNumbers.length}`,
       // Uma garantia só é garantia se todos os cenários foram enumerados. Quando o
       // universo é grande demais o validador amostra, e isso precisa estar escrito
       // no documento que o usuário leva — não apenas num campo que ninguém exibe.
       coverage.exhaustive
         ? `Verificacao: EXAUSTIVA (${coverage.testedScenarios} cenarios enumerados)`
         : `Verificacao: AMOSTRAL (${coverage.testedScenarios} cenarios) - NAO e uma prova`,
-      `Menor acerto realmente entregue em qualquer cenario testado: ${coverage.guaranteedHits}`,
+      `Menor acerto observado nos cenarios testados: ${coverage.guaranteedHits}`,
       coverage.meetsGoalPercent < 100
         ? `ATENCAO: a meta falhou em ${(100 - coverage.meetsGoalPercent).toFixed(1)}% dos cenarios testados.`
         : `A meta foi atingida em 100% dos cenarios testados.`,
@@ -186,7 +186,7 @@ export function ClosingExportPanel({ result }: Props) {
             </Badge>
           </div>
           <span className="text-[11px] text-muted-foreground font-mono">
-            Garantia real: {coverage.guaranteedHits} acertos ({coverage.meetsGoalPercent.toFixed(1)}% na meta)
+            {coverage.exhaustive ? "Pior caso provado" : "Menor acerto na amostra"}: {coverage.guaranteedHits} acertos ({coverage.meetsGoalPercent.toFixed(1)}% na meta)
           </span>
         </div>
 

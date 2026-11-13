@@ -16,7 +16,11 @@ export function validateClosing(
   hitsInBase: number,
   targetMinHits: number,
 ): ClosingValidation {
-  if (games.length === 0 || baseSize === 0) {
+  if (games.length === 0 || !Number.isInteger(baseSize) || baseSize <= 0 ||
+      !Number.isInteger(hitsInBase) || hitsInBase < 0 || hitsInBase > baseSize ||
+      !Number.isInteger(targetMinHits) || targetMinHits < 0 ||
+      games.some(game => game.length === 0 || new Set(game).size !== game.length ||
+        game.some(index => !Number.isInteger(index) || index < 0 || index >= baseSize))) {
     return {
       guaranteedHits: 0, targetMinHits, meetsGuarantee: false,
       coveragePercent: 0, redundancyPercent: 0, wastedCoveragePercent: 0,
@@ -73,7 +77,7 @@ export function validateClosing(
   return {
     guaranteedHits: guaranteed === Infinity ? 0 : guaranteed,
     targetMinHits,
-    meetsGuarantee: (guaranteed === Infinity ? 0 : guaranteed) >= targetMinHits,
+    meetsGuarantee: exhaustive && scenarios.length > 0 && guaranteed >= targetMinHits,
     coveragePercent,
     redundancyPercent,
     wastedCoveragePercent,
