@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Terminal, Activity, Zap, ShieldCheck, Cpu, ChevronRight } from "lucide-react";
+import { Terminal, Activity, Zap, ShieldCheck, Cpu } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLotteryContextSafe } from "@/contexts/LotteryContext";
 import { calculatePredictiveEntropy } from "@/engine/ai/predictive-entropy";
@@ -9,39 +9,6 @@ export const TitanCommandCenter = () => {
   const ctx = useLotteryContextSafe();
   const draws = ctx?.draws ?? [];
   const stats = ctx?.stats ?? [];
-  const [uptime, setUptime] = React.useState(0);
-  const [logs, setLogs] = React.useState<string[]>([
-    "Inicializando motor estatístico...",
-    "Sincronizando histórico oficial de concursos...",
-    "Terminal analítico pronto."
-  ]);
-
-  React.useEffect(() => {
-    const timer = setInterval(() => setUptime(u => u + 1), 1000);
-    const logInterval = setInterval(() => {
-      const events = [
-        "Sinais estatísticos recalibrados",
-        "Entropia empírica verificada",
-        "Processamento de frequências históricas concluído",
-        "Garantia de fechamentos auditada",
-        "Base de dados da Caixa conferida sem lacunas"
-      ];
-      const newLog = events[Math.floor(Math.random() * events.length)];
-      setLogs(prev => [newLog, ...prev.slice(0, 4)]);
-    }, 3500);
-
-    return () => {
-      clearInterval(timer);
-      clearInterval(logInterval);
-    };
-  }, []);
-
-  const formatUptime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
 
   const entropyData = useMemo(() => {
     return calculatePredictiveEntropy(stats, draws);
@@ -76,18 +43,18 @@ export const TitanCommandCenter = () => {
             Central <span className="text-primary">Quantitativa</span> Titan
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Monitoramento estatístico e integridade de sorteios oficiais em tempo real
+            Indicadores históricos ilustrativos; consulte os dados e a atualização na área autenticada
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-mono text-[11px]">
-            UPTIME: {formatUptime(uptime)}
+            PAINEL: DEMONSTRATIVO
           </Badge>
           <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono text-[11px]">
-            CONEXÃO: CAIXA-API-OK
+            FONTE: CONSULTE RESULTADOS
           </Badge>
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-mono text-[11px]">
-            INTEGRIDADE: 100%
+            INTEGRIDADE: NÃO VERIFICADA AQUI
           </Badge>
         </div>
       </div>
@@ -116,11 +83,11 @@ export const TitanCommandCenter = () => {
             <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
               <Zap className="w-3.5 h-3.5 text-primary" /> Cobertura Matemática
             </span>
-            <span className="text-xs font-mono text-primary font-bold">100% EXAUSTIVA</span>
+            <span className="text-xs font-mono text-primary font-bold">DEPENDE DA MATRIZ</span>
           </div>
           <div className="bg-black/40 rounded-xl p-3.5 border border-white/5 h-24 flex flex-col justify-center">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Matrizes verificadas contra todas as combinações possíveis. Garantia mínima validada sem estimativa amostral.
+              A verificação pode ser exaustiva ou amostral. Consulte as condições e o relatório de cada matriz gerada.
             </p>
           </div>
         </div>
@@ -128,18 +95,13 @@ export const TitanCommandCenter = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Log de Auditoria
+              <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Sobre este painel
             </span>
-            <span className="text-[10px] font-mono text-muted-foreground">REAL-TIME</span>
+            <span className="text-[10px] font-mono text-muted-foreground">INFORMATIVO</span>
           </div>
-          <div className="font-mono text-[11px] text-muted-foreground space-y-1.5 h-24 overflow-hidden">
-            {logs.map((log, i) => (
-              <p key={i} className="flex items-center gap-1.5 truncate">
-                <ChevronRight className="w-3 h-3 text-primary shrink-0" />
-                <span className="truncate">{log}</span>
-              </p>
-            ))}
-          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Este painel não apresenta telemetria ou auditoria em tempo real. Resultados passados não predizem sorteios futuros.
+          </p>
         </div>
       </div>
     </motion.div>

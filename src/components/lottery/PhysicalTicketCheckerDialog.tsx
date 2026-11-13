@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,20 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  CheckCircle2,
   Trophy,
   Bookmark,
   RotateCcw,
   Sparkles,
   Ticket,
-  Landmark,
 } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { useSavedBets } from "@/hooks/useSavedBets";
 import { toast } from "sonner";
-import { formatCurrency } from "@/utils/formatters";
-import { calculateNetPrize } from "@/utils/caixaTaxCalculator";
-import { CaixaPrizeRedemptionDialog } from "@/components/lottery/CaixaPrizeRedemptionDialog";
 
 interface PhysicalTicketCheckerDialogProps {
   open: boolean;
@@ -40,10 +35,15 @@ export function PhysicalTicketCheckerDialog({
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [pastedInput, setPastedInput] = useState("");
   const [selectedConcursoIndex, setSelectedConcursoIndex] = useState(0);
-  const [redemptionOpen, setRedemptionOpen] = useState(false);
+  // Não reaproveitar dezenas/índice de outra modalidade ao trocar de loteria.
+  useEffect(() => {
+    setSelectedNumbers([]);
+    setSelectedConcursoIndex(0);
+    setPastedInput("");
+  }, [config.id]);
 
   const activeDraw = draws[selectedConcursoIndex] || draws[0];
-  const maxNumbers = config.maxNumber || 60;
+  const maxNumbers = config.numbers || 60;
   const standardPick = config.pick || 6;
 
   // Toggle or select number
@@ -71,57 +71,42 @@ export function PhysicalTicketCheckerDialog({
     toast.success(`${unique.length} dezenas carregadas com sucesso!`);
   };
 
-  // Calculate matches
-  const { matchedNumbers, matchCount, prizeTier } = useMemo(() => {
-    if (!activeDraw || selectedNumbers.length === 0) {
-      return { matchedNumbers: [], matchCount: 0, prizeTier: null };
-    }
-
-    const drawSet = new Set(activeDraw.numbers);
-    const matched = selectedNumbers.filter((n) => drawSet.has(n));
-    const count = matched.length;
-
-    // Estimate prize tier
-    let tier = null;
-    if (config.id === "megasena") {
-      if (count === 6) tier = { name: "Sena (Prêmio Principal)", value: 50000000 };
-      else if (count === 5) tier = { name: "Quina", value: 45000 };
-      else if (count === 4) tier = { name: "Quadra", value: 950 };
-    } else if (config.id === "lotofacil") {
-      if (count === 15) tier = { name: "15 Pontos (Máximo)", value: 1800000 };
-      else if (count === 14) tier = { name: "14 Pontos", value: 1600 };
-      else if (count === 13) tier = { name: "13 Pontos (Fixo)", value: 35 };
-      else if (count === 12) tier = { name: "12 Pontos (Fixo)", value: 14 };
-      else if (count === 11) tier = { name: "11 Pontos (Fixo)", value: 7 };
-    } else if (config.id === "quina") {
-      if (count === 5) tier = { name: "Quina (Máximo)", value: 12000000 };
-      else if (count === 4) tier = { name: "Quadra", value: 7500 };
-      else if (count === 3) tier = { name: "Terno", value: 90 };
-      else if (count === 2) tier = { name: "Duque", value: 4.5 };
-    } else {
-      if (count >= standardPick) tier = { name: "Prêmio Máximo", value: 1000000 };
-      else if (count >= standardPick - 1) tier = { name: "Faixa Secundária", value: 1500 };
-    }
-
-    return { matchedNumbers: matched, matchCount: count, prizeTier: tier };
-  }, [activeDraw, selectedNumbers, config.id, standardPick]);
-
-  const netCalculation = useMemo(() => {
-    return prizeTier ? calculateNetPrize(prizeTier.value) : null;
-  }, [prizeTier]);
+  // Apenas interseção de dezenas; não infere faixa de prêmio nem valor de resgate.
+  const matchedNumbers = useMemo(() => {
+    if (!activeDraw) return [];
+    const drawn = new Set(activeDraw.numbers);
+    return selectedNumbers.filter((number) => drawn.has(number));
+  }, [activeDraw, selectedNumbers]);
+  const matchCount = matchedNumbers.length;
 
   const handleSaveToMyBets = () => {
     if (selectedNumbers.length < standardPick) {
       toast.error(`Selecione ao menos ${standardPick} dezenas para salvar.`);
       return;
     }
-    saveBet(selectedNumbers, `Bilhete Lotérica #${activeDraw?.concurso || ""}`);
-    toast.success("Bilhete salvo em Meus Jogos!");
+    void saveBet({ numbers: selectedNumbers, label: `Bilhete Lotérica #${activeDraw?.concurso || ""}` });
   };
 
   const handleClear = () => {
     setSelectedNumbers([]);
   };
+
+  // Modalidades com colunas, trevos, meses, times ou bilhetes não podem ser
+  // conferidas corretamente por uma simples grade de dezenas.
+  if (!["megasena", "lotofacil", "quina"].includes(config.id)) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Conferência não disponível para {config.name}</DialogTitle>
+            <DialogDescription>
+              Esta modalidade exige regras próprias. Confira o comprovante e o resultado no canal oficial da Caixa.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -149,7 +134,7 @@ export function PhysicalTicketCheckerDialog({
           {/* Seletor de Concurso */}
           <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/20 border border-border/30 text-xs">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <span>Concurso Auditado:</span>
+              <span>Concurso selecionado:</span>
               <strong className="text-foreground">#{activeDraw?.concurso || "---"}</strong>
               <span className="text-[10px] text-muted-foreground">({activeDraw?.date || ""})</span>
             </span>
@@ -174,7 +159,7 @@ export function PhysicalTicketCheckerDialog({
           {activeDraw && (
             <div className="space-y-1.5">
               <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
-                Dezenas Sorteadas pela Caixa:
+                Dezenas do resultado carregado:
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {activeDraw.numbers.map((n) => {
@@ -223,7 +208,7 @@ export function PhysicalTicketCheckerDialog({
               </span>
               {selectedNumbers.length >= standardPick && (
                 <Badge variant="outline" className="text-[10px] text-emerald-400 border-emerald-500/30">
-                  Aposta Válida ({selectedNumbers.length}/{standardPick})
+                  Dezenas selecionadas ({selectedNumbers.length}/{standardPick} mín.)
                 </Badge>
               )}
             </div>
@@ -273,43 +258,14 @@ export function PhysicalTicketCheckerDialog({
                   </div>
                 </div>
 
-                {prizeTier ? (
-                  <Badge className="bg-emerald-600 text-white text-xs font-bold gap-1 px-2.5 py-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> {prizeTier.name}
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-xs text-muted-foreground">
-                    Sem Premiação
-                  </Badge>
-                )}
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  Somente conferência de dezenas
+                </Badge>
               </div>
 
-              {/* Caixa Tributação Info */}
-              {prizeTier && netCalculation && (
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-[10px] text-emerald-400 uppercase font-semibold block">
-                      Estimativa Líquida de Resgate:
-                    </span>
-                    <span className="font-mono font-bold text-emerald-400 text-sm">
-                      {formatCurrency(netCalculation.netAmount)}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Bruto: {formatCurrency(netCalculation.grossAmount)}
-                      {!netCalculation.isExempt && ` • IRRF retido: ${formatCurrency(netCalculation.taxWithheld)}`}
-                    </span>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setRedemptionOpen(true)}
-                    className="h-7 text-[10px] gap-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                  >
-                    <Landmark className="w-3 h-3" /> Guia de Resgate
-                  </Button>
-                </div>
-              )}
+              <p className="text-xs text-muted-foreground">
+                A contagem não confirma premiação: apostas múltiplas e valores de cada concurso exigem conferência no comprovante e no resultado oficial da Caixa.
+              </p>
             </div>
           )}
         </div>
@@ -330,12 +286,7 @@ export function PhysicalTicketCheckerDialog({
           </Button>
         </div>
 
-        <CaixaPrizeRedemptionDialog
-          open={redemptionOpen}
-          onOpenChange={setRedemptionOpen}
-          initialPrize={prizeTier?.value || 50000}
-          lotteryName={config.name}
-        />
+
       </DialogContent>
     </Dialog>
   );

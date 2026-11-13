@@ -21,7 +21,7 @@ export function PricingSection() {
   };
 
   const annualFeatures = [
-    "Acesso por 12 meses a todas as 9 loterias oficiais",
+    "Acesso por 12 meses a as modalidades disponíveis na plataforma",
     "Gerador com modelos estatísticos e heurísticos",
     "Módulo de Bolão com divisão de cotas e rateio",
     "Fechamentos matemáticos e conferência de jogos",
@@ -31,10 +31,10 @@ export function PricingSection() {
 
   const lifetimeFeatures = [
     "Pagamento único definitivo — ZERO mensalidades para sempre",
-    "Acesso permanente garantido a todas as 9 loterias oficiais",
+    "Acesso permanente garantido a as modalidades disponíveis na plataforma",
     "Pronto para todas as futuras Megas da Virada e grandes acumulados",
     "Módulo de Bolão Pro (divisão automática de cotas, recibos e WhatsApp)",
-    "Fechamentos matemáticos com verificação exaustiva de garantia",
+    "Fechamentos com verificação de cobertura e condições explícitas",
     "Filtros de redução de divisão de prêmio (split-avoidance)",
     "Simulações massivas de ROI com dados históricos oficiais",
     "Todas as atualizações e novos modelos futuros liberados para sempre",
@@ -121,7 +121,7 @@ export function PricingSection() {
                 Escolher Plano Anual
               </Button>
               <p className="text-[10px] text-center text-muted-foreground/60 mt-2">
-                Renovação automática após 12 meses.
+                Consulte as condições de renovação antes de contratar.
               </p>
             </div>
           </motion.div>
@@ -136,7 +136,7 @@ export function PricingSection() {
           >
             {/* Top highlight ribbon */}
             <div className="absolute top-0 right-0 bg-gradient-to-l from-primary via-primary/90 to-primary/80 text-primary-foreground font-extrabold text-[10px] tracking-wider uppercase px-4 py-1 rounded-bl-xl shadow-md">
-              ⭐ ESCOLHA DE 94% DOS USUÁRIOS
+              ⭐ PLANO VITALÍCIO
             </div>
 
             <div>

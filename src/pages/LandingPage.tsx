@@ -129,7 +129,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -147,29 +147,29 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
             {[
-              { 
-                value: String(LOTTERIES.length).padStart(2, "0"), 
-                label: "Loterias Suportadas", 
-                detail: "Modalidades ativas da Caixa" 
+              {
+                value: String(LOTTERIES.length).padStart(2, "0"),
+                label: "Loterias Suportadas",
+                detail: "Modalidades ativas da Caixa"
               },
-              { 
-                value: "API Caixa", 
-                label: "Fonte dos Resultados", 
-                detail: "Sincronização oficial em tempo real" 
+              {
+                value: "API Caixa",
+                label: "Fonte dos Resultados",
+                detail: "Consulte a data de atualização em cada resultado"
               },
-              { 
-                value: "100%", 
-                label: "Integridade de Base", 
-                detail: "Zero lacunas ou duplicados" 
+              {
+                value: "Verificável",
+                label: "Integridade de Base",
+                detail: "Confira a origem e o concurso dos resultados"
               },
-              { 
-                value: "Auditável", 
-                label: "Metodologia & Scores", 
-                detail: "Modelos com cálculo transparente" 
+              {
+                value: "Auditável",
+                label: "Metodologia & Scores",
+                detail: "Modelos com cálculo transparente"
               },
             ].map((stat, i) => (
-              <motion.div 
-                key={i} 
+              <motion.div
+                key={i}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -222,13 +222,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4">
             <div className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
-              Sincronização em Tempo Real
+              Análise de Resultados Históricos
             </div>
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
               Central <span className="gradient-brand-text">de Análise Titan</span>
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
-              Acompanhe em tempo real o processamento dos concursos oficiais e o cálculo de indicadores estatísticos pelo motor Titan.
+              Explore resultados disponíveis e indicadores históricos. A disponibilidade depende da atualização da fonte de dados.
             </p>
           </div>
           <div className="max-w-6xl mx-auto">

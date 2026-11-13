@@ -25,7 +25,7 @@ export function HowItWorksSection() {
       num: "04",
       icon: ShieldCheck,
       title: "Fechamentos com Garantia Comprovada",
-      desc: "Matrizes matemáticas testadas contra 100% dos cenários possíveis de sorteio, indicando o menor acerto com rigor matemático.",
+      desc: "Confira as condições de cada fechamento e se a verificação é exaustiva ou amostral. Nenhum fechamento garante prêmio.",
     },
     {
       num: "05",

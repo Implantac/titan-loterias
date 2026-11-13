@@ -19,7 +19,7 @@ export function FeaturesSection({ featuresRef, fadeUp }: FeaturesSectionProps) {
       icon: Sparkles,
       title: "Motor Heurístico & Estatístico",
       description: "Modelos multi-fatoriais, análise de tendências e ciclos empíricos para fundamentar decisões com dados reais, sem promessas místicas.",
-      tag: "Modelos Preditivos",
+      tag: "Modelos Heurísticos",
     },
     {
       icon: Users,
@@ -30,7 +30,7 @@ export function FeaturesSection({ featuresRef, fadeUp }: FeaturesSectionProps) {
     {
       icon: Box,
       title: "Fechamentos & Cobertura",
-      description: "Matrizes combinatórias com verificação matemática exaustiva da garantia — saiba exatamente o menor acerto entregue em qualquer cenário sorteado.",
+      description: "Matrizes combinatórias com indicação das condições e do método de verificação. A cobertura não garante prêmio nem prevê o sorteio.",
       tag: "Garantia Comprovada",
     },
     {
@@ -42,7 +42,7 @@ export function FeaturesSection({ featuresRef, fadeUp }: FeaturesSectionProps) {
     {
       icon: ShieldCheck,
       title: "Sincronização & Integridade",
-      description: "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação contínua de lacunas, duplicados e integridade na base.",
+      description: "Consulte resultados históricos e confira o concurso e a data da última atualização antes de utilizá-los.",
       tag: "Dados Oficiais Caixa",
     },
   ];
