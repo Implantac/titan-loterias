@@ -49,3 +49,8 @@ Pendente: auditar os demais relatórios/telas de matrizes, garantir reprodutibil
 - Testes verificam rateio por concurso, pagamento por aposta e ausência de cálculo quando faltam dados.
 
 Pendente: reconciliação de preços históricos, premiações de apostas múltiplas e modalidades com mecânicas especiais, e comparação justa com apostas aleatórias de mesmo orçamento em amostra fora da seleção.
+
+## Etapa seguinte: roteiro de teste RLS entre contas comuns
+- Adicionado `scripts/audit-rls-readonly.mjs`, um teste de integração apenas de leitura que exige duas contas comuns e uma chave anon de homologação. Interrompe se detectar papel privilegiado; não imprime IDs/dados pessoais.
+- Cobertura: leitura do próprio perfil, tentativas cruzadas em perfis, apostas salvas, histórico de geração e fechamentos, além de listagem anônima de perfis.
+- Instruções e limites em `docs/rls-audit.md`. **Não foi executado contra o banco**, pois não recebemos duas contas comuns de teste. Não houve mudança de políticas RLS nem criação de usuários.
