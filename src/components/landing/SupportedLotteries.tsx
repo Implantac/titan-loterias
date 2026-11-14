@@ -12,7 +12,8 @@ const lotteries = [
   { name: "Timemania", icon: "⚽", badge: "10 de 80 + Time", desc: "Mapeamento estatístico de dezenas e frequências do time do coração." },
   { name: "Dia de Sorte", icon: "📅", badge: "7 de 31 + Mês", desc: "Estatísticas temporais por dias do calendário e mês da sorte." },
   { name: "Super Sete", icon: "7️⃣", badge: "7 colunas (0 a 9)", desc: "Distribuição probabilística independente analisada coluna a coluna." },
-  { name: "+Milionária", icon: "💰", badge: "6 números + 2 trevos", desc: "Matrizes com cálculo isolado para números principais e trevos." },
+  { name: "+Milionária", icon: "💰", badge: "6 números + 2 trevos", desc: "Consulte resultados e confira as regras para números e trevos." },
+  { name: "Federal", icon: "🏦", badge: "Bilhetes numerados", desc: "Consulta de resultados; o fechamento combinatório de dezenas não se aplica." },
 ];
 
 export function SupportedLotteries() {
@@ -29,7 +30,7 @@ export function SupportedLotteries() {
             Loterias <span className="gradient-brand-text">Suportadas</span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
-            Cada modalidade opera em um ambiente isolado com regras, matrizes e análises próprias para sua mecânica específica.
+            Recursos variam conforme as regras de cada modalidade. O motor de fechamentos combinatórios está disponível para Mega-Sena, Lotofácil e Quina.
           </p>
         </div>
 
@@ -73,11 +74,11 @@ export function SupportedLotteries() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5 text-blue-400" /> Fechamentos</span>
-                    <span className="font-mono text-[11px] text-foreground/80">Matrizes Exaustivas</span>
+                    <span className="font-mono text-[11px] text-foreground/80">Conforme modalidade</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5"><Binary className="w-3.5 h-3.5 text-primary" /> Análise</span>
-                    <span className="font-mono text-[11px] text-primary font-medium">Titan Score v4</span>
+                    <span className="font-mono text-[11px] text-primary font-medium">Consulte recursos</span>
                   </div>
                 </div>
               </Card>

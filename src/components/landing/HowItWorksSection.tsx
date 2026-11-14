@@ -91,23 +91,23 @@ export function HowItWorksSection() {
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
                 </div>
-                <span className="text-[11px] font-mono text-muted-foreground ml-2">titan-engine --pipeline</span>
+                <span className="text-[11px] font-mono text-muted-foreground ml-2">Exemplo ilustrativo do fluxo</span>
               </div>
               <div className="p-6 font-mono text-xs text-muted-foreground space-y-3">
                 <p className="text-emerald-400">&gt; Conectando à base de resultados Caixa...</p>
-                <p>&gt; Validando integridade de 100% dos concursos...</p>
+                <p>&gt; Conferindo a origem e a atualização dos resultados...</p>
                 <p>&gt; Calculando matrizes de cobertura e atrasos...</p>
-                <p>&gt; Testando garantia matemática exaustiva...</p>
-                <p className="text-primary">&gt; Status: Combinações otimizadas com Titan Score.</p>
+                <p>&gt; Verificando se a matriz permite prova exaustiva...</p>
+                <p className="text-primary">&gt; Resultado: consulte as condições da matriz gerada.</p>
                 
                 <div className="h-px w-full bg-white/10 my-4" />
                 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
                   {[
-                    { label: "COBERTURA", val: "100%" },
-                    { label: "MATRIZ", val: "Exaustiva" },
-                    { label: "BOLÃO", val: "Ativo" },
-                    { label: "INTEGRIDADE", val: "Auditada" },
+                    { label: "COBERTURA", val: "Condicional" },
+                    { label: "MATRIZ", val: "Verificar" },
+                    { label: "BOLÃO", val: "Cotas" },
+                    { label: "DADOS", val: "Consultar" },
                   ].map((item, idx) => (
                     <div key={idx} className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-center">
                       <div className="text-[9px] text-muted-foreground font-semibold">{item.label}</div>

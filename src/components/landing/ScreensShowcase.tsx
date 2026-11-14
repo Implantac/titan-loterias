@@ -23,10 +23,10 @@ function DashboardMock() {
     <div className="p-4 space-y-3">
       <div className="grid grid-cols-4 gap-2">
         {[
-          { label: "Concursos", val: "14.502", icon: BarChart3, c: "text-primary" },
-          { label: "Modelos", val: "6", icon: Brain, c: "text-neon-blue" },
-          { label: "Cobertura", val: "100%", icon: TrendingUp, c: "text-primary" },
-          { label: "Integridade", val: "Auditada", icon: Zap, c: "text-accent" },
+          { label: "Concursos", val: "—", icon: BarChart3, c: "text-primary" },
+          { label: "Modelos", val: "—", icon: Brain, c: "text-neon-blue" },
+          { label: "Cobertura", val: "Depende", icon: TrendingUp, c: "text-primary" },
+          { label: "Integridade", val: "Consulte", icon: Zap, c: "text-accent" },
         ].map((s) => (
           <div key={s.label} className="rounded-lg border border-border/20 bg-card/50 p-2 text-center">
             <s.icon className={`w-3.5 h-3.5 mx-auto mb-1 ${s.c}`} />
@@ -69,7 +69,7 @@ function GeradorMock() {
             </div>
           ))}
         </div>
-        <div className="mt-3"><span className="text-[8px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-3 py-1 italic font-black">Titan Score: 94/100 — Excelente Oportunidade</span></div>
+        <div className="mt-3"><span className="text-[8px] font-mono text-primary bg-primary/10 border border-primary/20 rounded-full px-3 py-1 italic font-black">Exemplo de interface — não é recomendação de aposta</span></div>
       </div>
       <div className="grid grid-cols-4 gap-2">
         {[{ l: "Padrão", v: 87 }, { l: "Tendência", v: 74 }, { l: "Genético", v: 91 }, { l: "MC", v: 82 }].map((i) => (
@@ -90,7 +90,7 @@ function EstatisticasMock() {
         <div className="text-[8px] text-muted-foreground uppercase font-mono mb-2">Mapa de Calor</div>
         <div className="grid grid-cols-10 gap-[2px]">
           {Array.from({ length: 60 }, (_, i) => {
-            const intensity = Math.random();
+            const intensity = ((i * 37 + 11) % 91) / 100;
             return (
               <div key={i} className="aspect-square rounded-sm flex items-center justify-center text-[5px] font-mono text-foreground/60" style={{ background: `hsl(var(--primary) / ${intensity * 0.7 + 0.05})` }}>
                 {(i + 1).toString().padStart(2, "0")}
@@ -143,7 +143,7 @@ function IAMock() {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {[{ l: "Cobertura", v: "100%", c: "text-primary" }, { l: "Modelos", v: "6", c: "text-neon-blue" }, { l: "Padrões", v: "12", c: "text-accent" }, { l: "Consistência", v: "Alta", c: "text-primary" }].map((s) => (
+        {[{ l: "Cobertura", v: "Variável", c: "text-primary" }, { l: "Modelos", v: "6", c: "text-neon-blue" }, { l: "Padrões", v: "12", c: "text-accent" }, { l: "Consistência", v: "Alta", c: "text-primary" }].map((s) => (
           <div key={s.l} className="rounded-lg border border-border/20 bg-card/30 p-2 text-center">
             <div className={`text-sm font-bold font-mono ${s.c}`}>{s.v}</div>
             <div className="text-[7px] text-muted-foreground uppercase">{s.l}</div>
@@ -166,7 +166,7 @@ function BolaoMock() {
           <span className="text-[8px] font-mono bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">10 Cotas</span>
         </div>
         <div className="text-[10px] text-foreground/80 leading-relaxed">
-          Fechamento com 24 jogos · Rateio exato de <span className="text-primary font-semibold">R$ 7,20 por cota</span> · Garantia matemática exaustiva.
+          Exemplo de divisão em cotas. Custo e garantia dependem dos jogos e da verificação da matriz.
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 text-center">
@@ -175,7 +175,7 @@ function BolaoMock() {
           <div className="text-[7px] text-muted-foreground uppercase">Jogos Gerados</div>
         </div>
         <div className="rounded-lg border border-border/20 bg-card/30 p-2">
-          <div className="text-xs font-bold font-mono text-emerald-400">100%</div>
+          <div className="text-xs font-bold font-mono text-emerald-400">Variável</div>
           <div className="text-[7px] text-muted-foreground uppercase">Cobertura</div>
         </div>
         <div className="rounded-lg border border-border/20 bg-card/30 p-2">
@@ -191,7 +191,7 @@ const slideData: ScreenSlide[] = [
   {
     id: "dashboard",
     title: "Dashboard Inteligente",
-    subtitle: "Visão completa de todos os dados, métricas e tendências em tempo real",
+    subtitle: "Exemplo visual de indicadores; consulte dados atualizados na plataforma",
     icon: BarChart3,
     color: "text-primary",
     accentBg: "bg-primary/10",
@@ -200,7 +200,7 @@ const slideData: ScreenSlide[] = [
   {
     id: "gerador",
     title: "Gerador Estratégico",
-    subtitle: "Filtros matemáticos e split avoidance geram apostas sem divisão de prêmio",
+    subtitle: "Filtros e seleção de padrões menos populares podem reduzir a chance de dividir um prêmio",
     icon: Target,
     color: "text-neon-blue",
     accentBg: "bg-neon-blue/10",
@@ -227,7 +227,7 @@ const slideData: ScreenSlide[] = [
   {
     id: "simulador",
     title: "Simulação Massiva",
-    subtitle: "Rode milhões de jogos em segundos e descubra as probabilidades reais",
+    subtitle: "Simule sorteios e consulte estimativas com suas premissas",
     icon: Dices,
     color: "text-neon-purple",
     accentBg: "bg-neon-purple/10",
@@ -275,7 +275,7 @@ export function ScreensShowcase() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-semibold tracking-wider uppercase mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            Um tour pela plataforma
+            Demonstração ilustrativa · números não são resultados reais
           </span>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight mt-3">
             Conheça as <span className="gradient-brand-text">principais telas</span>

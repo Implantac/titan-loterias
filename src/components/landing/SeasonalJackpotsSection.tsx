@@ -6,34 +6,34 @@ import { Button } from "@/components/ui/button";
 const seasonalLotteries = [
   {
     name: "Mega da Virada",
-    prize: "R$ 500+ Milhões",
+    prize: "Confira a estimativa do concurso na Caixa",
     timing: "Dezembro (Fim de Ano)",
     icon: "🎆",
     color: "from-emerald-500/20 to-emerald-500/5",
     border: "border-emerald-500/30",
-    desc: "O maior concurso do ano. Fechamentos em grupo e divisão automática de cotas para bolões familiares e corporativos sem risco de erro no rateio.",
+    desc: "O maior concurso do ano. Fechamentos em grupo e divisão automática de cotas para bolões familiares e corporativos com conferência do rateio.",
   },
   {
     name: "Lotofácil da Independência",
-    prize: "R$ 200+ Milhões",
+    prize: "Confira a estimativa do concurso na Caixa",
     timing: "Setembro",
     icon: "💎",
     color: "from-fuchsia-500/20 to-fuchsia-500/5",
     border: "border-fuchsia-500/30",
-    desc: "A modalidade favorita dos estrategistas. Matrizes combinatórias de 16 a 20 dezenas com verificação exaustiva de acerto garantido.",
+    desc: "A modalidade favorita dos estrategistas. Matrizes combinatórias de 16 a 20 dezenas com verificação condicional da cobertura.",
   },
   {
     name: "Quina de São João",
-    prize: "R$ 200+ Milhões",
+    prize: "Confira a estimativa do concurso na Caixa",
     timing: "Junho",
     icon: "⭐",
     color: "from-blue-500/20 to-blue-500/5",
     border: "border-blue-500/30",
-    desc: "O grande prêmio do meio de ano. Desdobramentos que cobrem grupos amplos de números sem estourar o orçamento do grupo.",
+    desc: "O grande prêmio do meio de ano. Desdobramentos que cobrem grupos amplos de números com custo explícito para o grupo.",
   },
   {
     name: "Dupla de Páscoa",
-    prize: "R$ 35+ Milhões",
+    prize: "Confira a estimativa do concurso na Caixa",
     timing: "Abril",
     icon: "👯",
     color: "from-amber-500/20 to-amber-500/5",
@@ -87,7 +87,7 @@ export function SeasonalJackpotsSection({ onCtaClick }: Props) {
                       {lottery.name}
                     </h3>
                     <p className="text-xs font-mono font-semibold text-primary mt-0.5">
-                      Prêmio estimado: {lottery.prize}
+                      {lottery.prize}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed pt-1">

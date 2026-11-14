@@ -76,3 +76,9 @@ Pendente: conferir preços vigentes com fonte oficial e implementar motores espe
 - Falhas dos workers são exibidas ao usuário; adicionados testes para determinismo e entradas inválidas.
 
 Pendente: revisão de outros simuladores fora do módulo de fechamentos e comparação justa contra apostas aleatórias fora da amostra.
+
+## Etapa seguinte: landing sincronizada e demonstrações honestas
+- Consulta pública mostrou que o Lovable já exibia parte das mudanças da landing (por exemplo, "PAINEL: DEMONSTRATIVO"); isso não valida automaticamente os módulos internos nem o último commit.
+- Retirados de maquetes promocionais totais fixos de concursos, "100% cobertura", preços por cota e afirmações de auditoria como se fossem dados medidos; galeria rotulada como demonstração ilustrativa.
+- Seção de modalidades inclui Federal e informa que recursos variam; fechamentos combinatórios da página aplicam-se apenas a Mega-Sena, Lotofácil e Quina.
+- Concursos especiais não anunciam jackpots fixos desatualizáveis; usuário é orientado a conferir estimativa na Caixa.
