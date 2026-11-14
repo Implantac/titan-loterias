@@ -13,6 +13,7 @@ import {
   WheelingMatrixId,
   applyWheelingMatrix,
   validateMatrix,
+  isUsableWheelingMatrix,
 } from "@/ai/engines/wheelingMatrices";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { 
@@ -47,8 +48,7 @@ const FechamentosPage = () => {
   const [generatedGames, setGeneratedGames] = useState<number[][] | null>(null);
   const [generating, setGenerating] = useState(false);
 
-  const availableMatrices = config.id === 'lotofacil' ? MATRIX_LIST.filter((m) => m.lottery === 'lotofacil' &&
-    m.games.every(game => game.length === m.pick && game.every(idx => idx >= 0 && idx < m.baseSize))) : [];
+  const availableMatrices = config.id === 'lotofacil' ? MATRIX_LIST.filter((m) => m.lottery === 'lotofacil' && isUsableWheelingMatrix(m.id)) : [];
   const currentMatrix = selectedMatrix ? WHEELING_MATRICES[selectedMatrix] : null;
   const betPrice = BET_PRICES[config.id] || 3.0;
 

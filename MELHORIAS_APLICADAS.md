@@ -123,3 +123,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Seleção de matrizes no bolão (2026-11-13)
 - Corrigidas opções de fechamento que usavam IDs inexistentes e prometiam garantias na lista. O seletor agora usa IDs reais, somente matrizes estruturalmente válidas para a modalidade ativa e informa a meta condicional. Ao trocar de modalidade, a seleção efetiva recai em uma opção compatível; sem opções, geração desabilitada.
 - Teste de elegibilidade de matrizes adicionado. Typecheck e suíte completa: 198 testes aprovados.
+
+### Comparativo de matrizes (2026-11-13)
+- Comparativo passa a excluir matrizes estruturalmente inválidas, usando a mesma regra da geração; seleção de fechamentos usa o mesmo predicado.
+- Meta declarada não é apresentada como garantia: status distingue prova exaustiva atingida, falha exaustiva e amostra. “Melhor” virou “Maior índice” e os indicadores de cobertura/custo são apresentados como descritivos, não ROI.
+- Typecheck e suíte completa: 199 testes aprovados, incluindo regressão de alegações do comparativo.

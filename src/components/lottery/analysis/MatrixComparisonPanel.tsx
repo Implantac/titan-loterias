@@ -6,6 +6,7 @@ import {
   WHEELING_MATRICES,
   WheelingMatrixId,
   validateMatrix,
+  isUsableWheelingMatrix,
 } from "@/ai/engines/wheelingMatrices";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -26,7 +27,7 @@ const MATRIX_LIST = Object.entries(WHEELING_MATRICES).map(([id, m]) => ({
 }));
 
 export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
-  const matrices = MATRIX_LIST.filter((m) => m.lottery === lotteryId);
+  const matrices = MATRIX_LIST.filter((m) => m.lottery === lotteryId && isUsableWheelingMatrix(m.id));
 
   const comparisons = useMemo(() => {
     return matrices.map((m) => {
@@ -59,7 +60,7 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
           { metric: "Eficiência", ...Object.fromEntries(comparisons.map(c => [c.name, maxEff > 0 ? (c.efficiency / maxEff) * 100 : 0])) },
           { metric: "Cobertura", ...Object.fromEntries(comparisons.map(c => [c.name, maxCov > 0 ? (c.validation.coveragePercent / maxCov) * 100 : 0])) },
           { metric: "Economia", ...Object.fromEntries(comparisons.map(c => [c.name, maxCost > 0 ? ((maxCost - c.cost) / maxCost) * 100 : 0])) },
-          { metric: "Garantia", ...Object.fromEntries(comparisons.map(c => [c.name, c.guarantee * 20])) },
+          { metric: "Meta comprovada", ...Object.fromEntries(comparisons.map(c => [c.name, c.validation.valid ? c.guarantee * 20 : 0])) },
           { metric: "Base", ...Object.fromEntries(comparisons.map(c => [c.name, Math.min(c.baseSize * 5, 100)])) },
         ];
       })()
@@ -163,7 +164,7 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
                   <div className="flex items-center justify-center gap-1"><Layers className="w-3 h-3" />Jogos</div>
                 </TableHead>
                 <TableHead className="text-xs text-center">
-                  <div className="flex items-center justify-center gap-1"><Shield className="w-3 h-3" />Garantia</div>
+                  <div className="flex items-center justify-center gap-1"><Shield className="w-3 h-3" />Meta</div>
                 </TableHead>
                 <TableHead className="text-xs text-center">
                   <div className="flex items-center justify-center gap-1"><Coins className="w-3 h-3" />Custo</div>
@@ -182,17 +183,17 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
                     <div className="flex items-center gap-1.5">
                       <span className="text-foreground">{c.name}</span>
                       {c.efficiency === bestEfficiency && (
-                        <Badge variant="default" className="text-[9px] px-1 py-0">Melhor</Badge>
+                        <Badge variant="default" className="text-[9px] px-1 py-0">Maior índice</Badge>
                       )}
                       {c.cost === lowestCost && comparisons.length > 1 && (
-                        <Badge variant="secondary" className="text-[9px] px-1 py-0">Econômica</Badge>
+                        <Badge variant="secondary" className="text-[9px] px-1 py-0">Menor custo</Badge>
                       )}
                     </div>
                   </TableCell>
                   <TableCell className="text-center text-xs font-mono text-foreground">{c.baseSize}</TableCell>
                   <TableCell className="text-center text-xs font-mono text-foreground">{c.games.length}</TableCell>
                   <TableCell className="text-center">
-                    <Badge variant="outline" className="text-[10px] font-mono text-primary">{c.guarantee}+</Badge>
+                    <Badge variant="outline" className="text-[10px] font-mono text-primary">{c.guarantee} pts</Badge>
                   </TableCell>
                   <TableCell className="text-center text-xs font-mono text-accent-foreground">R$ {c.cost.toFixed(2)}</TableCell>
                   <TableCell className="text-center">
@@ -203,17 +204,17 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
                         variant="outline"
                         className={cn(
                           "text-[8px] font-mono px-1 py-0 uppercase font-semibold",
-                          c.validation.exhaustive
+                          c.validation.valid
                             ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
                             : "text-amber-400 border-amber-500/30 bg-amber-500/10"
                         )}
                         title={
                           c.validation.exhaustive
-                            ? `100% Exaustivo: todos os ${c.validation.totalDraws} cenários combinatórios foram testados.`
+                            ? `Verificação exaustiva: ${c.validation.valid ? "meta atingida" : "meta não atingida"} em ${c.validation.totalDraws} cenários.`
                             : `Amostral: ${c.validation.totalDraws} cenários simulados via amostragem estocástica.`
                         }
                       >
-                        {c.validation.exhaustive ? "Exaustivo" : "Amostral"}
+                        {c.validation.valid ? "Meta provada" : c.validation.exhaustive ? "Meta falhou" : "Amostral"}
                       </Badge>
                     </div>
                   </TableCell>
@@ -229,11 +230,11 @@ export function MatrixComparisonPanel({ lotteryId, betPrice }: Props) {
 
         {comparisons.length > 0 && (
           <div className="p-3 rounded-lg bg-muted/10 border border-border text-xs text-muted-foreground space-y-1">
-            <p><strong className="text-foreground">Eficiência</strong> = Cobertura% ÷ Nº de jogos (maior = melhor custo-benefício)</p>
-            <p><strong className="text-foreground">R$/Cob.</strong> = Custo por ponto de cobertura (menor = mais econômico)</p>
+            <p><strong className="text-foreground">Eficiência</strong> = Cobertura observada% ÷ Nº de jogos (indicador descritivo, não retorno financeiro)</p>
+            <p><strong className="text-foreground">R$/Cob.</strong> = Custo por ponto percentual de cobertura observada (não é ROI)</p>
             <p className="text-[11px] pt-1">
-              <span className="text-emerald-400 font-semibold">Exaustivo</span> = 100% dos cenários possíveis comprovados matematicamente.{" "}
-              <span className="text-amber-400 font-semibold">Amostral</span> = validação com até 5.000 cenários simulados (estimativa estatística).
+              <span className="text-emerald-400 font-semibold">Exaustivo</span> = todos os cenários enumerados; só há prova da meta se ela for atingida em todos.{" "}
+              <span className="text-amber-400 font-semibold">Amostral</span> = validação com até 5.000 cenários amostrados (não comprova a meta).
             </p>
           </div>
         )}

@@ -59,6 +59,13 @@ describe("alegações comerciais auditáveis", () => {
     expect(ticket).not.toContain("hash único");
   });
 
+  it("comparativo não ranqueia matriz inválida nem confunde meta e prova", () => {
+    const comparison = content("src/components/lottery/analysis/MatrixComparisonPanel.tsx");
+    expect(comparison).toContain("isUsableWheelingMatrix(m.id)");
+    expect(comparison).toContain("Meta provada");
+    expect(comparison).not.toContain(">Melhor</Badge>");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");
