@@ -14,8 +14,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Target, Shield, Coins, Play, Loader2, Info, Trophy, GitCompare, X } from "lucide-react";
-import { calculateGuarantee, applyConstraints, type ClosingResult, type ClosingStrategy, type ActiveConstraint } from "@/engine/closing";
+import { calculateGuarantee, type ClosingResult, type ClosingStrategy, type ActiveConstraint } from "@/engine/closing";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
+import { filterClosingResult } from "@/engine/closing/constraints/filterClosingResult";
 import { useClosingWorker, ClosingCanceledError } from "@/hooks/useClosingWorker";
 import { useClosingHistory } from "@/hooks/useClosingHistory";
 import { ClosingDashboardPanel } from "@/components/closing/ClosingDashboardPanel";
@@ -75,12 +76,23 @@ const FechamentoUniversalPage = () => {
   const [baseNumbers, setBaseNumbers] = useState<number[]>([]);
   const [minHits, setMinHits] = useState<number>(Math.max(1, pick - 1));
   const [maxGames, setMaxGames] = useState<number>(0);
+  const [ticketPrice, setTicketPrice] = useState<number>(LOTTERY_BET_COST[config.id] ?? 0);
+  useEffect(() => setTicketPrice(LOTTERY_BET_COST[config.id] ?? 0), [config.id]);
   const [strategy, setStrategy] = useState<ClosingStrategy>("greedy");
   const [generating, setGenerating] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [result, setResult] = useState<ClosingResult | null>(null);
   const [comparison, setComparison] = useState<ClosingResult[] | null>(null);
   const [constraints, setConstraints] = useState<ActiveConstraint[]>([]);
+
+  useEffect(() => {
+    setBaseNumbers([]);
+    setMaxGames(0);
+    setResult(null);
+    setComparison(null);
+    setConstraints([]);
+    setMinHits(Math.max(1, config.pick - 1));
+  }, [config.id, config.pick]);
 
   // Recebe base vinda do Gerador (via navigate state)
   const location = useLocation();
@@ -106,9 +118,7 @@ const FechamentoUniversalPage = () => {
     return calculateGuarantee(baseNumbers.length, pick, minHits);
   }, [baseNumbers.length, pick, minHits]);
 
-  const canGenerate = baseNumbers.length >= pick && minHits >= 1 && minHits <= pick;
-
-  const ticketPrice = LOTTERY_BET_COST[config.id] ?? 3;
+  const canGenerate = baseNumbers.length >= pick && minHits >= 1 && minHits <= pick && ticketPrice > 0;
 
   const buildRequest = () => ({
     lottery: { id: config.id, name: config.name, totalNumbers: total, pick, ticketPrice },
@@ -120,32 +130,15 @@ const FechamentoUniversalPage = () => {
   });
 
   const applyFilters = (r: ClosingResult): ClosingResult => {
-    if (!constraints.length || r.games.length === 0) return r;
-    const filtered = applyConstraints(r.games, constraints, {
-      lottery: r.request.lottery,
-      baseNumbers: r.request.baseNumbers,
-    });
-    if (filtered.kept.length === 0) {
-      toast.warning(`Todos os ${r.games.length} jogos foram rejeitados pelos filtros. Mostrando resultado sem filtro.`);
-      return r;
+    const filtered = filterClosingResult(r, constraints);
+    if (filtered !== r) {
+      toast.info(`${filtered.gameCount}/${r.gameCount} jogos mantidos; cobertura e garantia recalculadas.`);
     }
-    if (filtered.rejected.length > 0) {
-      toast.info(`${filtered.rejected.length} jogos rejeitados pelos filtros temáticos.`);
-    }
-    return {
-      ...r,
-      games: filtered.kept,
-      gameCount: filtered.kept.length,
-      cost: filtered.kept.length * (r.cost / Math.max(1, r.games.length)),
-      notes: [
-        ...r.notes,
-        `Filtros temáticos: ${filtered.stats.keptCount}/${filtered.stats.total} mantidos.`,
-      ],
-    };
+    return filtered;
   };
 
   const runGenerate = async () => {
-    if (!canGenerate) { toast.error(`Selecione ao menos ${pick} dezenas.`); return; }
+    if (!canGenerate) { toast.error(`Selecione ao menos ${pick} dezenas e informe preço positivo por jogo.`); return; }
     setGenerating(true);
     setResult(null);
     setComparison(null);
@@ -174,18 +167,18 @@ const FechamentoUniversalPage = () => {
   };
 
   const runCompare = async () => {
-    if (!canGenerate) { toast.error(`Selecione ao menos ${pick} dezenas.`); return; }
+    if (!canGenerate) { toast.error(`Selecione ao menos ${pick} dezenas e informe preço positivo por jogo.`); return; }
     setComparing(true);
     setComparison(null);
     setResult(null);
     try {
       const rsRaw = await compare(buildRequest(), COMPARE_SET);
-      const rs = rsRaw.map(applyFilters);
+      const rs = rsRaw.map(applyFilters).sort((a, b) => b.score.overall - a.score.overall);
       setComparison(rs);
-      toast.success(`Comparação concluída: vencedor ${STRATEGY_LABELS[rs[0].strategy]}`);
+      toast.info(rs[0]?.games.length ? `Comparação recalculada após filtros: primeiro ${STRATEGY_LABELS[rs[0].strategy]}.` : "Nenhum jogo atende aos filtros da comparação.");
       if (rs[0] && rs[0].games.length > 0) {
         saveClosing(rs[0]).then(ok => {
-          if (ok) toast.info("Fechamento vencedor salvo em Meus Jogos.", { duration: 2500 });
+          if (ok) toast.info("Fechamento selecionado salvo em Meus Jogos.", { duration: 2500 });
         });
       }
     } catch (e) {
@@ -196,11 +189,25 @@ const FechamentoUniversalPage = () => {
     }
   };
 
+  // Este motor modela dezenas sem ordem e sorteio com `pick` dezenas. Não
+  // representa colunas, trevos, meses, times, bilhetes ou Lotomania (20 sorteadas
+  // versus 50 marcadas). Evita travar a UI com a grade de 99.999 da Federal.
+  if (!["megasena", "lotofacil", "quina"].includes(config.id)) {
+    return <div className="space-y-6">
+      <PageHeader title="Fechamentos combinatórios" description="Modalidades com sorteio simples de dezenas" icon={Sparkles} />
+      <LotteryContextBanner />
+      <Alert><Info className="h-4 w-4" /><AlertDescription>
+        O motor de fechamentos ainda não modela todas as regras de {config.name}.
+        Não geramos garantia ou custo para esta modalidade; confira as regras oficiais antes de apostar.
+      </AlertDescription></Alert>
+    </div>;
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Motor Universal de Fechamentos"
-        description="Greedy · Hill Climbing · SA · Genético · Covering Design — validados matematicamente"
+        description="Mega-Sena · Lotofácil · Quina — garantias condicionais somente após prova exaustiva"
         icon={Sparkles}
       />
       <LotteryContextBanner />
@@ -269,6 +276,15 @@ const FechamentoUniversalPage = () => {
               </p>
             </div>
             <div>
+              <Label htmlFor="ticket-price">Preço por jogo simples (R$) — confirme na Caixa</Label>
+              <Input id="ticket-price" type="number" min={0.01} step={0.01}
+                value={ticketPrice || ""}
+                onChange={e => setTicketPrice(Number(e.target.value) || 0)} />
+              <p className="text-xs text-muted-foreground mt-1">
+                Valor inicial configurado no aplicativo, sem atualização automática. Custo e ROI são cenários, não preços oficiais confirmados.
+              </p>
+            </div>
+            <div>
               <Label htmlFor="maxgames">Máx. jogos (0 = ilimitado)</Label>
               <Input
                 id="maxgames" type="number" min={0}
@@ -291,7 +307,7 @@ const FechamentoUniversalPage = () => {
             {bounds && (
               <div className="rounded-lg bg-muted/30 p-3 text-xs space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Lower bound (Schönheim)</span>
+                  <span className="text-muted-foreground">Cota de Schönheim (condição mais forte)</span>
                   <span className="font-mono font-semibold">{bounds.lowerBound}</span>
                 </div>
                 <div className="flex justify-between">
@@ -359,7 +375,7 @@ const FechamentoUniversalPage = () => {
             {!canGenerate && (
               <Alert variant="default" className="text-xs">
                 <Info className="h-4 w-4" />
-                <AlertDescription>Selecione ao menos {pick} dezenas.</AlertDescription>
+                <AlertDescription>Selecione ao menos {pick} dezenas e informe preço positivo por jogo.</AlertDescription>
               </Alert>
             )}
           </CardContent>

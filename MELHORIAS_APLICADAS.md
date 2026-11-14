@@ -60,3 +60,11 @@ Pendente: reconciliação de preços históricos, premiações de apostas múlti
 - Se um jogo hipotético acerta faixa que originalmente não teve ganhadores (valor divulgado zero/acumulado), a simulação fica indisponível: não se usa o rateio zero como se fosse o valor do cenário contrafactual.
 - Interface deixa explícito que adicionar hipoteticamente um ganhador também pode reduzir o pagamento por aposta nas faixas que tiveram vencedores. Os números apresentados são cenário com o rateio publicado, **não prêmio exato que a aposta teria recebido**.
 - Testes de regressão para ausência de vencedores e jogos/resultados inválidos.
+
+## Etapa seguinte: filtros, regras das modalidades e custo configurável
+- Corrigida falha crítica: filtros pós-geração removiam bilhetes, mas mantinham garantia, cobertura e score calculados antes da remoção. `filterClosingResult` recalcula todos os indicadores e custo dos jogos efetivamente restantes; se todos forem excluídos, não restaura silenciosamente a matriz original.
+- Comparação de estratégias é reordenada após o recálculo; testes provam que excluir bilhetes pode destruir uma garantia antes válida.
+- O motor combinatório da página fica restrito a Mega-Sena, Lotofácil e Quina. Para outras modalidades informa indisponibilidade em vez de aplicar indevidamente sorteio de `pick` dezenas (ou montar grade de 99.999 bilhetes para Federal).
+- Preço por jogo simples é editável e a interface deixa claro que o valor inicial está configurado no aplicativo, sem atualização automática nem confirmação oficial. Mudança de modalidade limpa base, filtros e resultados antigos.
+
+Pendente: conferir preços vigentes com fonte oficial e implementar motores específicos para outras modalidades; verificar filtros em outros fluxos do aplicativo.
