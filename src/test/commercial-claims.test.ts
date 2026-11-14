@@ -21,6 +21,13 @@ describe("alegações comerciais auditáveis", () => {
     expect(specials).not.toMatch(/R\$ (?:500|200|35)\+ Milhões/);
   });
 
+  it("não exibe prêmio em dinheiro inventado no simulador histórico ativo", () => {
+    const simulator = content("src/components/lottery/simulators/HistoricalSimulatorPanel.tsx");
+    expect(simulator).not.toContain("Prêmio Estimado");
+    expect(simulator).not.toContain("💰 {prize.estimatedPrize");
+    expect(simulator).toContain("Faixa possível");
+  });
+
   it("não inventa premiação no conferidor de bilhetes", () => {
     const checker = content("src/components/lottery/PhysicalTicketCheckerDialog.tsx");
     expect(checker).not.toContain("Estimativa Líquida de Resgate");

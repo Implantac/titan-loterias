@@ -82,3 +82,8 @@ Pendente: revisão de outros simuladores fora do módulo de fechamentos e compar
 - Retirados de maquetes promocionais totais fixos de concursos, "100% cobertura", preços por cota e afirmações de auditoria como se fossem dados medidos; galeria rotulada como demonstração ilustrativa.
 - Seção de modalidades inclui Federal e informa que recursos variam; fechamentos combinatórios da página aplicam-se apenas a Mega-Sena, Lotofácil e Quina.
 - Concursos especiais não anunciam jackpots fixos desatualizáveis; usuário é orientado a conferir estimativa na Caixa.
+
+## Etapa seguinte: simuladores históricos ativos
+- Retro-teste rápido agora exige que a aposta pertença à modalidade cujo histórico está carregado. Antes podia comparar apostas de outra loteria com concursos da modalidade ativa. Também rejeita dezenas repetidas/fora do universo e deixa de chamar a média histórica de acertos de "Titan Score" ou confirmação de prêmio.
+- Simulador histórico de jogos deixa de mostrar valores monetários estáticos por faixa como "prêmio estimado"; indica somente faixa potencial. Limita-se a Mega-Sena, Lotofácil e Quina até que regras das demais modalidades sejam implementadas.
+- Adicionadas faixas de acerto explícitas da Quina ao serviço de perfis de premiação (sem valor monetário fixo). Teste de regressão impede reintroduzir prêmio monetário fictício nesse simulador.

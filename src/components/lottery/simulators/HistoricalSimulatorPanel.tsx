@@ -187,6 +187,12 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
       .map(([label, count]) => ({ label, count }));
   }, [simResults]);
 
+  if (!["megasena", "lotofacil", "quina"].includes(config.id)) {
+    return <Card className="border-primary/20 bg-card p-5 text-sm text-muted-foreground">
+      Simulação histórica de dezenas simples ainda não disponível para {config.name}. Esta modalidade exige regras próprias.
+    </Card>;
+  }
+
   return (
     <Card className="border-primary/20 bg-card">
       <CardHeader className="pb-3">
@@ -198,7 +204,7 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
           </Badge>
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Teste jogos contra concursos passados • {draws.length} concursos disponíveis
+          Compare jogos com concursos passados (não prevê resultados nem confirma prêmios) • {draws.length} concursos disponíveis
         </p>
       </CardHeader>
 
@@ -363,7 +369,7 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
                           <TableHead className="w-12 text-center text-xs">#</TableHead>
                           <TableHead className="text-xs">Jogo</TableHead>
                           <TableHead className="text-center text-xs w-24">Acertos</TableHead>
-                          <TableHead className="text-center text-xs w-36">Prêmio Estimado</TableHead>
+                          <TableHead className="text-center text-xs w-36">Faixa possível</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -376,7 +382,7 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
                           // Build prize breakdown: list each tier the game achieved
                           const prizeBreakdown = prizeTiers
                             .filter(t => (r.totalPrizes[t.label] || 0) > 0)
-                            .map(t => ({ label: t.label, count: r.totalPrizes[t.label], prize: t.estimatedPrize }));
+                            .map(t => ({ label: t.label, count: r.totalPrizes[t.label], prize: t.label }));
 
                           return (
                             <TableRow
@@ -412,15 +418,8 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
 
                               {/* Prize */}
                               <TableCell className="text-center py-3">
-                                {bestPrizeTier?.estimatedPrize ? (
-                                  <div>
-                                    <span className="text-sm font-bold text-primary">
-                                      {bestPrizeTier.estimatedPrize}
-                                    </span>
-                                    <span className="text-[10px] text-muted-foreground block">
-                                      {bestPrizeTier.label}
-                                    </span>
-                                  </div>
+                                {bestPrizeTier ? (
+                                  <span className="text-xs text-primary font-medium">{bestPrizeTier.label}</span>
                                 ) : (
                                   <span className="text-xs text-muted-foreground">—</span>
                                 )}
@@ -456,9 +455,6 @@ export function HistoricalSimulatorPanel({ config, draws, stats }: Props) {
                           <div key={label} className="bg-card border border-border rounded-lg p-2.5 text-center">
                             <p className="text-xl font-bold text-primary">{count}</p>
                             <p className="text-[10px] font-medium text-foreground">{label}</p>
-                            {tier?.estimatedPrize && (
-                              <p className="text-[10px] font-semibold text-chart-4 mt-0.5">💰 {tier.estimatedPrize}</p>
-                            )}
                           </div>
                         );
                       })}
@@ -594,11 +590,6 @@ function GameDetailsList({ results, config }: { results: GameResult[]; config: L
                           >
                             <p className="text-lg font-bold text-primary">{count}x</p>
                             <p className="text-[10px] font-medium text-foreground">{label}</p>
-                            {tier?.estimatedPrize && (
-                              <p className={`text-xs font-bold mt-0.5 ${isTopTier ? "text-primary" : "text-chart-4"}`}>
-                                💰 {tier.estimatedPrize}
-                              </p>
-                            )}
                           </div>
                         );
                       })}
@@ -644,7 +635,7 @@ function GameDetailsList({ results, config }: { results: GameResult[]; config: L
                           {prize ? (
                             <div className="shrink-0 text-right">
                               <Badge className="text-[9px] h-5 px-2 bg-primary/20 text-primary border-primary/30">
-                                💰 {prize.estimatedPrize || prize.label}
+                                Faixa: {prize.label}
                               </Badge>
                             </div>
                           ) : (

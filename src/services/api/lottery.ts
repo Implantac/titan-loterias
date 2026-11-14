@@ -166,6 +166,13 @@ export function getPrizeTiers(lotteryId: string): { hits: number; label: string;
         { hits: 5, label: "Quina (5 acertos)", estimatedPrize: "Variável" },
         { hits: 4, label: "Quadra (4 acertos)", estimatedPrize: "Variável" },
       ];
+    case "quina":
+      return [
+        { hits: 5, label: "Quina (5 acertos)" },
+        { hits: 4, label: "Quadra (4 acertos)" },
+        { hits: 3, label: "Terno (3 acertos)" },
+        { hits: 2, label: "Duque (2 acertos)" },
+      ];
     case "lotofacil":
       return [
         { hits: 15, label: "15 acertos", estimatedPrize: "Variável" },

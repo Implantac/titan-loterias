@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import { History, Sparkles, Trophy, TrendingUp } from "lucide-react";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { getLotteryProfile } from "@/ai/knowledge/lotteryProfiles";
@@ -22,11 +21,15 @@ export function QuickBacktestDialog({ numbers, lotteryId, trigger }: QuickBackte
   const { selectedLottery, draws } = useLotteryContext();
   const targetLottery = lotteryId || selectedLottery;
   const profile = getLotteryProfile(targetLottery);
+  const supported = ["megasena", "lotofacil", "quina"].includes(targetLottery);
+  const ready = supported && targetLottery === selectedLottery && numbers.length === profile.pick &&
+    new Set(numbers).size === numbers.length &&
+    numbers.every(n => Number.isInteger(n) && n >= 1 && n <= profile.universe);
   const [lookback, setLookback] = useState("100");
   const [open, setOpen] = useState(false);
 
   const report = useMemo(() => {
-    if (!open) return null;
+    if (!open || !ready || draws.length === 0) return null;
     const n = Math.min(parseInt(lookback), draws.length);
     const window = draws.slice(0, n);
     const prizeTiers = getPrizeTiers(targetLottery);
@@ -53,10 +56,9 @@ export function QuickBacktestDialog({ numbers, lotteryId, trigger }: QuickBackte
     const premiumRate = evaluated
       ? window.filter((d) => countHits(numbers, d.numbers) >= premiumThreshold).length / evaluated
       : 0;
-    const qualityScore = Math.round((avgHits / profile.pick) * 100);
 
-    return { evaluated, avgHits, maxHits, bestConcurso, distribution, premiumRate, qualityScore, prizeCount, timeline };
-  }, [open, lookback, draws, numbers, profile.pick, targetLottery]);
+    return { evaluated, avgHits, maxHits, bestConcurso, distribution, premiumRate, prizeCount, timeline };
+  }, [open, ready, lookback, draws, numbers, profile.pick, targetLottery]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -75,7 +77,7 @@ export function QuickBacktestDialog({ numbers, lotteryId, trigger }: QuickBackte
             Retro-teste 1-Clique
           </DialogTitle>
           <DialogDescription>
-            Teste esta aposta contra o histórico oficial e veja quantas premiações teria acumulado.
+            Compare as dezenas com o histórico carregado da mesma modalidade. Isso não comprova prêmio recebido nem prevê sorteios.
           </DialogDescription>
         </DialogHeader>
 
@@ -97,22 +99,22 @@ export function QuickBacktestDialog({ numbers, lotteryId, trigger }: QuickBackte
           ))}
         </div>
 
+        {ready && draws.length === 0 && <div role="status" className="text-xs text-muted-foreground">Sem concursos carregados desta modalidade.</div>}
+        {!ready && <div role="alert" className="rounded-md border border-amber-500/30 p-3 text-xs text-muted-foreground">
+          {!supported ? "Conferência rápida não disponível para esta modalidade: regras específicas ainda não modeladas." :
+            targetLottery !== selectedLottery ? "Selecione a modalidade da aposta antes do retro-teste; o histórico exibido pertence à modalidade ativa." :
+            "Este retro-teste aceita apenas apostas simples válidas para a modalidade."}
+        </div>}
+
         {report && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <MetricTile label="Sorteios" value={report.evaluated} />
               <MetricTile label="Acertos médios" value={report.avgHits.toFixed(2)} />
               <MetricTile label="Melhor" value={`${report.maxHits}${report.bestConcurso ? ` · #${report.bestConcurso}` : ""}`} />
-              <MetricTile label="Premiações" value={report.prizeCount} highlight={report.prizeCount > 0} />
+              <MetricTile label="Faixas possíveis" value={report.prizeCount} highlight={report.prizeCount > 0} />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Titan Score da aposta</span>
-                <span className="font-mono tabular-nums text-foreground">{report.qualityScore}/100</span>
-              </div>
-              <Progress value={report.qualityScore} />
-            </div>
 
             <div>
               <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Distribuição de acertos</h4>
@@ -141,8 +143,8 @@ export function QuickBacktestDialog({ numbers, lotteryId, trigger }: QuickBackte
             <div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-xs text-muted-foreground flex items-start gap-2">
               <TrendingUp className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <p>
-                Taxa premiável (≥ {Math.max(1, profile.pick - 2)} acertos): <span className="font-mono tabular-nums text-foreground">{(report.premiumRate * 100).toFixed(1)}%</span>.
-                {" "}Retro-teste é indicativo — resultados passados não garantem futuros.
+                Frequência de acertos (≥ {Math.max(1, profile.pick - 2)} acertos): <span className="font-mono tabular-nums text-foreground">{(report.premiumRate * 100).toFixed(1)}%</span>.
+                {" "}Apenas coincidências históricas; prêmios exigem comprovante oficial e regras da modalidade. Resultados passados não predizem futuros.
               </p>
             </div>
           </div>
