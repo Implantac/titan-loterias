@@ -54,3 +54,9 @@ Pendente: reconciliação de preços históricos, premiações de apostas múlti
 - Adicionado `scripts/audit-rls-readonly.mjs`, um teste de integração apenas de leitura que exige duas contas comuns e uma chave anon de homologação. Interrompe se detectar papel privilegiado; não imprime IDs/dados pessoais.
 - Cobertura: leitura do próprio perfil, tentativas cruzadas em perfis, apostas salvas, histórico de geração e fechamentos, além de listagem anônima de perfis.
 - Instruções e limites em `docs/rls-audit.md`. **Não foi executado contra o banco**, pois não recebemos duas contas comuns de teste. Não houve mudança de políticas RLS nem criação de usuários.
+
+## Etapa seguinte: segurança do cálculo de ROI
+- Retrospectiva monetária aceita apenas jogos simples e resultados válidos de Mega-Sena, Lotofácil e Quina. Apostas múltiplas e dezenas repetidas não recebem custo/premiação incorretos.
+- Se um jogo hipotético acerta faixa que originalmente não teve ganhadores (valor divulgado zero/acumulado), a simulação fica indisponível: não se usa o rateio zero como se fosse o valor do cenário contrafactual.
+- Interface deixa explícito que adicionar hipoteticamente um ganhador também pode reduzir o pagamento por aposta nas faixas que tiveram vencedores. Os números apresentados são cenário com o rateio publicado, **não prêmio exato que a aposta teria recebido**.
+- Testes de regressão para ausência de vencedores e jogos/resultados inválidos.

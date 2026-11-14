@@ -70,7 +70,7 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
       </CardHeader>
       <CardContent>
         {rows.length === 0 && <p className="text-sm text-muted-foreground mb-4">
-          Comparação monetária indisponível: é necessário rateio oficial completo de cada concurso e modalidade suportada (Mega-Sena, Lotofácil ou Quina).
+          Comparação indisponível: exige jogos simples e rateio completo (Mega-Sena, Lotofácil ou Quina), sem acerto hipotético em faixa originalmente sem ganhadores.
         </p>}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -129,7 +129,7 @@ export function ClosingStrategyMatrixPanel({ results, windowSize = 20, onPick }:
           </table>
         </div>
         <p className="text-[11px] text-muted-foreground mt-3">
-          Ordenado pelo retorno retrospectivo, sem indicar estratégia superior: quantidades de jogos e orçamentos podem diferir. Jogos escolhidos depois dos resultados sofrem viés de seleção. Preço por bilhete é o informado, não o histórico.
+          Ordenado pelo retorno retrospectivo, sem indicar estratégia superior: quantidades de jogos e orçamentos podem diferir. Jogos escolhidos depois dos resultados sofrem viés de seleção. Uma aposta hipotética pode alterar o rateio: não são prêmios contrafactuais exatos. Preço por bilhete é o informado, não o histórico.
         </p>
       </CardContent>
     </Card>

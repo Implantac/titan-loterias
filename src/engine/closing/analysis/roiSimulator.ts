@@ -47,11 +47,19 @@ export interface RoiSimulationResult {
 export function simulateRoi(input: RoiSimulationInput): RoiSimulationResult | null {
   const tiers = TIERS[input.lotteryId];
   const draws = input.recentDraws.slice(0, input.window ?? 30);
+  const pick = input.lotteryId === "lotofacil" ? 15 : input.lotteryId === "quina" ? 5 : 6;
+  const universe = input.lotteryId === "lotofacil" ? 25 : input.lotteryId === "quina" ? 80 : 60;
   if (!tiers || draws.length === 0 || input.games.length === 0 ||
       !Number.isFinite(input.ticketPrice) || input.ticketPrice <= 0 ||
+      // Somente jogos simples; apostas múltiplas têm custo e pagamento diferentes.
+      input.games.some(g => g.length !== pick || new Set(g).size !== pick ||
+        g.some(n => !Number.isInteger(n) || n < 1 || n > universe)) ||
+      draws.some(d => d.numbers.length !== pick || new Set(d.numbers).size !== pick ||
+        d.numbers.some(n => !Number.isInteger(n) || n < 1 || n > universe)) ||
       draws.some(d => !d.prizeTiers?.premiacoes?.length ||
         Object.values(tiers).some(faixa => !d.prizeTiers!.premiacoes.some(p =>
-          p.faixa === faixa && Number.isFinite(p.valorPremio) && p.valorPremio >= 0)))) return null;
+          p.faixa === faixa && Number.isFinite(p.valorPremio) && p.valorPremio >= 0 &&
+          Number.isInteger(p.ganhadores) && p.ganhadores >= 0)))) return null;
 
   const perDraw: RoiPerDraw[] = [];
   let totalPrize = 0;
@@ -61,7 +69,7 @@ export function simulateRoi(input: RoiSimulationInput): RoiSimulationResult | nu
     const drawn = new Set(d.numbers);
     const hitsByGame: number[] = [];
     const winners: Record<number, number> = {};
-    const payout = new Map(d.prizeTiers!.premiacoes.map(p => [p.faixa, p.valorPremio]));
+    const payout = new Map(d.prizeTiers!.premiacoes.map(p => [p.faixa, p]));
     let prize = 0;
     for (const game of input.games) {
       const hits = game.filter(n => drawn.has(n)).length;
@@ -69,7 +77,11 @@ export function simulateRoi(input: RoiSimulationInput): RoiSimulationResult | nu
       const faixa = tiers[hits];
       if (faixa !== undefined) {
         winners[hits] = (winners[hits] ?? 0) + 1;
-        prize += payout.get(faixa) ?? 0;
+        const tier = payout.get(faixa);
+        // Se não houve ganhadores, o valor publicado é zero/acumulado; um
+        // bilhete hipotético vencedor alteraria o resultado do concurso.
+        if (!tier || tier.ganhadores === 0) return null;
+        prize += tier.valorPremio;
       }
     }
     perDraw.push({ concurso: d.concurso, date: d.date, hitsByGame, winners, prizeTotal: prize });

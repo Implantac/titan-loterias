@@ -80,7 +80,7 @@ export function ClosingROISimulatorPanel({ result }: Props) {
             </Button>
 
             {ran && !sim && <Alert><Info className="h-4 w-4" /><AlertDescription>
-              Retorno indisponível: faltam rateios oficiais de alguma faixa ou concurso na janela.
+              Retorno indisponível: faltam rateios completos, os jogos não são simples ou houve acerto hipotético numa faixa sem ganhadores originais.
             </AlertDescription></Alert>}
 
             {sim && (
@@ -150,7 +150,7 @@ export function ClosingROISimulatorPanel({ result }: Props) {
                 <Alert variant="default" className="text-[11px]">
                   <Info className="h-3 w-3" />
                   <AlertDescription>
-                    Retrospectiva de jogos fixos com rateios por concurso. O custo usa o preço informado atualmente, não preços históricos. Jogos selecionados após conhecer os resultados não demonstram poder preditivo.
+                    Cenário retrospectivo de jogos simples com rateios publicados. Uma aposta hipotética vencedora pode alterar o rateio original — os valores exibidos NÃO são prêmios contrafactuais exatos. O custo usa o preço informado atualmente, não preços históricos. Jogos escolhidos após os resultados não demonstram poder preditivo.
                   </AlertDescription>
                 </Alert>
               </>

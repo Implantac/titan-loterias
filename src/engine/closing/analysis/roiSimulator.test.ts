@@ -31,3 +31,16 @@ describe("retrospectiva monetária sem prêmios inventados", () => {
       .toMatchObject({ totalPrize: 200, totalCost: 10 });
   });
 });
+
+describe("validação de jogos e rateios contrafactuais", () => {
+  it("recusa prêmio principal hipotético sem ganhadores originais", () => {
+    expect(simulateRoi({ ...base, recentDraws: [
+      { concurso: 1, numbers: [1, 2, 3, 4, 5, 6], prizeTiers },
+    ] })).toBeNull();
+  });
+  it("recusa aposta múltipla, dezena repetida ou resultado inválido", () => {
+    expect(simulateRoi({ ...base, games: [[1, 2, 3, 4, 5, 6, 7]] })).toBeNull();
+    expect(simulateRoi({ ...base, games: [[1, 2, 3, 4, 5, 5]] })).toBeNull();
+    expect(simulateRoi({ ...base, recentDraws: [{ concurso: 1, numbers: [1, 2, 3, 4, 5, 5], prizeTiers }] })).toBeNull();
+  });
+});
