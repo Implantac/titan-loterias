@@ -1,5 +1,5 @@
 /**
- * ClosingTicketPanel — bilhete de aposta imprimível.
+ * ClosingTicketPanel — ficha interna imprimível; não é aposta registrada.
  * Layout tipo volante com QR Code por jogo (numeração + valor + resumo).
  */
 import { useState } from "react";
@@ -48,14 +48,14 @@ export function ClosingTicketPanel({ result }: Props) {
             <div class="ticket-meta">
               <div>Valor: <b>R$ ${lottery.ticketPrice.toFixed(2)}</b></div>
               <div class="ticket-strat">${escapeHtml(result.strategy)}</div>
-              <div class="ticket-hash">#${(i + 1).toString(36).padStart(4, "0").toUpperCase()}</div>
+              <div class="ticket-sequence">#${(i + 1).toString(36).padStart(4, "0").toUpperCase()}</div>
             </div>
           </div>
         </div>
       `).join("");
 
       const now = new Date().toLocaleString("pt-BR");
-      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Bilhetes — ${escapeHtml(lottery.name)}</title>
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>Fichas internas — ${escapeHtml(lottery.name)}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700;800&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
@@ -78,38 +78,39 @@ export function ClosingTicketPanel({ result }: Props) {
   .ticket-meta{flex:1;font-size:10px;color:#6b7280}
   .ticket-meta b{color:#111;font-size:12px}
   .ticket-strat{margin-top:2px;font-style:italic}
-  .ticket-hash{font-family:'JetBrains Mono',monospace;color:#a1a1aa;margin-top:2px}
+  .ticket-sequence{font-family:'JetBrains Mono',monospace;color:#a1a1aa;margin-top:2px}
   .footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:9px;color:#9ca3af;text-align:center}
   .no-print{text-align:center;margin-top:20px}
   .no-print button{background:#22c55e;color:#fff;border:0;padding:10px 24px;border-radius:6px;font-weight:600;cursor:pointer}
   @media print{body{background:#fff;padding:0}.no-print{display:none}@page{margin:10mm}}
 </style></head><body>
 <div class="header">
-  <h1>⚡ Titan <span>Loterias</span> — Bilhetes de Aposta</h1>
+  <h1>⚡ Titan <span>Loterias</span> — Fichas para conferência</h1>
   <div class="meta">${escapeHtml(lottery.name)}<br/>${now}</div>
 </div>
 <div class="summary">
   <div>Total de jogos<b>${result.games.length}</b></div>
   <div>Custo total<b>R$ ${total.toFixed(2)}</b></div>
   <div>Estratégia<b>${escapeHtml(result.strategy)}</b></div>
-  <div>Garantia<b>${result.request.guarantee.minHits} acertos</b></div>
+  <div>Meta condicional<b>${result.request.guarantee.minHits} acertos se ${result.request.guarantee.hitsInBase} sorteadas estiverem na base</b></div>
+  <div>Verificação<b>${result.validation.exhaustive && result.validation.meetsGuarantee ? "Meta comprovada" : result.validation.exhaustive ? "Meta não atingida" : "Amostral — sem prova"}</b></div>
   <div>Base<b>${result.request.baseNumbers.length} dezenas</b></div>
 </div>
 <div class="grid">${cards}</div>
 <div class="footer">
-  Cada bilhete contém QR Code com codificação: TITAN|modalidade|nº|dezenas.
-  Documento gerado por Titan Loterias · Este bilhete é um comprovante interno de conferência.
+  QR Code interno: TITAN|modalidade|sequência|dezenas. Não é código oficial da Caixa.
+  Ficha interna de conferência: não comprova aposta, pagamento, registro ou prêmio. Confira preço e regras na Caixa.
 </div>
-<div class="no-print"><button onclick="window.print()">🖨️ Imprimir bilhetes</button></div>
+<div class="no-print"><button onclick="window.print()">🖨️ Imprimir fichas</button></div>
 </body></html>`;
 
       const blob = new Blob([html], { type: "text/html;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const w = window.open(url, "_blank");
       if (w) w.onload = () => URL.revokeObjectURL(url);
-      else toast.error("Habilite pop-ups para abrir os bilhetes.");
+      else toast.error("Habilite pop-ups para abrir as fichas.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Falha ao gerar bilhetes.");
+      toast.error(e instanceof Error ? e.message : "Falha ao gerar fichas.");
     } finally {
       setGenerating(false);
     }
@@ -120,16 +121,16 @@ export function ClosingTicketPanel({ result }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Ticket className="h-5 w-5" />
-          Bilhetes Imprimíveis (QR + Código)
+          Fichas internas imprimíveis (QR + Código)
           <Badge variant="secondary" className="ml-auto">
-            <QrCode className="h-3 w-3 mr-1" /> {result.games.length} bilhetes
+            <QrCode className="h-3 w-3 mr-1" /> {result.games.length} fichas
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-xs text-muted-foreground">
-          Gera bilhetes prontos para impressão, um por jogo, com QR Code, numeração sequencial,
-          hash único e resumo do fechamento. Ideal para conferência manual ou registro em lotérica.
+          Gera fichas internas, uma por jogo, com QR Code de uso interno, identificador sequencial
+          e resumo do fechamento. Não são volantes ou comprovantes oficiais de apostas.
         </p>
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="rounded border bg-muted/10 p-2">
@@ -141,13 +142,13 @@ export function ClosingTicketPanel({ result }: Props) {
             <div className="font-mono font-bold">R$ {lottery.ticketPrice.toFixed(2)}</div>
           </div>
           <div className="rounded border bg-muted/10 p-2">
-            <div className="text-muted-foreground">Bilhetes</div>
+            <div className="text-muted-foreground">Fichas</div>
             <div className="font-mono font-bold">{result.games.length}</div>
           </div>
         </div>
         <Button className="w-full" onClick={buildAndPrint} disabled={generating}>
           {generating ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Printer className="h-4 w-4 mr-1" />}
-          Gerar bilhetes para impressão
+          Gerar fichas para impressão
         </Button>
       </CardContent>
     </Card>

@@ -51,6 +51,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(executive).not.toContain("Garantia Estimada por Amostragem");
   });
 
+  it("identifica fichas imprimíveis como não oficiais", () => {
+    const ticket = content("src/components/closing/ClosingTicketPanel.tsx");
+    expect(ticket).toContain("não comprova aposta, pagamento, registro ou prêmio");
+    expect(ticket).toContain("Não são volantes ou comprovantes oficiais de apostas");
+    expect(ticket).not.toContain("registro em lotérica");
+    expect(ticket).not.toContain("hash único");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

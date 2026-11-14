@@ -109,3 +109,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Selo de meta comprovada exige simultaneamente verificação exaustiva, cenários testados e meta atingida. Falha exaustiva e observação amostral agora têm estados distintos; menor acerto observado não é vendido como garantia.
 - Texto do pipeline adaptativo explica que a redução requer revalidação da cobertura, sem prometer preservação automática.
 - Typecheck e suíte completa: 194 testes aprovados, incluindo nova regressão de linguagem do painel.
+
+### Fichas internas de fechamento (2026-11-13)
+- Documento imprimível deixa de se apresentar como bilhete/aposta registrada: QR é interno, sequência não é hash, custo é ilustrativo e ficha não comprova aposta, pagamento, registro nem prêmio.
+- Meta de acertos no impresso explicita hipótese condicional e status de verificação (comprovada, não atingida ou amostral).
+- Typecheck e suíte completa: 195 testes aprovados, incluindo regressão de alegações do impresso.
