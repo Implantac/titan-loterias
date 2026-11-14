@@ -114,3 +114,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Documento imprimível deixa de se apresentar como bilhete/aposta registrada: QR é interno, sequência não é hash, custo é ilustrativo e ficha não comprova aposta, pagamento, registro nem prêmio.
 - Meta de acertos no impresso explicita hipótese condicional e status de verificação (comprovada, não atingida ou amostral).
 - Typecheck e suíte completa: 195 testes aprovados, incluindo regressão de alegações do impresso.
+
+### Revalidação dos jogos reais no PDF (2026-11-13)
+- Corrigido o PDF de fechamento: a função combinatória espera índices na base, mas recebia dezenas reais. Agora os jogos efetivamente exportados são convertidos para índices antes da verificação; dezenas fora da base ou base duplicada invalidam a prova.
+- A verificação exaustiva no PDF também explicita se a meta foi atingida ou falhou.
+- Typecheck e suíte completa: 197 testes aprovados; novos testes cobrem prova com dezenas reais não sequenciais e rejeição de dezena externa.

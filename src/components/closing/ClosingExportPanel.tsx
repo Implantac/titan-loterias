@@ -6,7 +6,7 @@
  */
 
 import { useState } from "react";
-import { validateWheelCoverage } from "@/engine/wheeling/coverageValidator";
+import { validateExportedGames } from "@/engine/wheeling/validateExportedGames";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,9 +87,9 @@ export function ClosingExportPanel({ result }: Props) {
    * Toda afirmação de garantia impressa aqui é verificada contra os jogos reais.
    * Antes o PDF imprimia a garantia pedida sem checar se o fechamento a cumpre.
    */
-  const coverage = validateWheelCoverage(
+  const coverage = validateExportedGames(
     result.games,
-    result.request.baseNumbers.length,
+    result.request.baseNumbers,
     result.request.lottery.pick,
     result.request.guarantee.hitsInBase,
     result.request.guarantee.minHits,
@@ -112,7 +112,7 @@ export function ClosingExportPanel({ result }: Props) {
       // universo é grande demais o validador amostra, e isso precisa estar escrito
       // no documento que o usuário leva — não apenas num campo que ninguém exibe.
       coverage.exhaustive
-        ? `Verificacao: EXAUSTIVA (${coverage.testedScenarios} cenarios enumerados)`
+        ? `Verificacao: EXAUSTIVA (${coverage.testedScenarios} cenarios enumerados; meta ${coverage.guaranteedHits >= result.request.guarantee.minHits ? "ATINGIDA" : "NAO ATINGIDA"})`
         : `Verificacao: AMOSTRAL (${coverage.testedScenarios} cenarios) - NAO e uma prova`,
       `Menor acerto observado nos cenarios testados: ${coverage.guaranteedHits}`,
       coverage.meetsGoalPercent < 100
