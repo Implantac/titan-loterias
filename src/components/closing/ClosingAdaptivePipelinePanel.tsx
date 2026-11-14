@@ -167,8 +167,8 @@ export function ClosingAdaptivePipelinePanel({ request, disabled, onApply }: Pro
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Executa 5 estratégias, escolhe pela nota composta (garantia matemática + força estatística),
-          remove jogos dominados sem quebrar a garantia e reordena do mais forte ao mais fraco.
+          Executa 5 estratégias, escolhe pela nota composta (cobertura combinatória + nota estatística),
+          tenta remover jogos redundantes e revalida a cobertura e reordena do mais forte ao mais fraco.
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -207,7 +207,7 @@ export function ClosingAdaptivePipelinePanel({ request, disabled, onApply }: Pro
               <div className="space-y-0.5">
                 <Label className="text-sm">Reduzir jogos dominados</Label>
                 <p className="text-[11px] text-muted-foreground">
-                  Remove redundâncias mantendo garantia matemática.
+                  Tenta remover redundâncias; a cobertura é revalidada após a redução.
                 </p>
               </div>
               <Switch checked={reduce} onCheckedChange={setReduce} disabled={running || tuning} />

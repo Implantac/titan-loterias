@@ -54,7 +54,7 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
       cost: primary.cost,
       guarantee: v.guaranteedHits,
       target: v.targetMinHits,
-      meets: v.meetsGuarantee,
+      meets: v.exhaustive && v.testedScenarios > 0 && v.meetsGuarantee,
       coverage: v.coveragePercent,
       exhaustive: v.exhaustive,
       testedScenarios: v.testedScenarios,
@@ -94,7 +94,7 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
               </Badge>
             ) : (
               <Badge variant="outline" className="text-amber-500 border-amber-500/40 gap-1">
-                <AlertTriangle className="h-3 w-3" /> Garantia parcial
+                <AlertTriangle className="h-3 w-3" /> Meta não comprovada
               </Badge>
             )}
             {stats.exhaustive ? (
@@ -125,7 +125,7 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
           />
           <Kpi
             icon={Shield}
-            label="Garantia"
+            label="Menor acerto observado"
             value={`${stats.guarantee} acertos`}
             sub={`meta ${stats.target}`}
             tone={stats.meets ? "success" : "warning"}
@@ -142,26 +142,26 @@ export function ClosingExecutiveSummaryPanel({ result, comparison }: Props) {
         {/* Banner de status exaustivo vs amostral */}
         <div className={cn(
           "rounded-xl border p-3.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3",
-          stats.exhaustive ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
+          stats.meets ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
         )}>
           <div className="flex items-center gap-2.5">
-            {stats.exhaustive ? (
+            {stats.meets ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
             ) : (
               <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
             )}
             <div>
-              <p className={cn("font-bold text-sm", stats.exhaustive ? "text-emerald-400" : "text-amber-400")}>
-                {stats.exhaustive ? "Garantia Combinatória Provada (Verificação Exaustiva)" : "Garantia Estimada por Amostragem (Não é Prova Absoluta)"}
+              <p className={cn("font-bold text-sm", stats.meets ? "text-emerald-400" : "text-amber-400")}>
+                {stats.meets ? "Meta comprovada por verificação exaustiva" : stats.exhaustive ? "Verificação exaustiva: meta não atingida" : "Meta observada na amostra (sem prova)"}
               </p>
               <p className="text-muted-foreground text-[11px]">
                 {stats.exhaustive
-                  ? `Todos os ${formatNumber(stats.testedScenarios)} cenários possíveis foram testados. O menor acerto garantido em qualquer cenário é de ${stats.guarantee} pontos.`
+                  ? `Todos os ${formatNumber(stats.testedScenarios)} cenários possíveis foram testados. O menor acerto em qualquer cenário é de ${stats.guarantee} pontos.`
                   : `${formatNumber(stats.testedScenarios)} cenários foram testados via Monte Carlo (espaço combinatório muito grande para tempo real). Menor acerto amostrado: ${stats.guarantee} pontos.`}
               </p>
             </div>
           </div>
-          <Badge variant={stats.exhaustive ? "default" : "outline"} className={cn("shrink-0 font-mono text-[10px] uppercase font-bold", stats.exhaustive ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "border-amber-500 text-amber-400")}>
+          <Badge variant={stats.meets ? "default" : "outline"} className={cn("shrink-0 font-mono text-[10px] uppercase font-bold", stats.meets ? "bg-emerald-600 hover:bg-emerald-600 text-white" : "border-amber-500 text-amber-400")}>
             {stats.exhaustive ? "100% EXAUSTIVO" : "AMOSTRAL (ESTIMADO)"}
           </Badge>
         </div>

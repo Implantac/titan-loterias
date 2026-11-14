@@ -44,6 +44,13 @@ describe("alegações comerciais auditáveis", () => {
     expect(worksheet).toContain("não há retorno líquido calculável");
   });
 
+  it("não apresenta amostragem como garantia no painel executivo", () => {
+    const executive = content("src/components/closing/ClosingExecutiveSummaryPanel.tsx");
+    expect(executive).toContain("v.exhaustive && v.testedScenarios > 0 && v.meetsGuarantee");
+    expect(executive).toContain("Verificação exaustiva: meta não atingida");
+    expect(executive).not.toContain("Garantia Estimada por Amostragem");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

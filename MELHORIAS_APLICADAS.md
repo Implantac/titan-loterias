@@ -104,3 +104,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Planilha de matrizes: acertos sem lucro fictício (2026-11-13)
 - Removidos valores fixos atribuídos a rateios variáveis de 14/15 pontos e totalizações retrospectivas de “lucro líquido”/“retorno estimado”. A tela apresenta contagem de acertos e custo ilustrativo, distingue conferência retrospectiva de backtest fora da amostra e informa que rateios históricos são necessários para calcular retorno líquido.
 - Typecheck e suíte completa: 193 testes aprovados; teste de regressão comercial adicionado.
+
+### Painel executivo de fechamentos (2026-11-13)
+- Selo de meta comprovada exige simultaneamente verificação exaustiva, cenários testados e meta atingida. Falha exaustiva e observação amostral agora têm estados distintos; menor acerto observado não é vendido como garantia.
+- Texto do pipeline adaptativo explica que a redução requer revalidação da cobertura, sem prometer preservação automática.
+- Typecheck e suíte completa: 194 testes aprovados, incluindo nova regressão de linguagem do painel.
