@@ -36,6 +36,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(checker).toContain("Somente conferência de dezenas");
   });
 
+  it("não atribui lucro ou rateios inventados à planilha de matrizes", () => {
+    const worksheet = content("src/pages/PlanilhasMatrizPage.tsx");
+    expect(worksheet).not.toContain("PRIZE_ESTIMATES");
+    expect(worksheet).not.toContain("Lucro Líquido");
+    expect(worksheet).not.toContain("Retorno Estimado");
+    expect(worksheet).toContain("não há retorno líquido calculável");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

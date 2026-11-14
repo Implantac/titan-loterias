@@ -65,15 +65,6 @@ const COMBINATIONS_LOTOFACIL: Record<number, number> = {
 
 const LOTOFACIL_PRICE = 3.5;
 
-// Estimativa de prêmios oficiais da Lotofácil da Caixa (vigentes desde jul/2025)
-const PRIZE_ESTIMATES: Record<number, number> = {
-  11: 7,       // Fixo R$ 7,00 (vigente desde jul/2025)
-  12: 14,      // Fixo R$ 14,00 (vigente desde jul/2025)
-  13: 35,      // Fixo R$ 35,00 (vigente desde jul/2025)
-  14: 1800,    // Média estimada de rateio
-  15: 1500000, // Média estimada de rateio principal
-};
-
 export default function PlanilhasMatrizPage() {
   const { config, draws, selectedLottery, setSelectedLottery, farol } = useLotteryContext();
   const { saveBet } = useSavedBets(selectedLottery);
@@ -148,28 +139,6 @@ export default function PlanilhasMatrizPage() {
     return { avgSum, avgEven, avgOdd, avgPrimes, avgMoldura, avgRepeated };
   }, [analysis.games]);
 
-  // Cálculo financeiro da simulação
-  const financialSummary = useMemo(() => {
-    let totalPrizesValue = 0;
-    let prizeCounts: Record<number, number> = { 11: 0, 12: 0, 13: 0, 14: 0, 15: 0 };
-
-    for (const [hitsStr, count] of Object.entries(analysis.hitDistribution)) {
-      const hits = Number(hitsStr);
-      if (hits >= 11 && hits <= 15) {
-        prizeCounts[hits] = (prizeCounts[hits] || 0) + count;
-        totalPrizesValue += count * (PRIZE_ESTIMATES[hits] || 0);
-      }
-    }
-
-    const netResult = totalPrizesValue - analysis.totalCost;
-    return {
-      prizeCounts,
-      totalPrizesValue,
-      netResult,
-      isProfitable: netResult > 0,
-    };
-  }, [analysis]);
-
   const canGenerate = selectedNumbers.length >= inputSize && generatedGames.length > 0;
 
   // Validação combinatória da matriz (garantia real e status de verificação exaustiva vs amostral)
@@ -213,11 +182,9 @@ export default function PlanilhasMatrizPage() {
       });
       return { index: i + 1, numbers: game, counts, fifteen };
     });
-    let prizes = 0;
-    for (const h of [11, 12, 13, 14, 15]) prizes += totals[h] * (PRIZE_ESTIMATES[h] || 0);
     const cost = generatedGames.length * draws.length * LOTOFACIL_PRICE;
     const avgOverlap = (overlapSum / (generatedGames.length * draws.length)).toFixed(1);
-    return { rows, totals, prizes, cost, drawCount: draws.length, bestHits, avgOverlap, net: prizes - cost };
+    return { rows, totals, cost, drawCount: draws.length, bestHits, avgOverlap };
   }, [checkAll, canGenerate, draws, generatedGames]);
 
   // Identificação de fixas / pool para modelos híbridos
@@ -874,11 +841,9 @@ export default function PlanilhasMatrizPage() {
                   <Metric label="Melhor Acerto" value={canGenerate ? `${allDrawsCheck ? allDrawsCheck.bestHits : analysis.bestHits}/15` : "-"} highlight />
                   <Metric label="Concurso Alvo" value={allDrawsCheck ? `Todos (${allDrawsCheck.drawCount})` : selectedDraw?.concurso ?? "-"} />
                   <Metric label="Custo Fechamento" value={`R$ ${(allDrawsCheck ? allDrawsCheck.cost : analysis.totalCost).toFixed(2)}`} />
-                  <Metric
-                    label="Retorno Estimado"
-                    value={canGenerate ? `R$ ${(allDrawsCheck ? allDrawsCheck.prizes : financialSummary.totalPrizesValue).toFixed(2)}` : "-"}
-                    color={(allDrawsCheck ? allDrawsCheck.net > 0 : financialSummary.isProfitable) ? "text-emerald-400" : undefined}
-                  />
+                  <Metric label="Jogos com 11+" value={canGenerate ? String(allDrawsCheck
+                    ? Object.values(allDrawsCheck.totals).reduce((sum, n) => sum + n, 0)
+                    : Object.entries(analysis.hitDistribution).reduce((sum, [hits, n]) => sum + (Number(hits) >= 11 ? n : 0), 0)) : "-"} />
                 </div>
 
                 {/* Médias Estatísticas dos Volantes Gerados (Equilíbrio de Filtros da Planilha) */}
@@ -912,61 +877,18 @@ export default function PlanilhasMatrizPage() {
                   </div>
                 )}
 
-                {/* Resumo Financeiro da Premiação da Simulação */}
-                {canGenerate && (() => {
-                  const fin = allDrawsCheck
-                    ? { prizeCounts: allDrawsCheck.totals, netResult: allDrawsCheck.net, isProfitable: allDrawsCheck.net > 0 }
-                    : financialSummary;
-                  return (
-                  <div className="rounded-xl border border-border/50 bg-secondary/15 p-3.5 flex flex-wrap items-center justify-between gap-3">
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                        Resultado Financeiro da Simulação{allDrawsCheck ? ` — todos os ${allDrawsCheck.drawCount} concursos` : ""}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-lg font-black font-mono ${
-                            fin.isProfitable ? "text-emerald-400" : "text-amber-400"
-                          }`}
-                        >
-                          {fin.netResult >= 0 ? "+" : ""}
-                          R$ {fin.netResult.toFixed(2)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({fin.isProfitable ? "Lucro Líquido" : "Saldo"})
-                        </span>
-                      </div>
-                    </div>
+                {canGenerate && (
+                  <div className="rounded-xl border border-border/50 bg-secondary/15 p-3.5 space-y-2">
+                    <p className="text-xs text-muted-foreground">Conferência retrospectiva de acertos, não simulação de lucro: jogos gerados após conhecer os concursos não constituem backtest fora da amostra.</p>
+                    <p className="text-xs text-muted-foreground">Custo ilustrativo pelo preço configurado de R$ {LOTOFACIL_PRICE.toFixed(2)} por aposta simples; confirme preço vigente. Sem rateios oficiais históricos das faixas de 14 e 15 pontos, não há retorno líquido calculável.</p>
                     <div className="flex flex-wrap gap-1.5 text-xs">
-                      {fin.prizeCounts[11] > 0 && (
-                        <Badge variant="outline" className="text-xs bg-background/50">
-                          {fin.prizeCounts[11]}x 11 pts (R$ {(fin.prizeCounts[11] * PRIZE_ESTIMATES[11]).toFixed(2)})
-                        </Badge>
-                      )}
-                      {fin.prizeCounts[12] > 0 && (
-                        <Badge variant="outline" className="text-xs bg-background/50">
-                          {fin.prizeCounts[12]}x 12 pts (R$ {(fin.prizeCounts[12] * PRIZE_ESTIMATES[12]).toFixed(2)})
-                        </Badge>
-                      )}
-                      {fin.prizeCounts[13] > 0 && (
-                        <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
-                          {fin.prizeCounts[13]}x 13 pts (R$ {(fin.prizeCounts[13] * PRIZE_ESTIMATES[13]).toFixed(2)})
-                        </Badge>
-                      )}
-                      {fin.prizeCounts[14] > 0 && (
-                        <Badge className="text-xs bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold">
-                          {fin.prizeCounts[14]}x 14 PONTOS! 🏆
-                        </Badge>
-                      )}
-                      {fin.prizeCounts[15] > 0 && (
-                        <Badge className="text-xs bg-emerald-500 text-white font-extrabold animate-pulse">
-                          {fin.prizeCounts[15]}x 15 PONTOS MÁXIMOS! 🎉
-                        </Badge>
-                      )}
+                      {[11, 12, 13, 14, 15].map(h => {
+                        const count = allDrawsCheck ? allDrawsCheck.totals[h] : (analysis.hitDistribution[h] || 0);
+                        return <Badge key={h} variant="outline">{count}x {h} pts</Badge>;
+                      })}
                     </div>
                   </div>
-                );
-                })()}
+                )}
 
                 {/* Conferência em todos os concursos */}
                 {allDrawsCheck && (
@@ -976,7 +898,7 @@ export default function PlanilhasMatrizPage() {
                         Conferência em todos os {allDrawsCheck.drawCount} concursos salvos
                       </span>
                       <span className="text-xs font-mono text-muted-foreground">
-                        Prêmios est. R$ {allDrawsCheck.prizes.toFixed(2)} · Custo R$ {allDrawsCheck.cost.toFixed(2)}
+                        Custo ilustrativo R$ {allDrawsCheck.cost.toFixed(2)} · sem cálculo de prêmios
                       </span>
                     </div>
                     <div className="grid grid-cols-5 gap-2 text-center">

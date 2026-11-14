@@ -100,3 +100,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Bloqueada a aplicação de matrizes com índices inválidos, jogos malformados ou base com tamanho, unicidade ou faixa incorretos; eliminado fallback que fabricava dezenas. Planos legados incompatíveis deixam de aparecer na seleção de fechamentos Lotofácil até terem definição válida.
 - A meta somente é marcada comprovada quando a verificação é exaustiva e atinge a meta; PDF distingue meta condicional, prova, falha e observação amostral. Cobertura condicional não promete premiação ou resultado do sorteio.
 - Testes novos cobrem base excedente/duplicada, plano incompatível e geração válida. Typecheck e suíte anterior (189 testes) passaram; teste novo (3 testes) passou isoladamente.
+
+### Planilha de matrizes: acertos sem lucro fictício (2026-11-13)
+- Removidos valores fixos atribuídos a rateios variáveis de 14/15 pontos e totalizações retrospectivas de “lucro líquido”/“retorno estimado”. A tela apresenta contagem de acertos e custo ilustrativo, distingue conferência retrospectiva de backtest fora da amostra e informa que rateios históricos são necessários para calcular retorno líquido.
+- Typecheck e suíte completa: 193 testes aprovados; teste de regressão comercial adicionado.
