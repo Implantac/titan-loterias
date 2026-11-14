@@ -760,7 +760,7 @@ export default function BolaoPage() {
                             <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                           )}
                           <span className={cn("text-[11px] font-medium", v.exhaustive ? "text-emerald-400" : "text-amber-400")}>
-                            {v.exhaustive ? "Garantia 100% Exaustiva (Provada)" : "Garantia Amostral (Estimativa)"}
+                            {v.valid ? "Meta comprovada por verificação exaustiva" : "Meta não comprovada"}
                           </span>
                         </div>
                         <Badge

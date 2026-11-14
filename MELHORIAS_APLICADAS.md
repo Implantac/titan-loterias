@@ -95,3 +95,8 @@ Pendente: revisão de outros simuladores fora do módulo de fechamentos e compar
 - Testes verificam divisão temporal, igualdade da quantidade de jogos e acertos comparados.
 
 Limitação: uma única janela/sorteio de sementes não substitui avaliação repetida em várias janelas, valores de prêmios e preços históricos. A escolha posterior do perfil/parametrização ainda pode produzir viés de seleção humana.
+
+### Auditoria de matrizes e exportação de fechamentos (2026-11-13)
+- Bloqueada a aplicação de matrizes com índices inválidos, jogos malformados ou base com tamanho, unicidade ou faixa incorretos; eliminado fallback que fabricava dezenas. Planos legados incompatíveis deixam de aparecer na seleção de fechamentos Lotofácil até terem definição válida.
+- A meta somente é marcada comprovada quando a verificação é exaustiva e atinge a meta; PDF distingue meta condicional, prova, falha e observação amostral. Cobertura condicional não promete premiação ou resultado do sorteio.
+- Testes novos cobrem base excedente/duplicada, plano incompatível e geração válida. Typecheck e suíte anterior (189 testes) passaram; teste novo (3 testes) passou isoladamente.

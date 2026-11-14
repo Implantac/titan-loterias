@@ -351,14 +351,15 @@ export function applyWheelingMatrix(
   if (baseNumbers.length < matrix.baseSize) {
     return { games: [], matrix, error: `Necessário ${matrix.baseSize} dezenas, fornecidas ${baseNumbers.length}.` };
   }
+  if (baseNumbers.length !== matrix.baseSize || new Set(baseNumbers).size !== matrix.baseSize ||
+      baseNumbers.some(n => !Number.isInteger(n) || n < 1 ||
+        n > (matrix.lottery === "lotofacil" ? 25 : matrix.lottery === "megasena" ? 60 : 80)) ||
+      matrix.games.some(game => game.length !== matrix.pick || new Set(game).size !== matrix.pick ||
+        game.some(idx => !Number.isInteger(idx) || idx < 0 || idx >= matrix.baseSize))) {
+    return { games: [], matrix, error: "Matriz/base incompatível: geração bloqueada até validação das regras e índices." };
+  }
   const sorted = [...baseNumbers].sort((a, b) => a - b);
-  const games = matrix.games.map(idxGame => idxGame.map(idx => {
-    // For expansion plans like 6x13, we use the full 25 number pool for remaining slots
-    // If idx >= sorted.length, we pull from the remaining pool
-    if (idx < sorted.length) return sorted[idx];
-    // fallback to something deterministic if out of bounds (should not happen with correct baseSize)
-    return (idx % 25) + 1;
-  }).sort((a, b) => a - b));
+  const games = matrix.games.map(idxGame => idxGame.map(idx => sorted[idx]).sort((a, b) => a - b));
   return { games, matrix };
 }
 
@@ -382,7 +383,8 @@ export function validateMatrix(matrixId: WheelingMatrixId): {
     matrix.guarantee,
   );
   return {
-    valid: result.guaranteedHits >= matrix.guarantee,
+    valid: result.exhaustive && result.testedScenarios > 0 &&
+      result.guaranteedHits >= matrix.guarantee,
     coveragePercent: Math.round(result.meetsGoalPercent * 100) / 100,
     totalDraws: result.testedScenarios,
     coveredDraws: Math.round((result.meetsGoalPercent / 100) * result.testedScenarios),

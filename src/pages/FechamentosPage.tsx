@@ -47,7 +47,8 @@ const FechamentosPage = () => {
   const [generatedGames, setGeneratedGames] = useState<number[][] | null>(null);
   const [generating, setGenerating] = useState(false);
 
-  const availableMatrices = config.id === 'lotofacil' ? MATRIX_LIST.filter((m) => m.lottery === 'lotofacil') : [];
+  const availableMatrices = config.id === 'lotofacil' ? MATRIX_LIST.filter((m) => m.lottery === 'lotofacil' &&
+    m.games.every(game => game.length === m.pick && game.every(idx => idx >= 0 && idx < m.baseSize))) : [];
   const currentMatrix = selectedMatrix ? WHEELING_MATRICES[selectedMatrix] : null;
   const betPrice = BET_PRICES[config.id] || 3.0;
 
@@ -106,11 +107,11 @@ const FechamentosPage = () => {
     const info = [
       `Matriz: ${currentMatrix.name}`,
       `Jogos gerados: ${generatedGames.length}   Custo total: ${formatCurrency(generatedGames.length * betPrice)}`,
-      `Garantia declarada: ${currentMatrix.guarantee} acertos na base de ${currentMatrix.baseSize} dezenas`,
+      `Meta condicional: ${currentMatrix.guarantee} acertos se ${currentMatrix.pick} sorteadas estiverem na base de ${currentMatrix.baseSize}.`,
       matrixValidation.exhaustive
-        ? `Validacao: EXAUSTIVA (${formatNumber(matrixValidation.totalDraws)} cenarios combinatorios enumerados — PROVA MATEMATICA)`
+        ? `Validacao: EXAUSTIVA (${formatNumber(matrixValidation.totalDraws)} cenarios; meta ${matrixValidation.valid ? "COMPROVADA" : "NAO ATINGIDA"})`
         : `Validacao: AMOSTRAL (${formatNumber(matrixValidation.totalDraws)} cenarios simulados — ESTIMATIVA)`,
-      `Menor acerto garantido comprovado: ${matrixValidation.worstCaseHits} acertos`,
+      `Menor acerto ${matrixValidation.exhaustive ? "provado" : "observado na amostra"}: ${matrixValidation.worstCaseHits} acertos`,
       `Taxa de cumprimento da meta: ${matrixValidation.coveragePercent}%`,
       `Gerado em ${new Date().toLocaleString("pt-BR")}`,
     ];
@@ -128,7 +129,7 @@ const FechamentosPage = () => {
     doc.setTextColor(120);
     doc.text(`Titan Loterias — pagina ${doc.getNumberOfPages()}`, w - 40, doc.internal.pageSize.getHeight() - 20, { align: "right" });
     doc.save(`fechamento-${config.id}-${currentMatrix.name}-${generatedGames.length}jogos.pdf`);
-    toast.success("PDF exportado com comprovante de garantia!");
+    toast.success("PDF exportado com status da verificação da matriz.");
   };
 
   const handleSaveAll = async () => {
@@ -235,7 +236,7 @@ const FechamentosPage = () => {
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
                         <Badge className="bg-primary/10 text-primary font-black uppercase tracking-widest text-[10px] border-primary/20 px-3 py-1 rounded-xl">
-                          {m.guarantee}+ SYNC
+                          Meta {m.guarantee} acertos
                         </Badge>
                         {(() => {
                           const v = validateMatrix(m.id);
@@ -244,12 +245,12 @@ const FechamentosPage = () => {
                               variant="outline"
                               className={cn(
                                 "text-[9px] font-mono px-2 py-0.5 uppercase font-bold",
-                                v.exhaustive
+                                v.valid
                                   ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
                                   : "text-amber-400 border-amber-500/30 bg-amber-500/10"
                               )}
                             >
-                              {v.exhaustive ? "100% Exaustivo" : "Amostral"}
+                              {v.valid ? "Meta comprovada" : v.exhaustive ? "Meta não atingida" : "Amostral"}
                             </Badge>
                           );
                         })()}
@@ -359,7 +360,7 @@ const FechamentosPage = () => {
                 </div>
                 <h3 className="text-3xl font-black uppercase tracking-tighter italic">Fechamento <span className="gradient-brand-text">Concluído</span></h3>
                 <p className="text-sm text-muted-foreground font-medium italic opacity-60">
-                  Deploy de <span className="text-foreground font-black">{generatedGames.length}</span> jogos com garantia comprovada de <span className="text-primary font-black">{currentMatrix.guarantee} acertos</span>.
+                  {generatedGames.length} jogos · meta condicional: {currentMatrix.guarantee} acertos se {currentMatrix.pick} dezenas sorteadas estiverem na base. {matrixValidation?.valid ? "Cobertura comprovada." : "Sem garantia comprovada."}
                 </p>
               </div>
 
@@ -377,8 +378,8 @@ const FechamentosPage = () => {
                   <div>
                     <p className={cn("font-bold text-sm", matrixValidation?.exhaustive ? "text-emerald-400" : "text-amber-400")}>
                       {matrixValidation?.exhaustive 
-                        ? "Garantia Matematicamente Provada (Verificação Exaustiva)" 
-                        : "Garantia Estimada por Amostragem"}
+                        ? matrixValidation?.valid ? "Meta Comprovada (Verificação Exaustiva)" : "Verificação exaustiva: meta não atingida" 
+                        : "Cobertura observada na amostra (não é garantia)"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {matrixValidation?.exhaustive
@@ -399,7 +400,7 @@ const FechamentosPage = () => {
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-accent/40 transition-colors">
                   <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Investimento Total</p>
                   <p className="text-3xl font-black font-mono tracking-tighter italic text-accent leading-none group-hover:scale-105 transition-transform origin-left">{formatCurrency(generatedGames.length * betPrice)}</p>
-                  <p className="text-[10px] text-muted-foreground font-mono">{formatCurrency(betPrice)} por jogo oficial</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">{formatCurrency(betPrice)} por jogo (preço configurado, confirme na Caixa)</p>
                 </div>
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-primary/40 transition-colors">
                   <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Cobertura Combinatória</p>
@@ -411,9 +412,9 @@ const FechamentosPage = () => {
                   </p>
                 </div>
                 <div className="glass-card border-white/5 bg-white/[0.01] p-8 rounded-[2rem] space-y-4 group hover:border-foreground/20 transition-colors">
-                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Garantia Comprovada</p>
+                  <p className="text-[9px] uppercase font-black text-muted-foreground tracking-[0.2em] opacity-40 leading-none italic">Menor acerto observado</p>
                   <p className="text-3xl font-black font-mono tracking-tighter italic text-foreground leading-none group-hover:scale-105 transition-transform origin-left">
-                    {matrixValidation?.worstCaseHits ?? currentMatrix.guarantee} acertos
+                    {matrixValidation?.worstCaseHits ?? "—"} acertos
                   </p>
                   <p className="text-[10px] text-muted-foreground font-mono">Meta mínima: {currentMatrix.guarantee} acertos</p>
                 </div>
