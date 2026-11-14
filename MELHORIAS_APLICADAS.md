@@ -87,3 +87,11 @@ Pendente: revisão de outros simuladores fora do módulo de fechamentos e compar
 - Retro-teste rápido agora exige que a aposta pertença à modalidade cujo histórico está carregado. Antes podia comparar apostas de outra loteria com concursos da modalidade ativa. Também rejeita dezenas repetidas/fora do universo e deixa de chamar a média histórica de acertos de "Titan Score" ou confirmação de prêmio.
 - Simulador histórico de jogos deixa de mostrar valores monetários estáticos por faixa como "prêmio estimado"; indica somente faixa potencial. Limita-se a Mega-Sena, Lotofácil e Quina até que regras das demais modalidades sejam implementadas.
 - Adicionadas faixas de acerto explícitas da Quina ao serviço de perfis de premiação (sem valor monetário fixo). Teste de regressão impede reintroduzir prêmio monetário fictício nesse simulador.
+
+## Etapa seguinte: benchmark com orçamento igual e dados separados
+- O antigo painel "Benchmark vs Baseline Histórica" comparava só paridade, soma e cobertura de dezenas; semelhança descritiva não é teste de desempenho. Mantida essa leitura com rótulo explícito.
+- Adicionada comparação de **acertos** entre jogos gerados e o mesmo número de jogos aleatórios simples (mesmo custo por concurso), em janela de concursos recentes reservada para teste. As estatísticas e concursos fornecidos ao gerador vêm somente do histórico anterior à janela; semente fixa derivada de modalidade, concurso, tamanho e perfil.
+- A comparação aceita apenas Mega-Sena, Lotofácil e Quina, exige 20 concursos anteriores ao período de teste, rejeita concursos duplicados e jogos com tamanhos inválidos. Mostra quantidade de concursos com meta de acerto e não declara ROI, lucratividade ou vantagem persistente.
+- Testes verificam divisão temporal, igualdade da quantidade de jogos e acertos comparados.
+
+Limitação: uma única janela/sorteio de sementes não substitui avaliação repetida em várias janelas, valores de prêmios e preços históricos. A escolha posterior do perfil/parametrização ainda pode produzir viés de seleção humana.

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,13 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from "recharts";
-import { NumberStats } from "@/engine/stats/statistics";
+import { NumberStats, computeFrequencyStats } from "@/engine/stats/statistics";
 import { DrawResult, LotteryConfig } from "@/data/lotteries";
 import { generateGames } from "@/ai/generators/universalGameGenerator";
-import { buildBenchmarkReport, BenchmarkReport } from "@/engine/stats/baseline-benchmark";
+import { buildBenchmarkReport, BenchmarkReport, generateRandomGames } from "@/engine/stats/baseline-benchmark";
+import { compareHeldoutHits, splitHeldoutDraws, type HeldoutComparison } from "@/engine/stats/heldout-comparison";
+import { createXorshift32, hashStringToSeed } from "@/ai/core/rng";
+import { toast } from "sonner";
 import type { RiskProfile } from "@/ai/core/aiTypes";
 
 interface Props {
@@ -37,15 +40,24 @@ export function BaselineBenchmarkPanel({ stats, config, draws }: Props) {
   const [baselineWindow, setBaselineWindow] = useState(200);
   const [running, setRunning] = useState(false);
   const [report, setReport] = useState<BenchmarkReport | null>(null);
+  const [heldout, setHeldout] = useState<HeldoutComparison | null>(null);
 
-  const canRun = draws.length >= 20;
+  useEffect(() => { setReport(null); setHeldout(null); }, [config.id]);
+
+  const supported = ["megasena", "lotofacil", "quina"].includes(config.id);
+  const canRun = supported && draws.length >= baselineWindow + 20;
 
   const run = async () => {
     setRunning(true);
     setReport(null);
+    setHeldout(null);
     // permite a UI atualizar
     await new Promise(r => setTimeout(r, 40));
     try {
+      if (!canRun) return;
+      // Histórico em ordem decrescente: concursos mais recentes reservados para teste.
+      const { test: testDraws, training: trainingDraws } = splitHeldoutDraws(draws, baselineWindow);
+      const seed = hashStringToSeed(`${config.id}:${testDraws[0]?.concurso}:${sampleSize}:${risk}`);
       const games = generateGames({
         lotteryId: config.id,
         count: sampleSize,
@@ -59,12 +71,17 @@ export function BaselineBenchmarkPanel({ stats, config, draws }: Props) {
           frameCenter: false,
           limitRepetition: true,
         },
-        stats,
-        draws,
+        stats: computeFrequencyStats(trainingDraws, config.numbers),
+        draws: trainingDraws,
+        rng: createXorshift32(seed),
       });
       const numbersOnly = games.map(g => g.numbers);
-      const r = buildBenchmarkReport(numbersOnly, draws, config.id, baselineWindow);
-      setReport(r);
+      const random = generateRandomGames(config, numbersOnly.length, createXorshift32(seed ^ 0x9e3779b9));
+      setHeldout(compareHeldoutHits(numbersOnly, random, testDraws, Math.max(1, config.pick - 1), config.pick));
+      // O painel abaixo é só de semelhança descritiva das distribuições.
+      setReport(buildBenchmarkReport(numbersOnly, testDraws, config.id, baselineWindow));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha no comparativo.");
     } finally {
       setRunning(false);
     }
@@ -127,10 +144,10 @@ export function BaselineBenchmarkPanel({ stats, config, draws }: Props) {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-foreground">
           <Activity className="w-5 h-5 text-primary" />
-          Benchmark vs Baseline Histórica
+          Comparação fora da amostra + perfil histórico
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Gera <strong>{sampleSize.toLocaleString("pt-BR")}+</strong> jogos e compara coverage, paridade e dispersão com {baselineWindow} sorteios reais
+          Treina com concursos anteriores; compara <strong>{sampleSize.toLocaleString("pt-BR")}</strong> jogos com o mesmo número de jogos aleatórios nos {baselineWindow} concursos mais recentes.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -188,9 +205,15 @@ export function BaselineBenchmarkPanel({ stats, config, draws }: Props) {
 
         {!canRun && (
           <p className="text-xs text-muted-foreground text-center">
-            Importe pelo menos 20 sorteios para rodar o benchmark.
+            {!supported ? "Esta comparação aceita apenas Mega-Sena, Lotofácil e Quina." : `Carregue pelo menos ${baselineWindow + 20} concursos para separar treino e teste.`}
           </p>
         )}
+
+        {heldout && <div className="rounded-lg border border-primary/30 p-4 space-y-2 text-sm">
+          <p className="font-semibold">Teste fora da amostra: {heldout.contests} concursos · {heldout.gamesPerStrategy} jogos por método</p>
+          <p>≥ {heldout.targetHits} acertos no melhor jogo: gerados {heldout.generated.targetDraws}/{heldout.contests}; aleatórios {heldout.random.targetDraws}/{heldout.contests}.</p>
+          <p className="text-xs text-muted-foreground">Mesmo número de apostas simples (custo equivalente por concurso). Uma janela histórica e uma semente não demonstram vantagem persistente; não há ROI nem previsão aqui.</p>
+        </div>}
 
         <AnimatePresence>
           {report && (
@@ -213,7 +236,7 @@ export function BaselineBenchmarkPanel({ stats, config, draws }: Props) {
                 </div>
                 <Progress value={report.comparison.alignmentScore} className="h-2" />
                 <p className="text-[11px] text-muted-foreground mt-2">
-                  Quanto maior, mais próximas as distribuições geradas estão da realidade histórica.
+                  Medida descritiva de semelhança, não de chance de prêmio. O teste de acertos com orçamento igual aparece acima.
                 </p>
               </div>
 
