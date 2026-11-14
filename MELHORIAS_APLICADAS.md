@@ -68,3 +68,11 @@ Pendente: reconciliação de preços históricos, premiações de apostas múlti
 - Preço por jogo simples é editável e a interface deixa claro que o valor inicial está configurado no aplicativo, sem atualização automática nem confirmação oficial. Mudança de modalidade limpa base, filtros e resultados antigos.
 
 Pendente: conferir preços vigentes com fonte oficial e implementar motores específicos para outras modalidades; verificar filtros em outros fluxos do aplicativo.
+
+## Etapa seguinte: Monte Carlo e histórico de acertos
+- Simulação Monte Carlo de fechamentos usa semente opcional e padrão determinístico; chunks do Web Worker recebem sementes diferentes e reprodutíveis, evitando repetir os mesmos sorteios em cada bloco.
+- Entradas inválidas (zero testes, jogos com dezenas repetidas, metas impossíveis) falham explicitamente em vez de produzir NaN ou métricas enganosas.
+- Removidos prêmios fictícios e o "ROI real" de outro painel de backtest dos fechamentos. Essa aba mostra somente acertos retrospectivos; não confunde jogos montados posteriormente com previsão nem apresenta retorno monetário sem rateios.
+- Falhas dos workers são exibidas ao usuário; adicionados testes para determinismo e entradas inválidas.
+
+Pendente: revisão de outros simuladores fora do módulo de fechamentos e comparação justa contra apostas aleatórias fora da amostra.

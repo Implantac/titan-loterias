@@ -1,6 +1,6 @@
 /**
  * ClosingDashboardPanel — Fase 3 do Motor de Fechamentos.
- * Monte Carlo (probabilidade) + Backtest histórico (ROI real) para um
+ * Monte Carlo (probabilidade) + retrospectiva descritiva de acertos para um
  * fechamento já gerado.
  */
 
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, TrendingUp, Dice5, History, Info, Trophy, Flame, X } from "lucide-react";
+import { Loader2, TrendingUp, Dice5, History, Info, Flame, X } from "lucide-react";
 import type {
   ClosingResult, MonteCarloResult, BacktestResult, HistoricalDraw,
 } from "@/engine/closing";
@@ -19,27 +19,19 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, CartesianGrid, ResponsiveContainer,
   ReferenceArea,
 } from "recharts";
-import { formatCurrency, formatNumber } from "@/utils/formatters";
+import { formatNumber } from "@/utils/formatters";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { useLotteryDraws } from "@/hooks/useLotteryDraws";
 import { useMonteCarloWorker, MonteCarloCanceledError } from "@/hooks/useMonteCarloWorker";
 import { useBacktestWorker, BacktestCanceledError } from "@/hooks/useBacktestWorker";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Props {
   result: ClosingResult;
-  /** Prêmios estimados por faixa (hits → BRL). Opcional. */
-  prizeTiers?: Record<number, number>;
 }
 
-const DEFAULT_TIERS: Record<string, Record<number, number>> = {
-  lotofacil: { 15: 1_500_000, 14: 2_000, 13: 35, 12: 14, 11: 7 },
-  megasena: { 6: 50_000_000, 5: 60_000, 4: 1_500 },
-  quina: { 5: 8_000_000, 4: 8_000, 3: 100, 2: 3 },
-  lotomania: { 20: 4_000_000, 19: 40_000, 18: 800, 17: 40, 16: 6, 0: 2_000_000 },
-};
-
-export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
+export function ClosingDashboardPanel({ result }: Props) {
   const { config } = useLotteryContext();
   const { draws: drawsData } = useLotteryDraws(config.id);
   const [mc, setMc] = useState<MonteCarloResult | null>(null);
@@ -50,7 +42,6 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
   const mcWorker = useMonteCarloWorker();
   const btWorker = useBacktestWorker();
 
-  const tiers = prizeTiers ?? DEFAULT_TIERS[config.id] ?? {};
 
   const runMC = async () => {
     try {
@@ -67,7 +58,7 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
       );
       setMc(r);
     } catch (e) {
-      if (!(e instanceof MonteCarloCanceledError)) console.error(e);
+      if (!(e instanceof MonteCarloCanceledError)) toast.error(e instanceof Error ? e.message : "Falha na simulação.");
     }
   };
 
@@ -81,11 +72,10 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
         games: result.games,
         draws: historic,
         ticketPrice: result.request.lottery.ticketPrice,
-        prizeTiers: tiers,
       });
       setBt(r);
     } catch (e) {
-      if (!(e instanceof BacktestCanceledError)) console.error(e);
+      if (!(e instanceof BacktestCanceledError)) toast.error(e instanceof Error ? e.message : "Falha ao conferir o histórico.");
     }
   };
 
@@ -101,7 +91,7 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          Dashboard Executivo — Simulação & Backtest
+          Dashboard — Simulação & Histórico de Acertos
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -111,7 +101,7 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
               <Dice5 className="h-4 w-4 mr-1" /> Monte Carlo
             </TabsTrigger>
             <TabsTrigger value="backtest">
-              <History className="h-4 w-4 mr-1" /> Backtest Histórico
+              <History className="h-4 w-4 mr-1" /> Histórico de Acertos
             </TabsTrigger>
           </TabsList>
 
@@ -154,7 +144,7 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
           <TabsContent value="backtest" className="space-y-4 mt-4">
             {!drawsData || drawsData.length === 0 ? (
               <Alert><Info className="h-4 w-4" />
-                <AlertDescription>Sem histórico local. Sincronize concursos antes do backtest.</AlertDescription>
+                <AlertDescription>Sem histórico carregado. Sincronize concursos antes da análise.</AlertDescription>
               </Alert>
             ) : (
               <>
@@ -174,7 +164,7 @@ export function ClosingDashboardPanel({ result, prizeTiers }: Props) {
                   </div>
                   <Button onClick={runBT} disabled={runningBT}>
                     {runningBT ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <History className="h-4 w-4 mr-1" />}
-                    Backtest
+                    Conferir acertos
                   </Button>
                   {runningBT && (
                     <Button variant="outline" size="icon" onClick={btWorker.cancel} title="Cancelar">
@@ -318,28 +308,20 @@ function MCHeatmap({ heatmap, trials }: { heatmap: Record<number, number>; trial
 
 function BTResults({ bt }: { bt: BacktestResult }) {
   const dist = Object.entries(bt.hitDistribution).sort(([a], [b]) => Number(b) - Number(a));
-  const roiPositive = bt.roi >= 0;
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatBox label="Concursos" value={formatNumber(bt.totalDraws)} />
-        <StatBox label="Custo total" value={formatCurrency(bt.totalCost)} />
-        <StatBox label="Prêmios" value={formatCurrency(bt.totalPrize)} accent />
-        <StatBox
-          label="ROI"
-          value={`${bt.roi >= 0 ? "+" : ""}${bt.roi.toFixed(2)}%`}
-          highlight={roiPositive ? "green" : "red"}
-        />
+        <StatBox label="Média de acertos" value={bt.meanHits.toFixed(2)} />
       </div>
 
       {bt.bestOutcome && bt.bestOutcome.bestHits > 0 && (
         <Alert>
-          <Trophy className="h-4 w-4" />
+          <Info className="h-4 w-4" />
           <AlertDescription>
             <span className="font-semibold">Melhor concurso:</span> #{bt.bestOutcome.contest}
             {bt.bestOutcome.date && ` (${bt.bestOutcome.date})`} —
             <span className="font-mono ml-1">{bt.bestOutcome.bestHits} acertos</span>
-            {bt.bestOutcome.prize > 0 && <> · prêmio {formatCurrency(bt.bestOutcome.prize)}</>}
           </AlertDescription>
         </Alert>
       )}
@@ -362,7 +344,7 @@ function BTResults({ bt }: { bt: BacktestResult }) {
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        Backtest em {bt.elapsedMs}ms · média {bt.meanHits.toFixed(2)} acertos/concurso.
+        Comparação retrospectiva de jogos fixos com resultados passados: não mede retorno financeiro nem demonstra capacidade de prever concursos futuros.
       </p>
     </div>
   );

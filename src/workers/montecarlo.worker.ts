@@ -51,6 +51,9 @@ self.addEventListener("message", async (e: MessageEvent<InMsg>) => {
         ...msg.options,
         trials: t,
         convergenceSamples: 2,
+        // Chunks não podem reiniciar a mesma sequência de sorteios.
+        seed: ((msg.options.seed ?? (Math.imul(msg.options.totalNumbers, 73856093) ^
+          Math.imul(msg.options.drawSize, 19349663) ^ Math.imul(target, 83492791))) + c * 0x9e3779b9) >>> 0,
       });
 
       accTrials += partial.trials;
