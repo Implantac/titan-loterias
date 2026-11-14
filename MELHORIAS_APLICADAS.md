@@ -119,3 +119,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Corrigido o PDF de fechamento: a função combinatória espera índices na base, mas recebia dezenas reais. Agora os jogos efetivamente exportados são convertidos para índices antes da verificação; dezenas fora da base ou base duplicada invalidam a prova.
 - A verificação exaustiva no PDF também explicita se a meta foi atingida ou falhou.
 - Typecheck e suíte completa: 197 testes aprovados; novos testes cobrem prova com dezenas reais não sequenciais e rejeição de dezena externa.
+
+### Seleção de matrizes no bolão (2026-11-13)
+- Corrigidas opções de fechamento que usavam IDs inexistentes e prometiam garantias na lista. O seletor agora usa IDs reais, somente matrizes estruturalmente válidas para a modalidade ativa e informa a meta condicional. Ao trocar de modalidade, a seleção efetiva recai em uma opção compatível; sem opções, geração desabilitada.
+- Teste de elegibilidade de matrizes adicionado. Typecheck e suíte completa: 198 testes aprovados.

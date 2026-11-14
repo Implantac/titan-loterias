@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyWheelingMatrix, validateMatrix } from './wheelingMatrices';
+import { applyWheelingMatrix, validateMatrix, isUsableWheelingMatrix, getMatricesForLottery } from './wheelingMatrices';
 
 describe('matrizes exportáveis', () => {
   it('rejeita base longa e duplicada sem fabricar dezenas', () => {
@@ -10,6 +10,12 @@ describe('matrizes exportáveis', () => {
     const result = applyWheelingMatrix('lotofacil_6_13', [1, 2, 3, 4, 5, 6]);
     expect(result.games).toEqual([]);
     expect(result.error).toBeTruthy();
+  });
+  it('oferece apenas matrizes utilizáveis da modalidade ativa', () => {
+    expect(isUsableWheelingMatrix('lotofacil_6_13')).toBe(false);
+    const matrices = getMatricesForLottery('megasena').filter(m => isUsableWheelingMatrix(m.id));
+    expect(matrices.length).toBeGreaterThan(0);
+    expect(matrices.every(m => m.lottery === 'megasena')).toBe(true);
   });
   it('gera jogos válidos para matriz comprovada', () => {
     const base = [1, 2, 3, 4, 5, 6, 7];

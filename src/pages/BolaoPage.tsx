@@ -18,7 +18,7 @@ import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { generateWithSplitAvoidance, generateByStrategy } from "@/engine/strategies";
-import { WHEELING_MATRICES, WheelingMatrixId, applyWheelingMatrix, validateMatrix } from "@/ai/engines/wheelingMatrices";
+import { WHEELING_MATRICES, WheelingMatrixId, applyWheelingMatrix, validateMatrix, isUsableWheelingMatrix, getMatricesForLottery } from "@/ai/engines/wheelingMatrices";
 import { useSavedBets } from "@/hooks/useSavedBets";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -75,7 +75,10 @@ export default function BolaoPage() {
 
   // Creation mode
   const [creationMode, setCreationMode] = useState<"closing" | "split_avoidance" | "saved">("closing");
-  const [selectedMatrixId, setSelectedMatrixId] = useState<WheelingMatrixId | "">("lotofacil_18_14");
+  const [selectedMatrixId, setSelectedMatrixId] = useState<WheelingMatrixId | "">("lotofacil_16_16");
+  const availableMatrices = getMatricesForLottery(activeConfig.id).filter(m => isUsableWheelingMatrix(m.id));
+  const effectiveMatrixId = availableMatrices.some(m => m.id === selectedMatrixId)
+    ? selectedMatrixId : (availableMatrices[0]?.id ?? "");
   const [quickGameCount, setQuickGameCount] = useState<number>(10);
 
   // Participants
@@ -245,11 +248,11 @@ export default function BolaoPage() {
 
   // Generation actions
   const handleGenerateFromMatrix = () => {
-    if (!selectedMatrixId || !WHEELING_MATRICES[selectedMatrixId]) {
+    if (!effectiveMatrixId || !isUsableWheelingMatrix(effectiveMatrixId)) {
       toast.error("Selecione uma matriz de fechamento válida.");
       return;
     }
-    const matrix = WHEELING_MATRICES[selectedMatrixId];
+    const matrix = WHEELING_MATRICES[effectiveMatrixId];
     // Pegar as melhores dezenas ordenadas por score estatístico
     const sortedStats = [...(stats || [])].sort((a, b) => (b.frequency + b.trend) - (a.frequency + a.trend));
     const baseNums = sortedStats.slice(0, matrix.baseSize).map((s) => s.number).sort((a, b) => a - b);
@@ -259,7 +262,7 @@ export default function BolaoPage() {
       ? baseNums
       : Array.from({ length: matrix.baseSize }, (_, i) => i + 1);
 
-    const res = applyWheelingMatrix(selectedMatrixId, finalBase);
+    const res = applyWheelingMatrix(effectiveMatrixId, finalBase);
     if (res.error) {
       toast.error(res.error);
     } else {
@@ -737,29 +740,27 @@ export default function BolaoPage() {
                     <Label className="text-xs text-muted-foreground">Matriz Matemática</Label>
                     <select
                       className="w-full bg-background border border-border/40 rounded-lg p-2 text-xs font-medium"
-                      value={selectedMatrixId}
-                      onChange={(e) => setSelectedMatrixId(e.target.value as any)}
+                      value={effectiveMatrixId}
+                      onChange={(e) => setSelectedMatrixId(e.target.value as WheelingMatrixId)}
                     >
-                      <option value="lf_18_15_14_24">Lotofácil: 18 dezenas → 24 jogos (garante 14 se 15)</option>
-                      <option value="lf_16_15_14_16">Lotofácil: 16 dezenas → 16 jogos (garante 14 se 15)</option>
-                      <option value="lf_17_15_14_8">Lotofácil: 17 dezenas → 8 jogos (garante 13 se 15)</option>
-                      <option value="lf_20_15_14_356">Lotofácil: 20 dezenas → 356 jogos (profissional)</option>
+                      {availableMatrices.length === 0 && <option value="">Sem matrizes válidas nesta modalidade</option>}
+                      {availableMatrices.map(m => <option key={m.id} value={m.id}>{m.name} · {m.baseSize} dezenas · {m.games.length} jogos · meta {m.guarantee}</option>)}
                     </select>
                   </div>
-                  {selectedMatrixId && WHEELING_MATRICES[selectedMatrixId as WheelingMatrixId] && (() => {
-                    const v = validateMatrix(selectedMatrixId as WheelingMatrixId);
+                  {effectiveMatrixId && (() => {
+                    const v = validateMatrix(effectiveMatrixId);
                     return (
                       <div className={cn(
                         "p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2",
-                        v.exhaustive ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
+                        v.valid ? "bg-emerald-500/5 border-emerald-500/30" : "bg-amber-500/5 border-amber-500/30"
                       )}>
                         <div className="flex items-center gap-2">
-                          {v.exhaustive ? (
+                          {v.valid ? (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                           ) : (
                             <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                           )}
-                          <span className={cn("text-[11px] font-medium", v.exhaustive ? "text-emerald-400" : "text-amber-400")}>
+                          <span className={cn("text-[11px] font-medium", v.valid ? "text-emerald-400" : "text-amber-400")}>
                             {v.valid ? "Meta comprovada por verificação exaustiva" : "Meta não comprovada"}
                           </span>
                         </div>
@@ -777,7 +778,7 @@ export default function BolaoPage() {
                       </div>
                     );
                   })()}
-                  <Button onClick={handleGenerateFromMatrix} className="w-full text-xs font-bold">
+                  <Button onClick={handleGenerateFromMatrix} disabled={!effectiveMatrixId} className="w-full text-xs font-bold">
                     Gerar Fechamento para o Bolão
                   </Button>
                 </TabsContent>

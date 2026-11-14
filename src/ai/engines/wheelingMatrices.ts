@@ -336,6 +336,14 @@ export const WHEELING_MATRICES = {
 
 export type WheelingMatrixId = keyof typeof WHEELING_MATRICES;
 
+/** Verifica se a matriz pode gerar jogos reais sem índices artificiais. */
+export function isUsableWheelingMatrix(matrixId: WheelingMatrixId): boolean {
+  const matrix = WHEELING_MATRICES[matrixId];
+  return matrix.games.length > 0 && matrix.games.every(game =>
+    game.length === matrix.pick && new Set(game).size === matrix.pick &&
+    game.every(idx => Number.isInteger(idx) && idx >= 0 && idx < matrix.baseSize));
+}
+
 export function getMatricesForLottery(lotteryId: string) {
   return Object.entries(WHEELING_MATRICES)
     .filter(([_, m]) => m.lottery === lotteryId)
@@ -354,8 +362,7 @@ export function applyWheelingMatrix(
   if (baseNumbers.length !== matrix.baseSize || new Set(baseNumbers).size !== matrix.baseSize ||
       baseNumbers.some(n => !Number.isInteger(n) || n < 1 ||
         n > (matrix.lottery === "lotofacil" ? 25 : matrix.lottery === "megasena" ? 60 : 80)) ||
-      matrix.games.some(game => game.length !== matrix.pick || new Set(game).size !== matrix.pick ||
-        game.some(idx => !Number.isInteger(idx) || idx < 0 || idx >= matrix.baseSize))) {
+      !isUsableWheelingMatrix(matrixId)) {
     return { games: [], matrix, error: "Matriz/base incompatível: geração bloqueada até validação das regras e índices." };
   }
   const sorted = [...baseNumbers].sort((a, b) => a - b);
