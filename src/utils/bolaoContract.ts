@@ -23,6 +23,7 @@ export interface BolaoContractConfig {
   organizerPixKey: string;
   organizerCity: string;
   totalCost: number;
+  organizerFeeAmount?: number;
   totalShares: number;
   costPerShare: number;
   participants: BolaoContractParticipant[];
@@ -74,6 +75,7 @@ export async function createBolaoContract(config: BolaoContractConfig): Promise<
     `ORGANIZER=${config.organizerName.toUpperCase()}`,
     `PIX=${config.organizerPixKey}`,
     `TOTAL_COST=${config.totalCost.toFixed(2)}`,
+    `ORGANIZER_FEE=${(config.organizerFeeAmount ?? 0).toFixed(2)}`,
     `TOTAL_SHARES=${config.totalShares}`,
     `PARTICIPANTS=${sortedParticipants}`,
     `GAMES=${sortedGames}`,
@@ -156,6 +158,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.text(`Chave PIX informada pelo organizador: ${config.organizerPixKey || "Não informada"} (${config.organizerCity})`, 14, 71);
   doc.text(`Custo Total: R$ ${config.totalCost.toFixed(2)} | Cotas Totais: ${config.totalShares} | Valor/Cota: R$ ${config.costPerShare.toFixed(2)}`, 14, 76);
   doc.text(`Data local de geração do registro: ${contract.formattedDate}`, 14, 81);
+  doc.text(`Inclui taxa privada do organizador (não Caixa): R$ ${(config.organizerFeeAmount ?? 0).toFixed(2)}`, 14, 85);
 
   // Tabela de Participantes
   doc.setFont("helvetica", "bold");

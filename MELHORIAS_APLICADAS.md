@@ -239,3 +239,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Preço de referência e taxa privada no bolão (2026-11-13)
 - Custo da tela e PDF rotulado como planejamento com preço de referência interno por jogo simples, não confirmação de preço vigente da Caixa. Taxa opcional do organizador aparece separada no resumo, PDF e mensagem do grupo, identificada como taxa privada e não tarifa Caixa; confirmação externa continua necessária.
 - Typecheck e 234 testes em 49 arquivos aprovados. Valores oficiais atuais e fluxo E2E não homologados.
+
+### Transparência individual e destino WhatsApp (2026-11-13)
+- Mensagem individual e registro interno de bolão explicitam a parcela da taxa privada do organizador (não tarifa Caixa); hash dos campos selecionados inclui a taxa separada. Envio WhatsApp evita duplicar DDI +55 e abre compartilhamento sem destinatário em números malformados, em vez de endereçar outro telefone.
+- Typecheck e 236 testes em 50 arquivos aprovados. Nenhuma mensagem foi enviada durante os testes.

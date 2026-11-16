@@ -17,6 +17,7 @@ import {
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
+import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
 import { isRestorableBolaoParticipants, normalizeShareCount } from "@/utils/bolaoParticipants";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
@@ -326,7 +327,8 @@ export default function BolaoPage() {
     lines.push(`Modalidade: *${activeConfig.name}*`);
     lines.push(`Participante: *${cota.participant.name}*`);
     lines.push(`Cotas: *${cota.participant.shares}* de *${totalShares}* (${cota.percentage.toFixed(1)}% do bolão)`);
-    lines.push(`Valor a Pagar: *${formatCurrency(cota.cost)}*`);
+    lines.push(`Valor planejado: *${formatCurrency(cota.cost)}*`);
+    lines.push(`Inclui taxa privada do organizador (não é tarifa Caixa): *${formatCurrency(totalShares > 0 ? adminFeeAmount * cota.participant.shares / totalShares : 0)}*`);
     lines.push(`Jogos planejados no grupo: *${games.length}* (confirme registro oficial)`);
     if (pixKey.trim()) {
       lines.push("");
@@ -366,10 +368,7 @@ export default function BolaoPage() {
   };
 
   const sendParticipantWhatsApp = (cota: CotaAssignment) => {
-    const msg = encodeURIComponent(makeParticipantMessage(cota));
-    const phone = cota.participant.phone?.replace(/\D/g, "") || "";
-    const url = phone ? `https://wa.me/55${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
-    window.open(url, "_blank");
+    window.open(bolaoWhatsAppUrl(cota.participant.phone, makeParticipantMessage(cota)), "_blank");
   };
 
   const sendGroupWhatsApp = () => {
@@ -1149,6 +1148,7 @@ export default function BolaoPage() {
           organizerPixKey: pixKey.trim(),
           organizerCity: pixCity.trim() || "SAO PAULO",
           totalCost,
+          organizerFeeAmount: adminFeeAmount,
           totalShares,
           costPerShare,
           participants: participants.map((p) => ({
