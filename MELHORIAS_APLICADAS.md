@@ -185,3 +185,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Auditoria estática encontrou política `Anyone can read AI cache` e políticas chamadas “Service role” sem escopo `TO service_role`. Sonda de leitura apenas de `id` com chave pública retornou HTTP 200 e zero linhas: não prova exposição de registros, mas também não representa negação.
 - Migration `20261113000000_restrict_ai_analysis_cache.sql` preparada para revogar privilégios públicos e escopar a política ao serviço, **sem aplicação no banco**. Exige revisão de dependências, backup e teste em homologação antes de produção; `docs/DEPLOY-RUNBOOK.md` atualizado.
 - Typecheck e suíte completa: 215 testes aprovados, com dois testes estáticos da migration. Esses testes não substituem validação em PostgreSQL/Supabase.
+
+### Sonda de verificação do cache de IA (2026-11-13)
+- Adicionado `scripts/audit-ai-cache-readonly.mjs`: consulta somente `id` com `limit=1` em homologação, sem imprimir dados. HTTP 200 com lista vazia é falha de isolamento, não aprovação; 401/403 aprova apenas negação pública. Não verifica escrita das Edge Functions.
+- `node --check`, typecheck e suíte completa: 217 testes aprovados. Migração ainda NÃO aplicada.

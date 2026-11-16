@@ -14,3 +14,7 @@ Execute `npm ci` e depois `node scripts/audit-rls-readonly.mjs`. O script consul
 Se uma verificação falhar, não use dados retornados nem divulgue identificadores: interrompa a publicação, corrija a política e repita o teste. Nunca registre senhas, tokens ou resultados integrais em CI.
 
 Códigos de saída: `0` = leitura verificada com fixtures, `1` = pelo menos uma falha de isolamento/consulta, `2` = pré-condição não atendida ou auditoria inconclusiva. Mesmo `0` não cobre escrita nem políticas fora das tabelas listadas.
+
+## Verificar restrição do cache de IA (somente leitura)
+
+Após revisar e aplicar em **homologação** a migration `20261113000000_restrict_ai_analysis_cache.sql`, execute `node scripts/audit-ai-cache-readonly.mjs` com `RLS_SUPABASE_URL` e `RLS_SUPABASE_ANON_KEY` do projeto de homologação. A sonda pede apenas `id` com `limit=1`, não imprime linhas e não altera dados. `0` significa SELECT público negado (401/403); `1` significa SELECT público aceito (inclusive `200 []`); `2` significa pré-condição ou resposta inconclusiva. A negação à chave pública não demonstra que o serviço continua escrevendo: valide também a Edge Function com credenciais de homologação após o deploy. Nunca use `service_role` no cliente ou na sonda pública.
