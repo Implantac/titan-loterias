@@ -161,3 +161,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Base-alvo é limitada à modalidade, dezenas inválidas/repetidas no histórico são ignoradas, orçamento inferior ao preço de um jogo impede aplicar plano de zero jogos.
 - Typecheck e suíte completa: 210 testes aprovados; três novos testes para base, histórico e orçamento.
 - Pendente envio à main junto com os dois commits anteriores até restaurar autenticação GitHub.
+
+### Sensibilidade combinatória da base (2026-11-13)
+- Retiradas projeções de quantidade de jogos, custo e “economia mantendo a garantia” feitas por extrapolação de uma base diferente sem geração ou prova. Tabela agora apresenta apenas tamanho da base, universo de cenários e quantidade de jogos candidatos, sem atribuir vantagem financeira.
+- Typecheck e suíte completa: 211 testes aprovados, incluindo regressão de alegações da tela.
+- Envio à main continua pendente de autenticação GitHub, junto aos três commits locais anteriores.

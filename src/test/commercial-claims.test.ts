@@ -102,6 +102,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(panel).toContain("disabled={!rec.budgetFits || rec.maxGames < 1}");
   });
 
+  it("sensibilidade não promete economia ou garantia sem gerar jogos", () => {
+    const panel = content("src/components/closing/ClosingSensitivityPanel.tsx");
+    expect(panel).toContain("não são jogos gerados");
+    expect(panel).not.toContain("economia estimada");
+    expect(panel).not.toContain("mantendo a mesma garantia");
+    expect(panel).not.toContain("projetaria");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");
