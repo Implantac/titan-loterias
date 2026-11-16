@@ -15,6 +15,7 @@ import {
   QrCode, Zap, Repeat
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
+import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { generateWithSplitAvoidance, generateByStrategy } from "@/engine/strategies";
@@ -55,7 +56,7 @@ const STORAGE_KEY = "titan_bolao_draft_v1";
 export default function BolaoPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { config: activeConfig, stats, draws } = useLotteryContext();
+  const { config: activeConfig, stats, draws, setSelectedLottery } = useLotteryContext();
   const { saveBet, savedBets: savedBetsList, remaining, isAtLimit } = useSavedBets(activeConfig.id);
 
   // State from location or default
@@ -65,6 +66,14 @@ export default function BolaoPage() {
     title?: string;
     source?: string;
   } | null;
+
+  // Respeita a modalidade de um link de campanha, inclusive após login.
+  useEffect(() => {
+    const requested = new URLSearchParams(location.search).get("lottery");
+    if (requested && LOTTERIES.some(l => l.id === requested) && requested !== activeConfig.id) {
+      setSelectedLottery(requested);
+    }
+  }, [location.search, activeConfig.id, setSelectedLottery]);
 
   const [bolaoTitle, setBolaoTitle] = useState(
     locationState?.title ?? `Bolão ${activeConfig.name} #${draws?.[0]?.concurso ? draws[0].concurso + 1 : 1}`
@@ -117,16 +126,21 @@ export default function BolaoPage() {
 
   // Restore from storage if no games passed via route
   useEffect(() => {
+    const requested = new URLSearchParams(location.search).get("lottery");
+    if (requested && requested !== activeConfig.id) return;
     if (!locationState?.games || locationState.games.length === 0) {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed.games) && parsed.games.length > 0) {
+          if (isRestorableBolaoDraft(parsed, activeConfig.id, activeConfig.pick, activeConfig.numbers)) {
             setGames(parsed.games);
             if (parsed.title) setBolaoTitle(parsed.title);
-            if (Array.isArray(parsed.participants) && parsed.participants.length > 0) {
-              setParticipants(parsed.participants);
+            if (Array.isArray(parsed.participants) && parsed.participants.length > 0 &&
+                parsed.participants.every((p: unknown) => p !== null && typeof p === "object" &&
+                  typeof (p as Participant).id === "string" && typeof (p as Participant).name === "string" &&
+                  Number.isFinite((p as Participant).shares) && (p as Participant).shares > 0)) {
+              setParticipants(parsed.participants as Participant[]);
             }
           }
         }
@@ -134,7 +148,15 @@ export default function BolaoPage() {
         /* ignore */
       }
     }
-  }, [locationState]);
+  }, [locationState, location.search, activeConfig.id]);
+
+  useEffect(() => {
+    const requested = new URLSearchParams(location.search).get("lottery");
+    if (requested === activeConfig.id && !locationState?.title && games.length === 0) {
+      setBolaoTitle(prev => prev.startsWith("Bolão Lotofácil #")
+        ? `Bolão ${activeConfig.name} #${draws?.[0]?.concurso ? draws[0].concurso + 1 : 1}` : prev);
+    }
+  }, [location.search, locationState?.title, activeConfig.id, activeConfig.name, draws, games.length]);
 
   // Persist draft to storage
   useEffect(() => {

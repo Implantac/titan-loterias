@@ -3,13 +3,14 @@ import { HelpCircle, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 const faqs = [
-  { q: "Existe plano gratuito?", a: "Não há plano gratuito permanente. O Titan Loterias trabalha com o Acesso Vitalício: um pagamento único que libera todas as funcionalidades." },
-  { q: "Existe mensalidade?", a: "Não. O acesso é vitalício: você paga uma única vez e não há renovação nem cobrança recorrente." },
-  { q: "Preciso cancelar alguma assinatura?", a: "Não. Como o pagamento é único, não existe assinatura ativa para cancelar. Se quiser encerrar a conta, basta solicitar ao suporte." },
-  { q: "O acesso vitalício inclui atualizações futuras?", a: "Sim. O acesso vitalício garante as funcionalidades atuais e as futuras da plataforma, sem custo adicional." },
-  { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartões de crédito e débito (Visa, Mastercard, Elo, American Express) e Pix, processados de forma segura pelo Stripe." },
-  { q: "Posso solicitar reembolso?", a: "Sim. Oferecemos reembolso integral em até 7 dias após a compra, sem perguntas. Basta entrar em contato com o suporte." },
-  { q: "Quais loterias são suportadas?", a: "Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena, Timemania, Dia de Sorte, Super Sete, +Milionária e Loteria Federal." },
+  { q: "Existe plano gratuito?", a: "Consulte os planos disponíveis e eventuais períodos de teste na página de contratação. O preço e as condições finais aparecem antes de confirmar o checkout." },
+  { q: "O plano anual renova automaticamente?", a: "Sim. O plano anual é uma assinatura com renovação automática a cada 12 meses. Confira o valor, a data da próxima cobrança e as condições de cancelamento no checkout e nos Termos de Uso." },
+  { q: "O acesso vitalício tem renovação?", a: "Não. O plano vitalício é pagamento único, sem renovação automática; o acesso depende da continuidade do serviço e das condições dos Termos de Uso." },
+  { q: "Como cancelo a assinatura anual?", a: "Solicite o cancelamento pelos canais de suporte ou pelo portal de cobrança, se disponível na sua conta. Verifique a data da próxima cobrança antes de contratar." },
+  { q: "O vitalício inclui todas as atualizações futuras?", a: "Consulte os recursos e limites descritos nos Termos de Uso. Não prometemos disponibilidade indefinida de serviços de terceiros nem recursos ainda não lançados." },
+  { q: "Quais formas de pagamento são aceitas?", a: "Os métodos disponíveis e o valor final são informados no checkout antes de você confirmar o pagamento." },
+  { q: "Posso solicitar reembolso?", a: "Há direito de arrependimento em até 7 dias, conforme os Termos de Uso. Solicite pelos canais de suporte; prazo e meio do estorno dependem do método de pagamento." },
+  { q: "Quais loterias são suportadas?", a: "As modalidades e recursos variam por ferramenta. Confira a modalidade específica antes de contratar; o Titan não registra apostas nos canais da Caixa." },
 ];
 
 export function PlanFAQ() {

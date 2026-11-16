@@ -81,7 +81,7 @@ export function MegaViradaBanner() {
                 <Link to="/planos" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-center text-sm font-bold text-emerald-950 transition-colors hover:bg-emerald-300">
                   Conhecer recursos <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link to="/bolao" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-400/30 px-5 py-3 text-center text-sm font-semibold text-foreground transition-colors hover:bg-emerald-400/10">
+                <Link to="/bolao?lottery=megasena" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-400/30 px-5 py-3 text-center text-sm font-semibold text-foreground transition-colors hover:bg-emerald-400/10">
                   <Users className="h-4 w-4" /> Acessar bolão
                 </Link>
               </div>

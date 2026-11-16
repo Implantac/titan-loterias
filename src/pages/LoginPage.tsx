@@ -149,7 +149,7 @@ export default function LoginPage() {
               </Button>
 
               <p className="text-xs text-center text-muted-foreground pt-2">
-                Ainda não tem conta? Crie a sua em poucos segundos.
+                Ainda não tem conta? <Link to={`/signup?next=${encodeURIComponent(nextPath)}`} className="text-primary hover:underline">Crie a sua conta</Link>.
                 <br />
                 Se você já comprou o acesso e não consegue entrar, fale com o suporte.
               </p>

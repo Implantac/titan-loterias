@@ -2,10 +2,10 @@ import { Shield, CreditCard, RefreshCcw, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 const trustItems = [
-  { icon: Shield, label: "Pagamento 100% seguro" },
+  { icon: Shield, label: "Pagamento processado no checkout" },
   { icon: RefreshCcw, label: "Garantia de 7 dias" },
-  { icon: CreditCard, label: "Cartão, Pix e mais" },
-  { icon: Clock, label: "Sem mensalidade" },
+  { icon: CreditCard, label: "Métodos exibidos no checkout" },
+  { icon: Clock, label: "Vitalício sem renovação" },
 ];
 
 export function PlanTrustBar() {

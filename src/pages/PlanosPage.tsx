@@ -57,7 +57,7 @@ export default function PlanosPage() {
           Escolha como deseja acessar a <span className="gradient-brand-text">Plataforma</span>
         </h1>
         <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
-          Garanta o Acesso Vitalício com pagamento único ou assine pela temporada de 12 meses. Liberação imediata no Pix e garantia incondicional de 7 dias.
+          Garanta o Acesso Vitalício com pagamento único ou assine pela temporada de 12 meses. Confira valor final e meios de pagamento no checkout. Direito de arrependimento de 7 dias conforme os Termos.
         </p>
       </motion.div>
 
@@ -124,7 +124,7 @@ export default function PlanosPage() {
               {loadingPlan === "annual" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Escolher Plano Anual"}
             </Button>
             <p className="text-[10px] text-center text-muted-foreground/60 mt-2">
-              Cobrança única de R$ 69,90 por 1 ano.
+              Assinatura com renovação automática anual. Confira a próxima cobrança e o cancelamento no checkout.
             </p>
           </div>
         </motion.div>
@@ -151,49 +151,30 @@ export default function PlanosPage() {
                   Acesso Vitalício Fundador
                 </h3>
                 <p className="text-xs text-primary font-medium">
-                  Pague uma vez · Acesso definitivo sem mensalidades
+                  Pagamento único · sem renovação automática
                 </p>
               </div>
             </div>
 
             {/* Price Callout with Anchoring */}
             <div className="p-4 sm:p-5 rounded-xl bg-primary/5 border border-primary/25 mb-6 relative">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs line-through text-muted-foreground/60 font-semibold">R$ 397,00</span>
-                  <Badge variant="outline" className="text-[10px] border-primary/40 text-primary font-bold bg-primary/10">
-                    -75% DE DESCONTO
-                  </Badge>
-                </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Pix Imediato
-                </span>
-              </div>
-
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-foreground">
-                  R$ 99,90
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">
-                  à vista no Pix ou até 12x de R$ 9,98
-                </span>
+                  <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-foreground">R$ 99,90</span>
+                  <span className="text-xs text-muted-foreground font-medium">pagamento único; confirme valor e métodos no checkout</span>
+                </div>
+                <p className="mt-3 border-t border-primary/15 pt-2 text-xs text-muted-foreground">Sem renovação automática neste plano. O anual é uma assinatura com renovação automática.</p>
               </div>
-
-              <div className="mt-2 pt-2 border-t border-primary/15 text-xs text-foreground/80 font-medium">
-                💡 <span className="text-primary font-semibold">Ancoragem inteligente:</span> Por apenas <span className="font-bold text-foreground">R$ 30 a mais</span> que o plano anual, você leva o vitalício permanente para sempre.
-              </div>
-            </div>
 
             <ul className="space-y-3 mb-8">
               {[
-                "Pagamento único definitivo — ZERO mensalidades para sempre",
-                "Acesso permanente garantido a as modalidades disponíveis na plataforma",
-                "Pronto para todas as futuras Megas da Virada e grandes acumulados",
+                "Pagamento único, sem renovação automática",
+                "Acesso às modalidades disponíveis enquanto o serviço operar",
+                "Recursos para organizar concursos especiais enquanto o serviço operar",
                 "Módulo de Bolão Pro (divisão de cotas, recibos e WhatsApp)",
                 "Fechamentos com verificação de cobertura e condições explícitas",
                 "Filtros de redução de divisão de prêmio (split-avoidance)",
-                "Todas as atualizações e novos modelos liberados para sempre",
-                "Suporte prioritário direto via WhatsApp",
+                "Atualizações incluídas conforme os Termos de Uso",
+                "Canais de suporte informados na plataforma",
               ].map((feat, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-foreground/90 font-normal leading-snug">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -228,7 +209,7 @@ export default function PlanosPage() {
             
             <div className="mt-3 flex items-center justify-center gap-2 text-[11px] sm:text-xs text-muted-foreground">
               <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-              <span>Liberação imediata no Pix · Sem cobranças recorrentes · Garantia incondicional de 7 dias</span>
+              <span>Pagamento único neste plano · Consulte checkout e Termos · Arrependimento em até 7 dias</span>
             </div>
           </div>
         </motion.div>

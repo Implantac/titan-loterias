@@ -118,6 +118,27 @@ describe("alegações comerciais auditáveis", () => {
     expect(planner).toContain("Planejador de Orçamento");
   });
 
+  it("plano anual recorrente e vitalício único são descritos sem descontos inventados", () => {
+    const plans = content("src/pages/PlanosPage.tsx");
+    const pricing = content("src/components/common/PricingSection.tsx");
+    const faq = content("src/components/plans/PlanFAQ.tsx");
+    const terms = content("src/pages/LegalPage.tsx");
+    for (const page of [plans, pricing]) {
+      expect(page).not.toContain("R$ 397,00");
+      expect(page).not.toContain("-75% DE DESCONTO");
+      expect(page).not.toContain("12x de R$ 9,98");
+    }
+    expect(plans).not.toContain("Cobrança única de R$ 69,90");
+    expect(faq).toContain("renovação automática a cada 12 meses");
+    expect(terms).toContain("assinatura com renovação automática");
+  });
+
+  it("preserva destino e modalidade da campanha após o login", () => {
+    expect(content("src/components/landing/MegaViradaBanner.tsx")).toContain('/bolao?lottery=megasena');
+    expect(content("src/components/ProtectedRoute.tsx")).toContain('encodeURIComponent(location.pathname + location.search)');
+    expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

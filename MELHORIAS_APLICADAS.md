@@ -204,3 +204,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Motion graphics original de 12 segundos (H.264, 960×540, 24 fps, sem áudio) com estética esmeralda/dourada, pôster estático e mensagem de estimativa inicial da Caixa; vídeo ilustrativo sem marcas oficiais indevidas, nem promessa de acertos. Assets locais leves em `public/media/` e script de renderização reproduzível em `scripts/render-mega-virada-video.py`.
 - Vídeo integrado ao banner sazonal, silencioso, em loop, com controles de pausa/reprodução e respeito a `prefers-reduced-motion`. O texto e a fonte oficial permanecem acessíveis fora do vídeo; ao fim da janela sazonal o banner inteiro desaparece.
 - Typecheck e suíte completa: 225 testes aprovados. Codec verificado: H.264 yuv420p, 12 segundos. Build de produção não reexecutado nesta etapa.
+
+### Clareza comercial e jornada Mega da Virada (2026-11-13)
+- Decisão explícita do proprietário: anual renova automaticamente; desconto de R$ 397,00/75% e parcelamento não têm comprovação e foram removidos da comunicação. Planos, landing, FAQ e Termos passaram a diferenciar assinatura anual recorrente de pagamento único vitalício; meios e preço final dependem do checkout. Nenhum checkout/compra real foi acionado.
+- CTA sazonal direciona ao bolão com `lottery=megasena`; o login preserva caminho e query, e o bolão só restaura rascunho válido da modalidade escolhida. Teste E2E autenticado ainda pendente.
+- Typecheck e suíte completa: 229 testes aprovados. Auditoria de Stripe, RLS e deploy da edge function ainda depende de homologação/autorização.

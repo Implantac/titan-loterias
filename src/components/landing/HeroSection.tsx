@@ -117,7 +117,7 @@ export function HeroSection({
 
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 text-foreground/80 font-medium">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" /> Liberação imediata no Pix
+                <Zap className="w-3.5 h-3.5 text-emerald-400" /> Métodos informados no checkout
               </span>
               <span className="flex items-center gap-1.5 text-foreground/80 font-medium">
                 <Shield className="w-3.5 h-3.5 text-primary" /> Sem mensalidades

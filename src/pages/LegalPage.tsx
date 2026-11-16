@@ -15,7 +15,7 @@ import { WhatsAppButton } from "@/components/common/WhatsAppButton";
  */
 
 const CONTATO_EMAIL = "etcsuporte889@gmail.com";
-const ATUALIZACAO = "09 de outubro de 2026";
+const ATUALIZACAO = "13 de novembro de 2026";
 
 type DocKey = "termos" | "privacidade" | "seguranca" | "sobre";
 
@@ -55,8 +55,8 @@ const DOCS: Record<DocKey, { icon: typeof FileText; title: string; subtitle: str
       {
         title: "4. Condições comerciais",
         body: [
-          "O acesso é liberado mediante pagamento único, sem mensalidade e sem renovação automática. Os valores e as condições vigentes estão descritos na página de planos no momento da compra.",
-          "O pagamento é processado pelo Stripe. Os dados de cartão não transitam nem são armazenados nos servidores da plataforma.",
+          "O plano anual é uma assinatura com renovação automática a cada 12 meses, sujeita ao preço e às condições informados antes da confirmação no checkout. O plano vitalício é pagamento único, sem renovação automática, com acesso enquanto o serviço estiver disponível. Os recursos e limites de cada plano são os apresentados na página de planos e no checkout.",
+          "O pagamento é processado pelo provedor de cobrança informado no checkout. Os dados de cartão não transitam nem são armazenados nos servidores da plataforma. Para cancelar o anual, use o portal de cobrança se disponível na sua conta ou solicite pelo suporte antes da próxima renovação.",
           "Reembolso integral em até 7 (sete) dias corridos da compra, mediante solicitação pelos canais de atendimento, conforme o direito de arrependimento do art. 49 do Código de Defesa do Consumidor.",
         ],
       },
