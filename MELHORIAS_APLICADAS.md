@@ -199,3 +199,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Faixa posicionada logo após o hero: “Prêmio inicialmente estimado em mais de R$ 1 bilhão”, com link para notícia oficial da Caixa publicada em 03/11/2026, CTA para recursos/bolão e aviso explícito de que Titan não registra apostas nem vende cotas.
 - Janela sazonal calculada em `America/Sao_Paulo`: exibe de 03/11/2026 até antes das 22h de 31/12/2026 (encerramento das apostas segundo Caixa). O componente reavalia a janela a cada minuto e desaparece após o limite; não consulta valor em tempo real, portanto o texto identifica a estimativa como inicial e sujeita a atualização.
 - Hero teve alegação geral de “garantia comprovada” substituída por cobertura condicional verificável. Typecheck e suíte completa: 224 testes aprovados, incluindo três testes de calendário/fonte. Build de produção não reexecutado nesta etapa.
+
+### Vídeo premium da Mega da Virada na landing (2026-11-13)
+- Motion graphics original de 12 segundos (H.264, 960×540, 24 fps, sem áudio) com estética esmeralda/dourada, pôster estático e mensagem de estimativa inicial da Caixa; vídeo ilustrativo sem marcas oficiais indevidas, nem promessa de acertos. Assets locais leves em `public/media/` e script de renderização reproduzível em `scripts/render-mega-virada-video.py`.
+- Vídeo integrado ao banner sazonal, silencioso, em loop, com controles de pausa/reprodução e respeito a `prefers-reduced-motion`. O texto e a fonte oficial permanecem acessíveis fora do vídeo; ao fim da janela sazonal o banner inteiro desaparece.
+- Typecheck e suíte completa: 225 testes aprovados. Codec verificado: H.264 yuv420p, 12 segundos. Build de produção não reexecutado nesta etapa.
