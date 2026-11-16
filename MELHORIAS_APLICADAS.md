@@ -13,13 +13,13 @@
 ## Correção do diagnóstico anterior
 A conta fornecida é designada `super_admin` nas migrações. A leitura de outros perfis por ela **não demonstra** violação de isolamento. A política de perfis permite leitura administrativa. É necessário testar com contas comuns separadas antes de concluir que há exposição indevida. Nenhuma migração de RLS foi aplicada com base nessa inferência.
 
-## Pendente antes de publicar
+## Pendências e histórico (ver atualização ao final)
 - Validar permissões com duas contas comuns de teste, sem privilégios administrativos; testar todas as tabelas sensíveis.
 - Auditar verificação de matrizes, valores reais dos prêmios e ROI em cada modalidade; outros módulos ainda podem conter estimativas hipotéticas.
 - Confirmar condições comerciais, preço e renovação com o checkout real.
 - Revisar eventuais textos promocionais restantes e medir integridade real da base antes de mostrar um percentual.
-- Executar build em máquina com memória suficiente: neste ambiente o Vite foi encerrado durante a etapa de geração de chunks (código 137).
-- Não foi feito deploy nem alteração do banco de produção.
+- Histórico: uma tentativa anterior de build foi encerrada durante a geração de chunks (código 137); a validação posterior consta ao final deste arquivo.
+- Não foi feito deploy de edge function nem alteração do banco de produção por este agente; publicação do frontend no Lovable foi confirmada pelo usuário.
 
 ## Etapa seguinte: validação de fechamentos
 - `meetsGuarantee` somente é verdadeiro após verificação exaustiva; uma amostra com 100% de acertos não prova garantia.
@@ -154,15 +154,20 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Tela e motor deixam de chamar uma base de “ideal” ou prometer garantia/custo mínimo antes da geração. Quantidade e custo são referências teóricas; orçamento acima do teto não permite aplicar candidato.
 - Corrigida seleção balanceada para completar a base com dezenas distintas mesmo quando a faixa intermediária é curta; histórico com dezenas fora do universo é ignorado e entradas inválidas retornam sem sugestões.
 - Typecheck e suíte completa: 207 testes aprovados, com três novos testes de base válida e limites.
-- Ainda pendente de envio: este commit e o anterior aguardam autenticação GitHub; não representam publicação no Lovable.
+- Histórico: os commits foram posteriormente enviados à main; o usuário confirmou publicação do frontend no Lovable.
 
 ### Recomendação para o próximo concurso (2026-11-13)
 - Removida “cobertura esperada” fixa de 75/85/92% por perfil, sem cálculo sobre jogos. Quentes, frias, atrasadas e balanço são identificados como descrições do histórico, sem poder preditivo comprovado; meta condicional requer validação após gerar.
 - Base-alvo é limitada à modalidade, dezenas inválidas/repetidas no histórico são ignoradas, orçamento inferior ao preço de um jogo impede aplicar plano de zero jogos.
 - Typecheck e suíte completa: 210 testes aprovados; três novos testes para base, histórico e orçamento.
-- Pendente envio à main junto com os dois commits anteriores até restaurar autenticação GitHub.
+- Histórico: o envio pendente foi posteriormente concluído e a publicação do frontend foi confirmada pelo usuário.
 
 ### Sensibilidade combinatória da base (2026-11-13)
 - Retiradas projeções de quantidade de jogos, custo e “economia mantendo a garantia” feitas por extrapolação de uma base diferente sem geração ou prova. Tabela agora apresenta apenas tamanho da base, universo de cenários e quantidade de jogos candidatos, sem atribuir vantagem financeira.
 - Typecheck e suíte completa: 211 testes aprovados, incluindo regressão de alegações da tela.
-- Envio à main continua pendente de autenticação GitHub, junto aos três commits locais anteriores.
+- Histórico: os quatro commits foram enviados à main até `2afaf976`; o usuário confirmou publicação no Lovable.
+
+### Validação do build e frontend publicado (2026-11-13)
+- `npm ci` concluiu; `npm run build` registrou `✓ built in 4m 13s`, gerou `dist/index.html` e assets, e o processo encerrou. O comando que aguardava terminou por timeout da ferramenta antes da captura do código de saída, portanto a evidência é o log de conclusão, não um exit code registrado.
+- O asset `index-DiQTWr41.js` e o módulo `FechamentoUniversalPage-DSQ8jRa-.js` gerados localmente correspondem aos nomes servidos pelo domínio publicado; marcadores das quatro melhorias recentes estão no módulo servido. Isso não demonstra deploy da edge function.
+- Permanecem auditoria RLS com duas contas comuns e verificação separada da edge function.
