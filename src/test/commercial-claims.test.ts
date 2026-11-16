@@ -85,6 +85,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(panel).not.toContain("Garantia:");
   });
 
+  it("preset e recomendação na tela universal não são provas antecipadas", () => {
+    const page = content("src/pages/FechamentoUniversalPage.tsx");
+    expect(page).not.toContain("garantia ${opts.minHits}");
+    expect(page).not.toContain("garantia ${rec.minHits}");
+    expect(page).toContain("meta ${opts.minHits} acertos (a validar)");
+    expect(page).toContain("exaustiva: meta não atingida");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

@@ -138,3 +138,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - A antiga biblioteca “clássica” só guardava parâmetros, não matrizes ou provas. Retirados percentuais de cobertura e origens históricas sem fonte, descrições que prometiam garantias e o preset de Lotomania fora do escopo do motor validado.
 - Tela passa a indicar que são presets sem prova prévia; meta é solicitação ao motor e precisa de validação após a geração. Presets de outra modalidade ficam visíveis na busca geral, mas não podem ser aplicados à modalidade atual.
 - Typecheck e suíte completa: 201 testes aprovados, com teste de regressão de alegações da biblioteca.
+
+### Metas no fluxo universal (2026-11-13)
+- Mensagens ao aplicar presets e recomendações agora tratam acertos e jogos como meta/limite, não como garantia pré-validada. Após filtros, a tela informa revalidação da cobertura.
+- Estado visual de sucesso exige meta comprovada; enumeração exaustiva com meta falha é identificada como falha, e amostra não comprova meta. Comparativo troca “Garantia” por “Menor acerto”.
+- Typecheck e suíte completa: 202 testes aprovados, incluindo regressão de mensagens da tela universal.

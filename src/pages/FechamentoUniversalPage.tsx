@@ -132,7 +132,7 @@ const FechamentoUniversalPage = () => {
   const applyFilters = (r: ClosingResult): ClosingResult => {
     const filtered = filterClosingResult(r, constraints);
     if (filtered !== r) {
-      toast.info(`${filtered.gameCount}/${r.gameCount} jogos mantidos; cobertura e garantia recalculadas.`);
+      toast.info(`${filtered.gameCount}/${r.gameCount} jogos mantidos; cobertura revalidada após os filtros.`);
     }
     return filtered;
   };
@@ -389,7 +389,7 @@ const FechamentoUniversalPage = () => {
           setMinHits(Math.min(pick, rec.minHits));
           setMaxGames(rec.maxGames);
           setStrategy(rec.strategy);
-          toast.success(`Recomendação aplicada: ${rec.strategy} · ${rec.maxGames} jogos · garantia ${rec.minHits}.`);
+          toast.success(`Recomendação aplicada: ${rec.strategy} · limite ${rec.maxGames} jogos · meta ${rec.minHits} acertos (a validar).`);
         }}
       />
 
@@ -408,7 +408,7 @@ const FechamentoUniversalPage = () => {
             );
           } else {
             toast.success(
-              `Preset ${opts.preset.code} aplicado — ${opts.maxGames} jogos, garantia ${opts.minHits}.`,
+              `Preset ${opts.preset.code} aplicado — limite ${opts.maxGames} jogos, meta ${opts.minHits} acertos (a validar).`,
             );
           }
         }}
@@ -440,7 +440,7 @@ const FechamentoUniversalPage = () => {
           setMinHits(rec.minHits);
           setMaxGames(rec.maxGames);
           setStrategy(rec.strategy);
-          toast.success(`Recomendação aplicada — ${rec.baseNumbers.length} dezenas, garantia ${rec.minHits}.`);
+          toast.success(`Recomendação aplicada — ${rec.baseNumbers.length} dezenas, meta ${rec.minHits} acertos (a validar).`);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       />
@@ -617,7 +617,7 @@ function ResultPanel({ result }: { result: ClosingResult }) {
               <Sparkles className="h-5 w-5" /> {STRATEGY_LABEL(result.strategy)}
             </span>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className={v.exhaustive ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 font-mono text-xs" : "text-amber-400 border-amber-500/30 bg-amber-500/10 font-mono text-xs"}>
+              <Badge variant="outline" className={v.meetsGuarantee ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 font-mono text-xs" : "text-amber-400 border-amber-500/30 bg-amber-500/10 font-mono text-xs"}>
                 {v.exhaustive ? `Exaustivo (${v.testedScenarios} cenários)` : `Amostral (${v.testedScenarios} cenários)`}
               </Badge>
               <Badge className="text-lg" variant={s.overall >= 80 ? "default" : "secondary"}>
@@ -631,7 +631,7 @@ function ResultPanel({ result }: { result: ClosingResult }) {
             <Stat label="Jogos" value={result.gameCount.toString()} sub={result.request.guarantee.hitsInBase === result.request.guarantee.minHits ? `cota Schönheim: ${result.lowerBound}` : "cota de otimização não aplicável"} />
             <Stat label="Custo" value={formatCurrency(result.cost)} sub={`${result.request.lottery.ticketPrice.toFixed(2)}/jogo`} />
             <Stat label={v.exhaustive ? "Pior caso provado" : "Menor acerto na amostra"} value={`${v.guaranteedHits} acertos`} sub={`Se ${result.request.guarantee.hitsInBase} dezenas saírem na base · meta: ${v.targetMinHits}`} ok={v.meetsGuarantee} />
-            <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.exhaustive ? "exaustiva (provada)" : "amostral (estimativa)"} />
+            <Stat label="Cobertura" value={`${v.coveragePercent.toFixed(1)}%`} sub={v.meetsGuarantee ? "meta comprovada" : v.exhaustive ? "exaustiva: meta não atingida" : "amostral (não comprova meta)"} />
           </div>
           <Separator className="my-4" />
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
