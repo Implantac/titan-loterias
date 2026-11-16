@@ -231,3 +231,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Escopo das cotas no grupo (2026-11-13)
 - Eliminada distribuição visual exclusiva de jogos por participante: ela contradizia a proposta de participação proporcional no grupo inteiro e podia sugerir que cada cotista só participaria de alguns jogos. PDF, mensagem individual e interface agora mostram os jogos como planejamento comum, sujeito ao acordo dos participantes e à aposta oficial externa.
 - Typecheck e 232 testes em 48 arquivos passaram. Não configura nem registra Bolão Caixa; termos de rateio continuam dependentes de confirmação entre participantes.
+
+### Integridade de cotas no rascunho (2026-11-13)
+- Entrada de cotas normalizada para inteiros positivos (limite de interface de 100, **não** regra oficial Caixa). Rascunhos locais com cotas fracionárias, status de pagamento não booleano, IDs duplicados ou estrutura inconsistente não restauram participantes inválidos; jogos válidos ainda podem ser restaurados.
+- Typecheck e 234 testes em 49 arquivos aprovados. Não substitui validação de regras oficiais ou E2E autenticado.

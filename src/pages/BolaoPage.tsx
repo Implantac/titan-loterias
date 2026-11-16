@@ -17,6 +17,7 @@ import {
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
+import { isRestorableBolaoParticipants, normalizeShareCount } from "@/utils/bolaoParticipants";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { generateWithSplitAvoidance, generateByStrategy } from "@/engine/strategies";
@@ -137,10 +138,7 @@ export default function BolaoPage() {
           if (isRestorableBolaoDraft(parsed, activeConfig.id, activeConfig.pick, activeConfig.numbers)) {
             setGames(parsed.games);
             if (parsed.title) setBolaoTitle(parsed.title);
-            if (Array.isArray(parsed.participants) && parsed.participants.length > 0 &&
-                parsed.participants.every((p: unknown) => p !== null && typeof p === "object" &&
-                  typeof (p as Participant).id === "string" && typeof (p as Participant).name === "string" &&
-                  Number.isFinite((p as Participant).shares) && (p as Participant).shares > 0)) {
+            if (isRestorableBolaoParticipants(parsed.participants)) {
               setParticipants(parsed.participants as Participant[]);
             }
           }
@@ -180,7 +178,7 @@ export default function BolaoPage() {
 
   // Total numbers / Cotas metrics
   const totalShares = useMemo(
-    () => participants.reduce((acc, p) => acc + (Number(p.shares) || 1), 0),
+    () => participants.reduce((acc, p) => acc + normalizeShareCount(p.shares), 0),
     [participants]
   );
 
@@ -987,7 +985,7 @@ export default function BolaoPage() {
                         value={p.shares}
                         onChange={(e) =>
                           updateParticipant(p.id, {
-                            shares: Math.max(1, Number(e.target.value) || 1),
+                            shares: normalizeShareCount(e.target.value),
                           })
                         }
                         className="w-14 h-9 text-xs text-center font-bold font-mono"
