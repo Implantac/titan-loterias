@@ -1,5 +1,5 @@
 /**
- * Biblioteca de fechamentos clássicos — apenas metadados.
+ * Biblioteca de presets de configuração — não contém matrizes nem provas.
  * Ao aplicar um preset, o Motor Universal roda `generateClosing()` com os
  * parâmetros exatos. Nada é armazenado como matriz fixa.
  */
@@ -20,15 +20,11 @@ export interface ClassicClosing {
   applicableLotteries: string[];
   /** Tamanho da base de dezenas do fechamento clássico. */
   base: number;
-  /** Garantia mínima (acertos). */
+  /** Meta solicitada ao motor (acertos), não garantia provada. */
   minHits: number;
   /** Nº de jogos-alvo. Usado como `maxGames`. */
   games: number;
-  /** Cobertura esperada (% aproximado). */
-  coverage: number;
   complexity: Complexity;
-  /** Origem histórica / autor / referência. */
-  origin: string;
   /** Estratégia sugerida para gerar. */
   strategy: ClosingStrategy;
   /** Descrição curta. */
@@ -43,11 +39,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 17 dezenas em 8 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 17, minHits: 14, games: 8, coverage: 82,
+    base: 17, minHits: 14, games: 8,
     complexity: "baixa",
-    origin: "Fechamento popular brasileiro — Chvátal Greedy.",
     strategy: "greedy",
-    description: "Custo baixo com garantia de 14 pontos se 15 caírem na base.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-18x12",
@@ -55,11 +50,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 18 dezenas em 12 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 18, minHits: 14, games: 12, coverage: 94,
+    base: 18, minHits: 14, games: 12,
     complexity: "media",
-    origin: "Clássico de bancas — Simulated Annealing.",
     strategy: "simulated_annealing",
-    description: "Excelente relação custo/benefício, cobertura quase total.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-19x5",
@@ -67,11 +61,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 19 dezenas em 5 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 19, minHits: 13, games: 5, coverage: 71,
+    base: 19, minHits: 13, games: 5,
     complexity: "baixa",
-    origin: "Fechamento econômico.",
     strategy: "greedy",
-    description: "Máxima economia — foca no 13 pontos.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-19x20",
@@ -79,11 +72,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 19 dezenas em 20 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 19, minHits: 14, games: 20, coverage: 98,
+    base: 19, minHits: 14, games: 20,
     complexity: "media",
-    origin: "Fechamento intermediário premium.",
     strategy: "genetic",
-    description: "Cobertura próxima de 100% com 20 jogos.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-20x25",
@@ -91,11 +83,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 20 dezenas em 25 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 20, minHits: 14, games: 25, coverage: 99,
+    base: 20, minHits: 14, games: 25,
     complexity: "alta",
-    origin: "Fechamento avançado — Genético.",
     strategy: "genetic",
-    description: "Praticamente garante 14 pontos com base de 20 dezenas.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-21x50",
@@ -103,11 +94,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 21 dezenas em 50 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 21, minHits: 14, games: 50, coverage: 100,
+    base: 21, minHits: 14, games: 50,
     complexity: "alta",
-    origin: "Fechamento estendido — Covering Design.",
     strategy: "covering_design",
-    description: "Garantia matemática de 14 pontos em 21 dezenas.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-22x100",
@@ -115,11 +105,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 22 dezenas em 100 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 22, minHits: 14, games: 100, coverage: 100,
+    base: 22, minHits: 14, games: 100,
     complexity: "alta",
-    origin: "Sindicato de apostadores.",
     strategy: "covering_design",
-    description: "Base ampla, garantia sólida de 14 pontos.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-23x200",
@@ -127,11 +116,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 23 dezenas em 200 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 23, minHits: 14, games: 200, coverage: 100,
+    base: 23, minHits: 14, games: 200,
     complexity: "extrema",
-    origin: "Bolão profissional — Covering Design ótimo.",
     strategy: "covering_design",
-    description: "Cobertura completa com base de 23 dezenas.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "lf-24x400",
@@ -139,11 +127,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Lotofácil 24 dezenas em 400 jogos",
     primaryLottery: "lotofacil",
     applicableLotteries: ["lotofacil"],
-    base: 24, minHits: 14, games: 400, coverage: 100,
+    base: 24, minHits: 14, games: 400,
     complexity: "extrema",
-    origin: "Fechamento máximo antes do bolão fechado 25 dezenas.",
     strategy: "covering_design",
-    description: "Praticamente exaustivo — cobre todos os cenários realistas.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   // ---------- Mega-Sena ----------
   {
@@ -152,11 +139,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Mega-Sena 8 dezenas em 7 jogos",
     primaryLottery: "megasena",
     applicableLotteries: ["megasena"],
-    base: 8, minHits: 5, games: 7, coverage: 88,
+    base: 8, minHits: 5, games: 7,
     complexity: "baixa",
-    origin: "Fechamento tradicional de bancas.",
     strategy: "greedy",
-    description: "Garante Quina se 6 caírem na base.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "ms-10x21",
@@ -164,11 +150,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Mega-Sena 10 dezenas em 21 jogos",
     primaryLottery: "megasena",
     applicableLotteries: ["megasena"],
-    base: 10, minHits: 5, games: 21, coverage: 98,
+    base: 10, minHits: 5, games: 21,
     complexity: "media",
-    origin: "Covering Design C(10,6,5).",
     strategy: "covering_design",
-    description: "Boa cobertura para 10 dezenas na Mega.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "ms-12x50",
@@ -176,11 +161,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Mega-Sena 12 dezenas em 50 jogos",
     primaryLottery: "megasena",
     applicableLotteries: ["megasena"],
-    base: 12, minHits: 5, games: 50, coverage: 100,
+    base: 12, minHits: 5, games: 50,
     complexity: "alta",
-    origin: "Bolão profissional.",
     strategy: "genetic",
-    description: "Garantia total de Quina em base de 12.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   // ---------- Quina ----------
   {
@@ -189,11 +173,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Quina 8 dezenas em 6 jogos",
     primaryLottery: "quina",
     applicableLotteries: ["quina"],
-    base: 8, minHits: 4, games: 6, coverage: 85,
+    base: 8, minHits: 4, games: 6,
     complexity: "baixa",
-    origin: "Fechamento popular Quina.",
     strategy: "greedy",
-    description: "Garante Quadra se 5 caírem em 8.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
   {
     id: "qn-10x15",
@@ -201,24 +184,10 @@ export const CLASSIC_CLOSINGS: ClassicClosing[] = [
     name: "Quina 10 dezenas em 15 jogos",
     primaryLottery: "quina",
     applicableLotteries: ["quina"],
-    base: 10, minHits: 4, games: 15, coverage: 97,
+    base: 10, minHits: 4, games: 15,
     complexity: "media",
-    origin: "Covering Design.",
     strategy: "covering_design",
-    description: "Ótima cobertura de Quadra.",
-  },
-  // ---------- Lotomania ----------
-  {
-    id: "lm-55x10",
-    code: "55x10",
-    name: "Lotomania 55 dezenas em 10 jogos",
-    primaryLottery: "lotomania",
-    applicableLotteries: ["lotomania"],
-    base: 55, minHits: 18, games: 10, coverage: 90,
-    complexity: "media",
-    origin: "Fechamento clássico Lotomania.",
-    strategy: "genetic",
-    description: "Base ampliada de 55 números para garantir 18 pontos.",
+    description: "Preset de parâmetros; cobertura e meta dependem dos jogos gerados e da validação posterior.",
   },
 ];
 
@@ -238,8 +207,7 @@ export function filterClassicClosings(list: ClassicClosing[], opts: {
     const q = opts.search.toLowerCase();
     out = out.filter(c =>
       c.code.toLowerCase().includes(q) ||
-      c.name.toLowerCase().includes(q) ||
-      c.origin.toLowerCase().includes(q),
+      c.name.toLowerCase().includes(q),
     );
   }
   return out;

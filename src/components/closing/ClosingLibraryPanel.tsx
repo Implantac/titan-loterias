@@ -60,7 +60,7 @@ export function ClosingLibraryPanel({ lotteryId, currentBaseSize, onApply }: Pro
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BookOpen className="h-5 w-5" />
-          Biblioteca de Fechamentos Clássicos
+          Presets de Fechamento
           <Badge variant="secondary" className="ml-2">{list.length}</Badge>
         </CardTitle>
       </CardHeader>
@@ -113,6 +113,7 @@ export function ClosingLibraryPanel({ lotteryId, currentBaseSize, onApply }: Pro
         ) : (
           <div className="grid gap-2 md:grid-cols-2">
             {list.map(c => {
+              const compatible = c.applicableLotteries.includes(lotteryId);
               const baseOk = currentBaseSize >= c.base;
               return (
                 <div
@@ -126,9 +127,7 @@ export function ClosingLibraryPanel({ lotteryId, currentBaseSize, onApply }: Pro
                         <Badge className={cn("h-4 text-[10px] px-1.5 capitalize", COMPLEXITY_COLOR[c.complexity])} variant="outline">
                           {c.complexity}
                         </Badge>
-                        <Badge variant="secondary" className="h-4 text-[10px] px-1.5">
-                          ~{c.coverage}%
-                        </Badge>
+                        <Badge variant="secondary" className="h-4 text-[10px] px-1.5">Sem prova prévia</Badge>
                       </div>
                       <p className="text-xs font-medium mt-1">{c.name}</p>
                       <p className="text-[11px] text-muted-foreground">{c.description}</p>
@@ -136,14 +135,15 @@ export function ClosingLibraryPanel({ lotteryId, currentBaseSize, onApply }: Pro
                   </div>
                   <div className="grid grid-cols-3 gap-1 text-[11px]">
                     <div><span className="text-muted-foreground">Base:</span> <span className="font-mono font-semibold">{c.base}</span></div>
-                    <div><span className="text-muted-foreground">Garantia:</span> <span className="font-mono font-semibold">{c.minHits}</span></div>
+                    <div><span className="text-muted-foreground">Meta:</span> <span className="font-mono font-semibold">{c.minHits}</span></div>
                     <div><span className="text-muted-foreground">Jogos:</span> <span className="font-mono font-semibold">{c.games}</span></div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground italic truncate">{c.origin}</p>
+                  <p className="text-[10px] text-muted-foreground italic">Configuração sugerida; valide a cobertura depois de gerar os jogos.</p>
                   <Button
                     size="sm"
                     className="w-full h-7 text-xs"
-                    variant={baseOk ? "default" : "outline"}
+                    variant={baseOk && compatible ? "default" : "outline"}
+                    disabled={!compatible}
                     onClick={() => onApply({
                       minHits: c.minHits,
                       maxGames: c.games,
@@ -153,7 +153,7 @@ export function ClosingLibraryPanel({ lotteryId, currentBaseSize, onApply }: Pro
                     })}
                   >
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {baseOk ? "Aplicar preset" : `Aplicar (precisa ${c.base} dezenas)`}
+                    {!compatible ? "Outra modalidade" : baseOk ? "Aplicar preset" : `Aplicar (precisa ${c.base} dezenas)`}
                   </Button>
                 </div>
               );

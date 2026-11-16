@@ -75,6 +75,16 @@ describe("alegações comerciais auditáveis", () => {
     expect(panel).toContain("Amostral: sem prova");
   });
 
+  it("biblioteca não vende cobertura ou origem histórica sem prova", () => {
+    const presets = content("src/engine/closing/library/classicClosings.ts");
+    const panel = content("src/components/closing/ClosingLibraryPanel.tsx");
+    expect(presets).not.toMatch(/coverage: \d+/);
+    expect(presets).not.toContain("origin:");
+    expect(panel).toContain("Sem prova prévia");
+    expect(panel).toContain("disabled={!compatible}");
+    expect(panel).not.toContain("Garantia:");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");
