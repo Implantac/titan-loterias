@@ -189,3 +189,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Sonda de verificação do cache de IA (2026-11-13)
 - Adicionado `scripts/audit-ai-cache-readonly.mjs`: consulta somente `id` com `limit=1` em homologação, sem imprimir dados. HTTP 200 com lista vazia é falha de isolamento, não aprovação; 401/403 aprova apenas negação pública. Não verifica escrita das Edge Functions.
 - `node --check`, typecheck e suíte completa: 217 testes aprovados. Migração ainda NÃO aplicada.
+
+### Planejador de orçamento (2026-11-13)
+- O antigo simulador “Premium” inventava retorno com multiplicadores de 0,9/1,15/1,45, preço fixo de Lotofácil e garantia padrão sem matriz validada. Substituído por planejamento de teto de gastos com preço configurado por modalidade, máximo de jogos simples e apenas matrizes estruturalmente válidas que cabem no orçamento.
+- Ao salvar, `estimated_return` fica nulo e o registro identifica `budget_plan`; o botão sem ação “Executar Estratégia” foi removido. Cobertura condicional da matriz é rotulada conforme a prova; nenhum ganho financeiro é previsto.
+- Typecheck e suíte completa: 221 testes aprovados, incluindo três testes de planejamento e regressão comercial. Nenhum registro real foi criado durante os testes.

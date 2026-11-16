@@ -110,6 +110,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(panel).not.toContain("projetaria");
   });
 
+  it("planejador de orçamento não simula retorno financeiro inventado", () => {
+    const planner = content("src/components/lottery/simulators/InvestmentSimulator.tsx");
+    expect(planner).not.toContain("estimatedReturn");
+    expect(planner).not.toContain("Expectativa de Retorno");
+    expect(planner).toContain("estimated_return: null");
+    expect(planner).toContain("Planejador de Orçamento");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");
