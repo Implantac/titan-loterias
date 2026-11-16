@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { createBolaoContract, calculateBolaoSha256 } from "./bolaoContract";
 
 describe("bolaoContract", () => {
-  it("calculates a valid 64-character SHA-256 seal for canonical bolao payload", async () => {
+  it("calculates a valid 64-character SHA-256 hash for canonical bolao payload", async () => {
     const hash = await calculateBolaoSha256("TEST_CANONICAL_PAYLOAD_TITAN");
     expect(hash).toBeDefined();
     expect(hash.length).toBe(64);
     expect(/^[0-9a-f]{64}$/.test(hash)).toBe(true);
   });
 
-  it("creates contract data with unique contract ID, seal, and legal terms", async () => {
+  it("creates an internal record without claiming official or legal proof", async () => {
     const config = {
       lotteryId: "megasena",
       lotteryName: "Mega-Sena",
@@ -35,6 +35,8 @@ describe("bolaoContract", () => {
     expect(contract.contractId).toContain("BOL-MEGA-");
     expect(contract.sha256Seal.length).toBe(64);
     expect(contract.legalTerms.length).toBe(4);
-    expect(contract.legalTerms[0]).toContain("Art. 1.314");
+    expect(contract.legalTerms.join(" ")).toContain("Não é bilhete");
+    expect(contract.legalTerms.join(" ")).toContain("não prova autoria");
+    expect(contract.legalTerms.join(" ")).not.toContain("Art. 1.314");
   });
 });

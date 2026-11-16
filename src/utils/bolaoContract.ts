@@ -1,13 +1,5 @@
-/**
- * Titan Loterias - Gerador de Contrato Blindado de Bolão (Art. 1.314 do Código Civil)
- * 
- * Regras Jurídicas do Brasil:
- * - O bolão particular é reconhecido pelo Superior Tribunal de Justiça (STJ) e pelo
- *   Código Civil Brasileiro como Condomínio Voluntário (Artigos 1.314 a 1.322).
- * - O organizador do bolão atua como mandatário fiduciário de todos os cotistas.
- * - Este módulo gera um selo criptográfico determinístico (SHA-256) inviolável
- *   contendo a lista imutável de participantes, cotas e jogos antes da realização do sorteio.
- */
+/** Registro interno de organização de bolão. Hash detecta alterações no conteúdo,
+ * mas não autentica participantes, pagamentos ou data perante terceiros. */
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -46,7 +38,7 @@ export interface BolaoContractData {
 }
 
 /**
- * Calcula o hash criptográfico SHA-256 no browser ou Node para selar o contrato
+ * Calcula SHA-256 dos campos selecionados do planejamento no ambiente Web Crypto
  */
 export async function calculateBolaoSha256(canonicalString: string): Promise<string> {
   // Use Web Crypto API
@@ -58,21 +50,11 @@ export async function calculateBolaoSha256(canonicalString: string): Promise<str
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  // Fallback FNV-1a 64-bit hex representation
-  let h1 = 0x811c9dc5;
-  let h2 = 0x9dc5811c;
-  for (let i = 0; i < canonicalString.length; i++) {
-    const code = canonicalString.charCodeAt(i);
-    h1 = Math.imul(h1 ^ code, 0x01000193);
-    h2 = Math.imul(h2 ^ (code >> 4), 0x01000193);
-  }
-  const part1 = (h1 >>> 0).toString(16).padStart(8, "0");
-  const part2 = (h2 >>> 0).toString(16).padStart(8, "0");
-  return `${part1}${part2}${part1}${part2}`.padEnd(64, "0");
+  throw new Error("SHA-256 indisponível neste ambiente; não é seguro emitir hash alternativo.");
 }
 
 /**
- * Cria a estrutura de dados canônica e o selo de integridade do contrato
+ * Cria resumo de campos selecionados para comparação interna (não autentica o PDF)
  */
 export async function createBolaoContract(config: BolaoContractConfig): Promise<BolaoContractData> {
   const now = new Date();
@@ -101,10 +83,10 @@ export async function createBolaoContract(config: BolaoContractConfig): Promise<
   const contractId = `BOL-${config.lotteryId.substring(0, 4).toUpperCase()}-${sha256Seal.substring(0, 8).toUpperCase()}`;
 
   const legalTerms = [
-    "CLÁUSULA 1ª - DO OBJETO E NATUREZA JURÍDICA: O presente instrumento constitui Condomínio Voluntário nos termos do Art. 1.314 do Código Civil Brasileiro, com o propósito exclusivo de participação coletiva em concurso oficial das Loterias da Caixa Econômica Federal.",
-    "CLÁUSULA 2ª - DA REPRESENTAÇÃO E DEVER FIDUCIÁRIO: O(A) Organizador(a) acima qualificado(a) atua na condição de mandatário(a) e depositário(a) legal dos bilhetes impressos, com obrigação expressa de custódia e resgate do prêmio no prazo legal de 90 dias junto à Caixa.",
-    "CLÁUSULA 3ª - DA DIVISÃO E RATEIO DO PRÊMIO LÍQUIDO: Qualquer premiação obtida por qualquer dos jogos anexos será dividida estritamente de forma proporcional ao número de cotas quitadas de cada participante, deduzidos os tributos e despesas bancárias oficiais aplicáveis.",
-    "CLÁUSULA 4ª - DA INVIOLABILIDADE DIGITAL (SHA-256): A autenticidade da lista de jogos e de participantes é garantida pelo selo criptográfico SHA-256 gerado previamente ao início do concurso, sendo nula qualquer alteração unilateral posterior ao fechamento das apostas.",
+    "REGISTRO INTERNO: Este documento lista uma proposta de organização entre participantes. Não é bilhete, recibo de aposta, comprovante de pagamento, contrato validado juridicamente nem confirmação de participação em Bolão Caixa.",
+    "APOSTAS OFICIAIS: O organizador deve registrar e conferir os jogos nos canais oficiais da Caixa. Sem comprovante oficial, a lista abaixo não demonstra que qualquer aposta foi realizada.",
+    "COTAS E PAGAMENTOS: Participantes, valores e status refletem apenas informações declaradas no Titan. Confirme individualmente transferências, divisão acordada e comprovantes de cada participante.",
+    "HASH SHA-256: O resumo permite comparar os campos selecionados do planejamento com outra cópia calculada pela mesma versão do aplicativo; não autentica o PDF inteiro. Sem assinatura digital confiável ou carimbo de tempo independente, ele não prova autoria, data anterior ao sorteio ou validade jurídica. Consulte orientação profissional para acordos formais.",
   ];
 
   return {
@@ -117,7 +99,7 @@ export async function createBolaoContract(config: BolaoContractConfig): Promise<
 }
 
 /**
- * Gera o documento formal em PDF do Contrato Blindado
+ * Gera o PDF de registro interno, sem efeito de comprovante oficial
  */
 export async function generateBolaoContractPdf(config: BolaoContractConfig): Promise<void> {
   const contract = await createBolaoContract(config);
@@ -128,25 +110,25 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
     format: "a4",
   });
 
-  // Cabeçalho Oficial
+  // Cabeçalho do registro interno
   doc.setFillColor(15, 23, 42); // slate-900
   doc.rect(0, 0, 210, 28, "F");
 
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text("TITAN LOTERIAS — CONTRATO DE CONDOMÍNIO VOLUNTÁRIO", 14, 12);
+  doc.text("TITAN LOTERIAS — REGISTRO INTERNO DE BOLÃO", 14, 12);
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184); // slate-400
   doc.text(
-    `Selo Jurídico: Art. 1.314 do Código Civil Brasileiro | Identificador: ${contract.contractId}`,
+    `Identificador interno: ${contract.contractId}`,
     14,
     20
   );
 
-  // Selo Criptográfico
+  // Hash de conteúdo (não é carimbo de tempo)
   doc.setDrawColor(16, 185, 129); // emerald-500
   doc.setFillColor(240, 253, 244); // emerald-50
   doc.roundedRect(14, 33, 182, 16, 2, 2, "FD");
@@ -154,7 +136,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.setTextColor(6, 95, 70); // emerald-800
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
-  doc.text("SELO DIGITAL DE INTEGRIDADE CRIPTOGRÁFICA (SHA-256):", 18, 39);
+  doc.text("HASH DE CONTEÚDO SHA-256 (SEM CARIMBO DE TEMPO):", 18, 39);
 
   doc.setFont("courier", "bold");
   doc.setFontSize(7.5);
@@ -170,10 +152,10 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.text(`Modalidade: ${config.lotteryName.toUpperCase()}${config.concurso ? ` | Concurso: #${config.concurso}` : ""}`, 14, 61);
-  doc.text(`Organizador Fiduciário: ${config.organizerName.toUpperCase()}`, 14, 66);
-  doc.text(`Chave PIX Oficial de Liquidação: ${config.organizerPixKey || "Não informada"} (${config.organizerCity})`, 14, 71);
+  doc.text(`Organizador informado: ${config.organizerName.toUpperCase()}`, 14, 66);
+  doc.text(`Chave PIX informada pelo organizador: ${config.organizerPixKey || "Não informada"} (${config.organizerCity})`, 14, 71);
   doc.text(`Custo Total: R$ ${config.totalCost.toFixed(2)} | Cotas Totais: ${config.totalShares} | Valor/Cota: R$ ${config.costPerShare.toFixed(2)}`, 14, 76);
-  doc.text(`Data de Emissão e Fechamento do Bolão: ${contract.formattedDate}`, 14, 81);
+  doc.text(`Data local de geração do registro: ${contract.formattedDate}`, 14, 81);
 
   // Tabela de Participantes
   doc.setFont("helvetica", "bold");
@@ -210,7 +192,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.setFontSize(9.5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(15, 23, 42);
-  doc.text(`3. LISTA IMUTÁVEL DE APOSTAS REGISTRADAS (${config.games.length} JOGOS)`, 14, tableStartY);
+  doc.text(`3. JOGOS PLANEJADOS (NÃO REGISTRADOS NA CAIXA) (${config.games.length} JOGOS)`, 14, tableStartY);
 
   const gamesRows = config.games.map((game, idx) => {
     const sorted = [...game].sort((a, b) => a - b).map((n) => String(n).padStart(2, "0")).join(" ");
@@ -232,7 +214,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
-  doc.text("4. TERMOS E CLÁUSULAS JURÍDICAS DO CONDOMÍNIO VOLUNTÁRIO", 14, 20);
+  doc.text("4. AVISOS E LIMITAÇÕES DO REGISTRO INTERNO", 14, 20);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
@@ -254,10 +236,10 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text(config.organizerName.toUpperCase(), 55, currentY + 20, { align: "center" });
-  doc.text("ORGANIZADOR(A) FIDUCIÁRIO(A)", 55, currentY + 24, { align: "center" });
+  doc.text("ORGANIZADOR(A) INFORMADO(A)", 55, currentY + 24, { align: "center" });
 
   doc.text("TESTEMUNHA / COTISTA", 155, currentY + 20, { align: "center" });
-  doc.text("REPRESENTAÇÃO COLETIVA", 155, currentY + 24, { align: "center" });
+  doc.text("CIÊNCIA DOS PARTICIPANTES (SE ASSINADO)", 155, currentY + 24, { align: "center" });
 
   // Rodapé em todas as páginas
   const totalPages = doc.getNumberOfPages();
@@ -269,13 +251,13 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
 
     doc.line(14, 285, 196, 285);
     doc.text(
-      `Titan Loterias — Contrato de Bolão Blindado | ID: ${contract.contractId}`,
+      `Titan Loterias — Registro interno, sem comprovante oficial | ID: ${contract.contractId}`,
       14,
       290
     );
     doc.text(`Página ${i} de ${totalPages}`, 196, 290, { align: "right" });
   }
 
-  const filename = `Contrato_Bolao_${config.lotteryId}_${contract.contractId}.pdf`;
+  const filename = `Registro_Interno_Bolao_${config.lotteryId}_${contract.contractId}.pdf`;
   doc.save(filename);
 }

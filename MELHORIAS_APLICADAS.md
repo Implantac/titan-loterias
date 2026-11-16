@@ -209,3 +209,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Decisão explícita do proprietário: anual renova automaticamente; desconto de R$ 397,00/75% e parcelamento não têm comprovação e foram removidos da comunicação. Planos, landing, FAQ e Termos passaram a diferenciar assinatura anual recorrente de pagamento único vitalício; meios e preço final dependem do checkout. Nenhum checkout/compra real foi acionado.
 - CTA sazonal direciona ao bolão com `lottery=megasena`; o login preserva caminho e query, e o bolão só restaura rascunho válido da modalidade escolhida. Teste E2E autenticado ainda pendente.
 - Typecheck e suíte completa: 229 testes aprovados. Auditoria de Stripe, RLS e deploy da edge function ainda depende de homologação/autorização.
+
+### Registro interno de bolão e transparência PIX (2026-11-13)
+- Substituídas alegações de “contrato blindado”, recibo de aposta e cobrança automática por registro interno de planejamento. PDF e diálogo esclarecem que jogos, cotas e pagamentos declarados não substituem bilhete oficial da Caixa, comprovante bancário ou acordo formal.
+- Hash SHA-256 agora falha explicitamente se Web Crypto não estiver disponível, em vez de rotular um hash alternativo como SHA-256. O hash cobre campos selecionados, não autentica PDF, autoria ou anterioridade.
+- QR PIX representa uma cota e não verifica transferências; mensagens individuais mostram o total devido e painel explicita marcação manual. Typecheck e suíte completa: 229 testes aprovados em 47 arquivos. Sem teste bancário, aposta ou homologação.

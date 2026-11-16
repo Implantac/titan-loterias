@@ -319,7 +319,7 @@ export default function BolaoPage() {
 
   const pad = (n: number) => n.toString().padStart(2, "0");
 
-  // Payload PIX oficial do BACEN
+  // Payload PIX gerado localmente (não confirma transação)
   const pixPayload = useMemo(() => {
     if (!pixKey.trim()) return "";
     return generatePixPayload({
@@ -340,7 +340,7 @@ export default function BolaoPage() {
     }
   }, [pixPayload]);
 
-  // Estatísticas de Arrecadação
+  // Estatísticas de pagamentos marcados manualmente
   const paidStats = useMemo(() => {
     const paidParticipants = participants.filter((p) => p.paid);
     const paidShares = paidParticipants.reduce((acc, p) => acc + (p.shares || 1), 0);
@@ -362,16 +362,13 @@ export default function BolaoPage() {
     lines.push(`Participante: *${cota.participant.name}*`);
     lines.push(`Cotas: *${cota.participant.shares}* de *${totalShares}* (${cota.percentage.toFixed(1)}% do bolão)`);
     lines.push(`Valor a Pagar: *${formatCurrency(cota.cost)}*`);
-    lines.push(`Total de jogos no bolão: *${games.length} apostas*`);
+    lines.push(`Jogos planejados no grupo: *${games.length}* (confirme registro oficial)`);
     if (pixKey.trim()) {
       lines.push("");
       lines.push(`⚡ *DADOS PARA PAGAMENTO PIX:*`);
       lines.push(`• Chave PIX: \`${pixKey.trim()}\``);
       if (pixName.trim()) lines.push(`• Titular: *${pixName.trim()}*`);
-      if (pixPayload) {
-        lines.push(`• PIX Copia e Cola:`);
-        lines.push(`\`${pixPayload}\``);
-      }
+      lines.push(`• Confira o valor individual de ${formatCurrency(cota.cost)} antes de transferir; o QR da tela representa apenas UMA cota.`);
     }
     lines.push("");
     lines.push(`📋 *Seus Jogos Atribuídos (${cota.gameIndices.length}):*`);
@@ -380,7 +377,7 @@ export default function BolaoPage() {
       lines.push(`#${String(idx + 1).padStart(3, "0")}: ${g.map(pad).join(" ")}`);
     });
     lines.push("");
-    lines.push("⚖️ *Regra de Premiação:* Todos os prêmios conquistados pelo bolão são divididos rigorosamente na proporção das cotas adquiridas.");
+    lines.push("⚖️ *Proposta de rateio:* Confirme com todos os participantes as cotas e condições antes de registrar a aposta na Caixa.");
     lines.push("Titan Loterias • Gestão Profissional de Bolões");
     return lines.join("\n");
   };
@@ -428,7 +425,7 @@ export default function BolaoPage() {
   // PDF Export
   const downloadBolaoPDF = () => {
     if (games.length === 0) {
-      toast.error("Adicione ou gere jogos antes de exportar o comprovante.");
+      toast.error("Adicione ou gere jogos antes de exportar o registro interno.");
       return;
     }
 
@@ -446,9 +443,9 @@ export default function BolaoPage() {
 
     const info = [
       `Loteria: ${activeConfig.name}   |   Concurso Referencia: #${draws?.[0]?.concurso ? draws[0].concurso + 1 : "Proximo"}`,
-      `Investimento Total: ${formatCurrency(totalCost)}   |   Total de Apostas: ${games.length} jogos   |   Preco unitario: ${formatCurrency(ticketPrice)}`,
+      `Custo Planejado: ${formatCurrency(totalCost)}   |   Total de Apostas: ${games.length} jogos   |   Preco unitario: ${formatCurrency(ticketPrice)}`,
       `Total de Cotas: ${totalShares}   |   Valor por Cota: ${formatCurrency(costPerShare)}`,
-      `Regra de Rateio: Rateio estritamente proporcional ao numero de cotas de cada participante.`,
+      `Proposta de rateio: confirmar por escrito com todos os participantes.`,
       `Documento gerado em ${new Date().toLocaleString("pt-BR")} via Titan Loterias`,
     ];
     info.forEach((t, i) => doc.text(t, 40, 75 + i * 14));
@@ -483,7 +480,7 @@ export default function BolaoPage() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(30);
-    doc.text(`Relacao de Jogos Registrados (${games.length})`, 40, nextY);
+    doc.text(`Relacao de Jogos Planejados (${games.length})`, 40, nextY);
 
     const gameRows = games.map((g, i) => [
       `Jogo #${String(i + 1).padStart(3, "0")}`,
@@ -506,12 +503,12 @@ export default function BolaoPage() {
       doc.setPage(p);
       doc.setFontSize(8);
       doc.setTextColor(120);
-      doc.text("Titan Loterias • Comprovante de Gestao de Bolao Colaborativo", 40, doc.internal.pageSize.getHeight() - 15);
+      doc.text("Titan Loterias • Registro interno; nao comprova aposta, cota ou pagamento", 40, doc.internal.pageSize.getHeight() - 15);
       doc.text(`Pagina ${p} de ${pageCount}`, w - 70, doc.internal.pageSize.getHeight() - 15);
     }
 
     doc.save(`bolao-${activeConfig.id}-${games.length}jogos-${totalShares}cotas.pdf`);
-    toast.success("Comprovante PDF do Bolão exportado!");
+    toast.success("Registro interno do bolão exportado.");
   };
 
   // Save to saved_bets
@@ -558,7 +555,7 @@ export default function BolaoPage() {
           </h1>
           <p className="text-sm text-muted-foreground font-medium max-w-2xl leading-relaxed">
             Organize bolões com rigor estatístico: rateio automático de cotas, desdobramentos matemáticos,
-            mensagens individuais para WhatsApp e comprovantes em PDF.
+            mensagens individuais para WhatsApp e registros internos em PDF.
           </p>
         </div>
 
@@ -569,7 +566,7 @@ export default function BolaoPage() {
             disabled={games.length === 0}
             className="gap-1.5 font-bold border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-xs h-9"
           >
-            <Shield className="w-3.5 h-3.5" /> Contrato Blindado (SHA-256)
+            <Shield className="w-3.5 h-3.5" /> Registro interno (SHA-256)
           </Button>
           <Button
             variant="outline"
@@ -600,7 +597,7 @@ export default function BolaoPage() {
             disabled={games.length === 0}
             className="gap-1.5 font-bold text-xs h-9"
           >
-            <FileDown className="w-3.5 h-3.5 text-primary" /> Recibo PDF
+            <FileDown className="w-3.5 h-3.5 text-primary" /> Registro PDF
           </Button>
           <Button
             onClick={sendGroupWhatsApp}
@@ -913,11 +910,11 @@ export default function BolaoPage() {
                   <div className="flex items-center gap-2">
                     <QrCode className="w-4 h-4 text-emerald-400" />
                     <span className="text-xs font-bold text-foreground">
-                      Cobrança PIX Automática das Cotas
+                      QR PIX do organizador (uma cota)
                     </span>
                   </div>
                   <Badge variant="outline" className="text-[10px] font-mono text-emerald-400 border-emerald-500/30 bg-emerald-500/10">
-                    BACEN EMV Padrão
+                    Código gerado localmente
                   </Badge>
                 </div>
 
@@ -945,17 +942,19 @@ export default function BolaoPage() {
                 {/* Status da Arrecadação */}
                 <div className="space-y-1.5 pt-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Progresso de Arrecadação:</span>
+                    <span className="text-muted-foreground">Pagamentos marcados manualmente:</span>
                     <span className="font-mono font-bold text-emerald-400">
                       {formatCurrency(paidStats.paidAmount)} de {formatCurrency(totalCost)} ({paidStats.progressPercent}%)
                     </span>
                   </div>
                   <Progress value={paidStats.progressPercent} className="h-2 bg-secondary" />
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span>{paidStats.paidCount} de {participants.length} participantes confirmados</span>
-                    <span>Falta arrecadar: {formatCurrency(Math.max(0, totalCost - paidStats.paidAmount))}</span>
+                    <span>{paidStats.paidCount} de {participants.length} participantes marcados como pagos</span>
+                    <span>Ainda não marcado: {formatCurrency(Math.max(0, totalCost - paidStats.paidAmount))}</span>
                   </div>
                 </div>
+
+                <p className="text-[10px] text-muted-foreground">O Titan não consulta o banco e não confirma transferências. Confira destinatário, valor e comprovante no aplicativo bancário antes de marcar como pago. O QR abaixo representa uma cota; participantes com várias cotas devem conferir o total individual.</p>
 
                 {/* Exibição do QR Code e Código Copia e Cola */}
                 {pixKey.trim() && pixPayload && (

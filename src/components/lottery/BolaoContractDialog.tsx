@@ -50,7 +50,7 @@ export function BolaoContractDialog({
     if (!contractData) return;
     navigator.clipboard.writeText(contractData.sha256Seal);
     setCopiedHash(true);
-    toast.success("Selo Criptográfico SHA-256 copiado!");
+    toast.success("Hash SHA-256 copiado.");
     setTimeout(() => setCopiedHash(false), 2000);
   };
 
@@ -58,9 +58,9 @@ export function BolaoContractDialog({
     try {
       setGeneratingPdf(true);
       await generateBolaoContractPdf(config);
-      toast.success("Contrato do Bolão em PDF baixado com sucesso!");
+      toast.success("Registro interno em PDF baixado.");
     } catch {
-      toast.error("Erro ao gerar PDF do contrato.");
+      toast.error("Erro ao gerar registro interno em PDF.");
     } finally {
       setGeneratingPdf(false);
     }
@@ -76,25 +76,23 @@ export function BolaoContractDialog({
             </div>
             <div>
               <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                Contrato Blindado de Bolão
-                <Badge variant="outline" className="text-[10px] uppercase font-mono text-emerald-400 border-emerald-500/30">
-                  Art. 1.314 CC
-                </Badge>
+                Registro interno do bolão
+
               </DialogTitle>
               <DialogDescription className="text-xs">
-                Condomínio Voluntário e Termo de Depósito Fiduciário com Selo Criptográfico SHA-256
+                Resumo de organização e hash de conteúdo SHA-256; não é documento oficial da Caixa.
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-4 pt-1">
-          {/* Box do Selo SHA-256 */}
+          {/* Hash de conteúdo SHA-256 */}
           {contractData && (
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wide">
-                  <Lock className="w-3.5 h-3.5" /> Selo Digital Imutável (SHA-256):
+                  <Lock className="w-3.5 h-3.5" /> Hash do conteúdo (SHA-256):
                 </span>
                 <Badge variant="outline" className="text-[10px] font-mono text-emerald-300 border-emerald-500/30">
                   {contractData.contractId}
@@ -114,7 +112,7 @@ export function BolaoContractDialog({
               </div>
 
               <span className="text-[10px] text-emerald-300/80 block">
-                Emitido em: {contractData.formattedDate}. Este código prova que os jogos e cotas foram definidos antes do sorteio.
+                Emitido em: {contractData.formattedDate}. O hash detecta alterações entre cópias; não prova autoria, pagamento ou data anterior ao sorteio.
               </span>
             </div>
           )}
@@ -139,22 +137,15 @@ export function BolaoContractDialog({
             </div>
           </div>
 
-          {/* Cláusulas Legais em Destaque */}
+          {/* Limitações do registro interno */}
           <div className="p-3 rounded-xl bg-card border border-border/40 space-y-2">
             <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-primary" /> Cláusulas e Garantias Contratuais:
+              <Scale className="w-3.5 h-3.5 text-primary" /> Avisos do registro interno:
             </span>
 
             <div className="space-y-2 text-[11px] text-muted-foreground leading-relaxed">
-              <p>
-                <strong>1. Condomínio Voluntário:</strong> Nos termos do Art. 1.314 do Código Civil, cada participante é coproprietário dos bilhetes de forma proporcional à sua respectiva cota financeira quitada.
-              </p>
-              <p>
-                <strong>2. Dever Fiduciário do Organizador:</strong> O organizador compromete-se a guardar os bilhetes originais, conferir o resultado e realizar o resgate junto à Caixa Econômica Federal em até 90 dias, vedada qualquer retenção indevida sob pena do Art. 168 do Código Penal (apropriação indébita).
-              </p>
-              <p>
-                <strong>3. Rateio Líquido Proporcional:</strong> Todo e qualquer valor de premiação líquida resgatada será distribuído imediatamente via PIX ou transferência aos cotistas cadastrados no contrato.
-              </p>
+              <p>Jogos e cotas são informações declaradas pelo organizador. Confirme pagamento e acordos com cada participante.</p>
+              <p>Somente o comprovante emitido pelos canais oficiais da Caixa demonstra uma aposta registrada. Este PDF não substitui orientação jurídica para um acordo formal.</p>
             </div>
           </div>
 
@@ -192,7 +183,7 @@ export function BolaoContractDialog({
             className="gap-1.5 font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <FileDown className="w-4 h-4" />
-            {generatingPdf ? "Gerando PDF..." : "Exportar Contrato em PDF"}
+            {generatingPdf ? "Gerando PDF..." : "Exportar registro interno em PDF"}
           </Button>
         </div>
       </DialogContent>
