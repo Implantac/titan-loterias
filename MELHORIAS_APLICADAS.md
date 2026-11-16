@@ -235,3 +235,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Integridade de cotas no rascunho (2026-11-13)
 - Entrada de cotas normalizada para inteiros positivos (limite de interface de 100, **não** regra oficial Caixa). Rascunhos locais com cotas fracionárias, status de pagamento não booleano, IDs duplicados ou estrutura inconsistente não restauram participantes inválidos; jogos válidos ainda podem ser restaurados.
 - Typecheck e 234 testes em 49 arquivos aprovados. Não substitui validação de regras oficiais ou E2E autenticado.
+
+### Preço de referência e taxa privada no bolão (2026-11-13)
+- Custo da tela e PDF rotulado como planejamento com preço de referência interno por jogo simples, não confirmação de preço vigente da Caixa. Taxa opcional do organizador aparece separada no resumo, PDF e mensagem do grupo, identificada como taxa privada e não tarifa Caixa; confirmação externa continua necessária.
+- Typecheck e 234 testes em 49 arquivos aprovados. Valores oficiais atuais e fluxo E2E não homologados.

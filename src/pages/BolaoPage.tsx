@@ -112,7 +112,7 @@ export default function BolaoPage() {
   const [contractOpen, setContractOpen] = useState(false);
   const [teimosinhaOpen, setTeimosinhaOpen] = useState(false);
 
-  // Ticket price from official Caixa pricing table
+  // Referência interna por jogo simples; preço vigente precisa ser conferido nos canais Caixa
   const ticketPrice = LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
 
   // Persistir configs de PIX
@@ -355,6 +355,7 @@ export default function BolaoPage() {
       concurso: draws?.[0]?.concurso ? draws[0].concurso + 1 : undefined,
       gamesCount: games.length,
       totalCost,
+      organizerFeeAmount: adminFeeAmount,
       costPerShare,
       totalShares,
       pixKey: pixKey.trim(),
@@ -408,8 +409,8 @@ export default function BolaoPage() {
 
     const info = [
       `Loteria: ${activeConfig.name}   |   Concurso Referencia: #${draws?.[0]?.concurso ? draws[0].concurso + 1 : "Proximo"}`,
-      `Custo Planejado: ${formatCurrency(totalCost)}   |   Total de Apostas: ${games.length} jogos   |   Preco unitario: ${formatCurrency(ticketPrice)}`,
-      `Total de Cotas: ${totalShares}   |   Valor por Cota: ${formatCurrency(costPerShare)}`,
+      `Custo Planejado: ${formatCurrency(totalCost)}   |   Jogos: ${games.length}   |   Referencia/jogo: ${formatCurrency(ticketPrice)}`,
+      `Taxa privada do organizador (nao Caixa): ${formatCurrency(adminFeeAmount)}   |   ${totalShares} cotas: ${formatCurrency(costPerShare)}/cota`,
       `Proposta de rateio: confirmar por escrito com todos os participantes.`,
       `Documento gerado em ${new Date().toLocaleString("pt-BR")} via Titan Loterias`,
     ];
@@ -581,13 +582,13 @@ export default function BolaoPage() {
         <Card className="glass-card border-border/40">
           <CardContent className="p-4 space-y-1">
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase">
-              <Coins className="w-3.5 h-3.5 text-accent" /> Custo Total
+              <Coins className="w-3.5 h-3.5 text-accent" /> Custo planejado
             </div>
             <p className="text-2xl font-black font-mono tracking-tight text-foreground">
               {formatCurrency(totalCost)}
             </p>
             <p className="text-[10px] text-muted-foreground font-mono">
-              {games.length} jogos × {formatCurrency(ticketPrice)}
+              {games.length} jogos × {formatCurrency(ticketPrice)} + {formatCurrency(adminFeeAmount)} de taxa opcional
             </p>
           </CardContent>
         </Card>
@@ -666,16 +667,18 @@ export default function BolaoPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Preço por Jogo</Label>
+                  <Label className="text-xs text-muted-foreground">Referência interna por jogo simples</Label>
                   <div className="p-2.5 rounded-lg border bg-muted/20 text-xs font-mono font-bold text-emerald-400">
                     {formatCurrency(ticketPrice)}
                   </div>
                 </div>
               </div>
 
+              <p className="text-xs text-muted-foreground">Valor de referência configurado no Titan; confirme preço e regras atuais nos canais oficiais da Caixa antes de apostar. O Titan não registra jogos.</p>
+
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <Label className="text-xs text-muted-foreground">Taxa do Organizador (Opcional)</Label>
+                  <Label className="text-xs text-muted-foreground">Taxa privada do organizador (não é tarifa Caixa)</Label>
                   <span className="text-xs font-mono font-bold text-primary">{adminFeePercent}%</span>
                 </div>
                 <div className="flex gap-2">
@@ -691,6 +694,7 @@ export default function BolaoPage() {
                     </Button>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground">Taxa opcional calculada sobre o custo de referência dos jogos: {formatCurrency(adminFeeAmount)}. Combine-a previamente com os participantes.</p>
               </div>
             </CardContent>
           </Card>

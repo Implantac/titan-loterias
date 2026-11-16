@@ -70,6 +70,7 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
       concurso: 2800,
       gamesCount: 20,
       totalCost: 120,
+      organizerFeeAmount: 10,
       costPerShare: 12,
       totalShares: 10,
       pixKey: "12345678900",
@@ -80,6 +81,7 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
     expect(msg).toContain("BOLÃO DA VIRADA TITAN");
     expect(msg).toContain("*Mega-Sena* (Concurso #2800)");
     expect(msg).toContain("R$ 12,00");
+    expect(msg).toContain("taxa privada do organizador (não é tarifa Caixa): *R$ 10,00*");
     expect(msg).toContain("12345678900");
     expect(msg).toContain("PIX COPIA E COLA — VALOR DE UMA COTA");
     expect(msg).toContain("não comprova aposta na Caixa");

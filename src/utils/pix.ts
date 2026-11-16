@@ -147,6 +147,7 @@ export interface BolaoWhatsAppConfig {
   concurso?: number;
   gamesCount: number;
   totalCost: number;
+  organizerFeeAmount?: number;
   costPerShare: number;
   totalShares: number;
   pixKey: string;
@@ -167,6 +168,7 @@ export function formatBolaoWhatsAppMessage(config: BolaoWhatsAppConfig): string 
     `• Jogos planejados: *${config.gamesCount}*`,
     config.strategySummary ? `• Estratégia: *${config.strategySummary}*` : `• Estratégia: *Filtros Titan & Desdobramento Quantitativo*`,
     `• Custo total planejado: *R$ ${config.totalCost.toFixed(2).replace(".", ",")}*`,
+    `• Inclui taxa privada do organizador (não é tarifa Caixa): *R$ ${(config.organizerFeeAmount ?? 0).toFixed(2).replace(".", ",")}*`,
     `• Total de Cotas: *${config.totalShares} cotas*`,
     "",
     `💰 *VALOR POR COTA:*`,
