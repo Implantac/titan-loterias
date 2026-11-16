@@ -151,6 +151,8 @@ describe("alegações comerciais auditáveis", () => {
     expect(page).toContain("O Titan não consulta o banco e não confirma transferências");
     expect(page).toContain("As cotas se referem ao grupo inteiro de jogos");
     expect(page).not.toContain("Jogos Atribuidos");
+    expect(page).not.toContain("para não dividir o prêmio caso seja premiado");
+    expect(page).toContain("Não aumenta a chance de acerto nem garante");
     expect(page).toContain("!pixPayload");
     expect(record).toContain("Não é bilhete, recibo de aposta");
     expect(record).toContain("não autentica o PDF inteiro");

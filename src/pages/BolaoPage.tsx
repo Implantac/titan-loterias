@@ -270,7 +270,7 @@ export default function BolaoPage() {
       newGames.push(res.bet);
     }
     setGames(newGames);
-    toast.success(`${quickGameCount} jogos gerados com filtro anti-divisão de prêmio!`);
+    toast.success(`${quickGameCount} jogos gerados com filtro de padrões populares. Isso não garante prêmio nem evita divisão.`);
   };
 
   const handleImportSaved = () => {
@@ -457,7 +457,7 @@ export default function BolaoPage() {
 
     autoTable(doc, {
       startY: nextY + 10,
-      head: [["Aposta", ...Array.from({ length: activeConfig.pick }, (_, i) => `D${i + 1}`)]],
+      head: [["Jogo planejado", ...Array.from({ length: activeConfig.pick }, (_, i) => `D${i + 1}`)]],
       body: gameRows,
       styles: { font: "helvetica", fontSize: 8, halign: "center", cellPadding: 2.5 },
       headStyles: { fillColor: [20, 25, 35], textColor: 255 },
@@ -784,7 +784,7 @@ export default function BolaoPage() {
                 <TabsContent value="split_avoidance" className="space-y-3 pt-2">
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
-                      <Label className="text-xs text-muted-foreground">Quantidade de Apostas</Label>
+                      <Label className="text-xs text-muted-foreground">Quantidade de jogos planejados</Label>
                       <span className="font-mono font-bold text-primary">{quickGameCount} jogos</span>
                     </div>
                     <div className="flex gap-2">
@@ -801,11 +801,11 @@ export default function BolaoPage() {
                       ))}
                     </div>
                     <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
-                      Filtro que penaliza sequências e padrões populares para não dividir o prêmio caso seja premiado.
+                      Filtro que reduz padrões populares em comparação com a geração sem filtro. Não aumenta a chance de acerto nem garante que um eventual prêmio não seja dividido.
                     </p>
                   </div>
                   <Button onClick={handleGenerateSplitAvoidance} className="w-full text-xs font-bold">
-                    Gerar {quickGameCount} Jogos Anti-Divisão
+                    Gerar {quickGameCount} Jogos com Filtro de Padrões
                   </Button>
                 </TabsContent>
 

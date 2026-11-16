@@ -247,3 +247,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Avisos informativos Mega-Sena x Bolão Caixa (2026-11-13)
 - Consultada página atual da Caixa: https://loterias.caixa.gov.br/Paginas/mega-sena.aspx (acesso 13/11/2026). Tela de planejamento Mega-Sena diferencia bolão privado de recibo oficial, mostra link da fonte e alerta sobre faixa geral de cotas (2–100), até 10 jogos por recibo, mínimo divulgado de R$ 18 por bolão e R$ 7 por cota, usando custo base sem taxa privada. Limites específicos variam com quantidade de dezenas e composição; **sem certificação de elegibilidade**.
 - Typecheck e 238 testes em 51 arquivos aprovados. Falta validar modalidades restantes, tabela por dezenas e jornada autenticada em homologação.
+
+### Mensagem honesta sobre filtro de padrões (2026-11-13)
+- Bolão deixa de sugerir que o filtro de padrões evita dividir prêmio; texto informa que não aumenta chance de acerto nem garante exclusividade de eventual premiação. PDF e controle de quantidade usam “jogos planejados” em vez de “aposta” como registro efetivo.
+- Typecheck e 238 testes em 51 arquivos aprovados. Efeito do filtro depende dos testes estatísticos existentes e não representa previsão de ganhos.
