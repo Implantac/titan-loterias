@@ -73,6 +73,9 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
     expect(msg).toContain("*Mega-Sena* (Concurso #2800)");
     expect(msg).toContain("R$ 12,00");
     expect(msg).toContain("12345678900");
-    expect(msg).toContain("PIX COPIA E COLA");
+    expect(msg).toContain("PIX COPIA E COLA — VALOR DE UMA COTA");
+    expect(msg).toContain("não comprova aposta na Caixa");
+    expect(msg).toContain("Confira destinatário e valor");
+    expect(msg).not.toContain("Total de Apostas");
   });
 });

@@ -7,7 +7,7 @@ const SHORTCUTS = [
   { label: "Gerar jogos", desc: "Criar jogos pelo perfil escolhido", to: "/gerador", icon: Sparkles },
   { label: "Analisar resultados", desc: "Conferir concursos oficiais", to: "/analise", icon: BarChart3 },
   { label: "Criar fechamento", desc: "Cobertura com mais dezenas", to: "/fechamento-universal", icon: Grid3x3 },
-  { label: "Módulo de Bolão", desc: "Cotas PIX e Contrato Blindado", to: "/bolao", icon: Users },
+  { label: "Módulo de Bolão", desc: "Cotas e registro interno", to: "/bolao", icon: Users },
   { label: "Jogos salvos", desc: "Seus jogos guardados", to: "/jogos-salvos", icon: Bookmark },
   { label: "Estatísticas", desc: "Frequência, atraso, soma", to: "/estatisticas", icon: PieChart },
 ];

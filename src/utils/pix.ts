@@ -147,7 +147,7 @@ export interface BolaoWhatsAppConfig {
 }
 
 /**
- * Monta mensagem padronizada para convocação e cobrança de Bolão no WhatsApp.
+ * Monta mensagem de planejamento de bolão; não confirma aposta ou recebimento.
  */
 export function formatBolaoWhatsAppMessage(config: BolaoWhatsAppConfig): string {
   const lines: string[] = [
@@ -155,32 +155,32 @@ export function formatBolaoWhatsAppMessage(config: BolaoWhatsAppConfig): string 
     `🏆 Modalidade: *${config.lotteryName}*${config.concurso ? ` (Concurso #${config.concurso})` : ""}`,
     "",
     `📊 *ESTRUTURA DO JOGO:*`,
-    `• Total de Apostas: *${config.gamesCount} jogos*`,
+    `• Jogos planejados: *${config.gamesCount}*`,
     config.strategySummary ? `• Estratégia: *${config.strategySummary}*` : `• Estratégia: *Filtros Titan & Desdobramento Quantitativo*`,
-    `• Custo Total das Apostas: *R$ ${config.totalCost.toFixed(2).replace(".", ",")}*`,
+    `• Custo total planejado: *R$ ${config.totalCost.toFixed(2).replace(".", ",")}*`,
     `• Total de Cotas: *${config.totalShares} cotas*`,
     "",
     `💰 *VALOR POR COTA:*`,
     `👉 *R$ ${config.costPerShare.toFixed(2).replace(".", ",")}*`,
     "",
     `⚡ *DADOS PARA PAGAMENTO PIX:*`,
-    `• Chave PIX: \`${config.pixKey}\``,
+    config.pixKey ? `• Chave PIX informada pelo organizador: \`${config.pixKey}\`` : "",
     config.organizerName ? `• Titular: *${config.organizerName}*` : "",
   ].filter(Boolean);
 
   if (config.pixPayload) {
     lines.push(
       "",
-      `📱 *PIX COPIA E COLA:*`,
+      `📱 *PIX COPIA E COLA — VALOR DE UMA COTA:*`,
       `\`${config.pixPayload}\``,
       "",
-      `_(Basta copiar o código acima e colar no app do seu banco na opção 'PIX Copia e Cola')_`
+      `_O código representa apenas uma cota. Confira destinatário e valor no aplicativo do banco; para várias cotas, confirme o total individual com o organizador._`
     );
   }
 
   lines.push(
     "",
-    `🚀 *Participe confirmando sua cota! Vamos juntos em busca do prêmio máximo!*`
+    `Este é um planejamento interno: não comprova aposta na Caixa, pagamento nem participação oficial. Confirme as regras e exija o comprovante oficial da aposta.`
   );
 
   return lines.join("\n");

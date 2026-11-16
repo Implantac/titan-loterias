@@ -98,7 +98,7 @@ const DOCS: Record<DocKey, { icon: typeof FileText; title: string; subtitle: str
         title: "1. Dados que coletamos",
         body: [
           "No cadastro: nome, e-mail e telefone. Opcionalmente, foto de perfil.",
-          "Da sua atividade na plataforma: jogos gerados e salvos, fechamentos criados, apostas registradas, histórico de resultados e indicadores de desempenho que você mesmo acompanha.",
+          "Da sua atividade na plataforma: jogos gerados e salvos, fechamentos criados, registros internos de jogos, histórico de resultados e indicadores de desempenho que você mesmo acompanha.",
           "Da sua compra: identificador de cliente do Stripe e plano adquirido. Números de cartão, validade e código de segurança NUNCA passam pelos nossos servidores — o processamento é integralmente do Stripe.",
           "Dados técnicos: registros de acesso e erros necessários para segurança e diagnóstico.",
         ],
