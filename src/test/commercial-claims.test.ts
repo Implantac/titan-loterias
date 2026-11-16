@@ -66,6 +66,15 @@ describe("alegações comerciais auditáveis", () => {
     expect(comparison).not.toContain(">Melhor</Badge>");
   });
 
+  it("PDF e Excel profissionais verificam os jogos que exportam", () => {
+    const panel = content("src/components/closing/ClosingProExportPanel.tsx");
+    expect(panel).toContain("validateExportedGames(");
+    expect(panel).toContain("result.games,");
+    expect(panel).not.toContain("result.validation.exhaustive");
+    expect(panel).toContain("Meta não atingida");
+    expect(panel).toContain("Amostral: sem prova");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

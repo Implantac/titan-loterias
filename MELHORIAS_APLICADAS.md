@@ -128,3 +128,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Comparativo passa a excluir matrizes estruturalmente inválidas, usando a mesma regra da geração; seleção de fechamentos usa o mesmo predicado.
 - Meta declarada não é apresentada como garantia: status distingue prova exaustiva atingida, falha exaustiva e amostra. “Melhor” virou “Maior índice” e os indicadores de cobertura/custo são apresentados como descritivos, não ROI.
 - Typecheck e suíte completa: 199 testes aprovados, incluindo regressão de alegações do comparativo.
+
+### Exportação profissional de fechamentos (2026-11-13)
+- PDF e Excel agora revalidam os jogos efetivamente exportados, convertendo dezenas reais em índices da base, em vez de confiar em validação armazenada possivelmente desatualizada. Meta comprovada exige prova exaustiva e meta atingida; falha exaustiva e amostra são explicitadas.
+- Distribuição e cobertura passam a usar a mesma revalidação; removido índice de eficiência não recalculado. Meta declarada inclui hipótese de acertos na base.
+- Typecheck e suíte completa: 200 testes aprovados, incluindo regressão da exportação profissional.

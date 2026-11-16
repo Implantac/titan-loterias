@@ -4,7 +4,8 @@
  * e planilha Excel com múltiplas abas (Resumo, Jogos, Distribuição, Frequência).
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { validateExportedGames } from "@/engine/wheeling/validateExportedGames";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,17 @@ export function ClosingProExportPanel({ result }: Props) {
   const [busy, setBusy] = useState<"pdf" | "xlsx" | null>(null);
   const pad = (n: number) => n.toString().padStart(2, "0");
   const stamp = new Date().toLocaleString("pt-BR");
+  const coverage = useMemo(() => validateExportedGames(
+    result.games,
+    result.request.baseNumbers,
+    result.request.lottery.pick,
+    result.request.guarantee.hitsInBase,
+    result.request.guarantee.minHits,
+  ), [result]);
+  const proven = coverage.exhaustive && coverage.testedScenarios > 0 &&
+    coverage.guaranteedHits >= result.request.guarantee.minHits;
+  const status = proven ? "Meta comprovada" : coverage.exhaustive ? "Meta não atingida" : "Amostral: sem prova";
+
 
   const freq = (() => {
     const map = new Map<number, number>();
@@ -60,16 +72,15 @@ export function ClosingProExportPanel({ result }: Props) {
         body: [
           ["Dezenas na base", result.request.baseNumbers.length.toString()],
           ["Dezenas por jogo", result.request.lottery.pick.toString()],
-          ["Meta de garantia", `${result.request.guarantee.minHits} acertos`],
-          [result.validation.exhaustive ? "Pior caso provado" : "Menor acerto na amostra", `${result.validation.guaranteedHits} acertos`],
-          ["Tipo de validação", result.validation.exhaustive ? "100% Exaustiva (Prova combinatória)" : "Amostral (Simulação Monte Carlo)"],
-          ["Cenários testados", result.validation.testedScenarios.toLocaleString("pt-BR")],
+          ["Meta condicional (acertos)", `${result.request.guarantee.minHits} se ${result.request.guarantee.hitsInBase} sorteadas estiverem na base`],
+          [coverage.exhaustive ? "Menor acerto verificado" : "Menor acerto na amostra", `${coverage.guaranteedHits} acertos`],
+          ["Tipo de validação", status],
+          ["Cenários testados", coverage.testedScenarios.toLocaleString("pt-BR")],
           ["Jogos gerados", result.gameCount.toString()],
           [result.request.guarantee.hitsInBase === result.request.guarantee.minHits ? "Cota inferior (Schönheim)" : "Cota trivial (não otimização)", result.lowerBound.toString()],
           ["Custo total", formatCurrency(result.cost)],
           ["Preço por jogo", formatCurrency(result.request.lottery.ticketPrice)],
-          ["Cobertura", `${result.validation.coveragePercent.toFixed(1)}%`],
-          ["Eficiência", `${result.validation.efficiencyPercent.toFixed(1)}%`],
+          ["Cobertura", `${coverage.meetsGoalPercent.toFixed(1)}%`],
           ["Nota geral (0-100)", result.score.overall.toString()],
           ["Tempo de geração", `${result.elapsedMs} ms`],
         ],
@@ -81,10 +92,10 @@ export function ClosingProExportPanel({ result }: Props) {
       const finalY1 = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 400;
       doc.setFontSize(14);
       doc.text("Distribuição de acertos", 40, finalY1 + 30);
-      const distRows = Object.entries(result.validation.distribution)
+      const distRows = Object.entries(coverage.distribution)
         .sort(([a], [b]) => Number(b) - Number(a))
         .map(([hits, count]) => {
-          const pct = (count / result.validation.testedScenarios) * 100;
+          const pct = (count / Math.max(1, coverage.testedScenarios)) * 100;
           return [`${hits} acertos`, count.toString(), `${pct.toFixed(2)}%`];
         });
       autoTable(doc, {
@@ -167,16 +178,15 @@ export function ClosingProExportPanel({ result }: Props) {
         ["Métrica", "Valor"],
         ["Dezenas na base", result.request.baseNumbers.length],
         ["Dezenas por jogo", result.request.lottery.pick],
-        ["Meta de garantia", result.request.guarantee.minHits],
-        [result.validation.exhaustive ? "Pior caso provado" : "Menor acerto na amostra", result.validation.guaranteedHits],
-        ["Tipo de validação", result.validation.exhaustive ? "100% Exaustiva (Prova Matemática)" : "Amostral (Monte Carlo)"],
-        ["Cenários testados", result.validation.testedScenarios],
+        ["Meta condicional (acertos)", `${result.request.guarantee.minHits} se ${result.request.guarantee.hitsInBase} sorteadas estiverem na base`],
+        [coverage.exhaustive ? "Menor acerto verificado" : "Menor acerto na amostra", coverage.guaranteedHits],
+        ["Tipo de validação", status],
+        ["Cenários testados", coverage.testedScenarios],
         ["Jogos gerados", result.gameCount],
         [result.request.guarantee.hitsInBase === result.request.guarantee.minHits ? "Cota inferior (Schönheim)" : "Cota trivial (não otimização)", result.lowerBound],
         ["Custo total (R$)", result.cost],
         ["Preço por jogo (R$)", result.request.lottery.ticketPrice],
-        ["Cobertura (%)", result.validation.coveragePercent],
-        ["Eficiência (%)", result.validation.efficiencyPercent],
+        ["Cobertura (%)", coverage.meetsGoalPercent],
         ["Nota geral (0-100)", result.score.overall],
         ["Tempo (ms)", result.elapsedMs],
         [],
@@ -195,12 +205,12 @@ export function ClosingProExportPanel({ result }: Props) {
       XLSX.utils.book_append_sheet(wb, wsGames, "Jogos");
 
       // Aba Distribuição
-      const distRows = Object.entries(result.validation.distribution)
+      const distRows = Object.entries(coverage.distribution)
         .sort(([a], [b]) => Number(b) - Number(a))
         .map(([hits, count]) => [
           Number(hits),
           count,
-          (count / result.validation.testedScenarios) * 100,
+          (count / Math.max(1, coverage.testedScenarios)) * 100,
         ]);
       const wsDist = XLSX.utils.aoa_to_sheet([["Acertos", "Cenários", "%"], ...distRows]);
       wsDist["!cols"] = [{ wch: 10 }, { wch: 12 }, { wch: 10 }];
