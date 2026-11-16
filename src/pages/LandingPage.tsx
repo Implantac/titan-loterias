@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { MegaViradaBanner } from "@/components/landing/MegaViradaBanner";
 import { ComplianceDisclaimer } from "@/components/common/ComplianceDisclaimer";
 import { LOTTERIES } from "@/data/lotteries";
 
@@ -123,6 +124,8 @@ export default function LandingPage() {
         handleCtaClick={handleCtaClick}
         fadeUp={fadeUp}
       />
+
+      <MegaViradaBanner />
 
       {/* Stats Section */}
       <section className="py-16 md:py-24 border-y border-border/40 bg-card/20 relative overflow-hidden">

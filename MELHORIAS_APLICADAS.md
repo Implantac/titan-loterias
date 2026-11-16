@@ -194,3 +194,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - O antigo simulador “Premium” inventava retorno com multiplicadores de 0,9/1,15/1,45, preço fixo de Lotofácil e garantia padrão sem matriz validada. Substituído por planejamento de teto de gastos com preço configurado por modalidade, máximo de jogos simples e apenas matrizes estruturalmente válidas que cabem no orçamento.
 - Ao salvar, `estimated_return` fica nulo e o registro identifica `budget_plan`; o botão sem ação “Executar Estratégia” foi removido. Cobertura condicional da matriz é rotulada conforme a prova; nenhum ganho financeiro é previsto.
 - Typecheck e suíte completa: 221 testes aprovados, incluindo três testes de planejamento e regressão comercial. Nenhum registro real foi criado durante os testes.
+
+### Campanha sazonal Mega da Virada 2026 na landing (2026-11-13)
+- Faixa posicionada logo após o hero: “Prêmio inicialmente estimado em mais de R$ 1 bilhão”, com link para notícia oficial da Caixa publicada em 03/11/2026, CTA para recursos/bolão e aviso explícito de que Titan não registra apostas nem vende cotas.
+- Janela sazonal calculada em `America/Sao_Paulo`: exibe de 03/11/2026 até antes das 22h de 31/12/2026 (encerramento das apostas segundo Caixa). O componente reavalia a janela a cada minuto e desaparece após o limite; não consulta valor em tempo real, portanto o texto identifica a estimativa como inicial e sujeita a atualização.
+- Hero teve alegação geral de “garantia comprovada” substituída por cobertura condicional verificável. Typecheck e suíte completa: 224 testes aprovados, incluindo três testes de calendário/fonte. Build de produção não reexecutado nesta etapa.

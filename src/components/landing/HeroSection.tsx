@@ -85,7 +85,7 @@ export function HeroSection({
               <span className="gradient-brand-text">Loterias Caixa</span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-normal leading-relaxed">
-              Análise estatística oficial, fechamentos matemáticos com garantia comprovada e gestão profissional de cotas para bolão. Pague uma única vez, sem mensalidades.
+              Análise de resultados históricos, fechamentos com cobertura condicional verificável e organização de cotas para bolão. Apostas e prêmios dependem exclusivamente da Caixa.
             </p>
           </motion.div>
 
@@ -141,7 +141,7 @@ export function HeroSection({
             </div>
             <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
               <Zap className="w-4 h-4 text-primary shrink-0" />
-              <span>Garantia Matemática Comprovada</span>
+              <span>Cobertura Condicional Verificável</span>
             </div>
             <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
               <Users className="w-4 h-4 text-primary shrink-0" />
