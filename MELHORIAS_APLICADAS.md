@@ -149,3 +149,9 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Resposta remota da IA só pode fornecer justificativas; estratégia, meta e limite permanecem definidos pelo cálculo local, impedindo que um retorno da IA ultrapasse orçamento ou parâmetros. Prompt da edge function atualizado para não solicitar promessas de cobertura/ROI.
 - **Implantação:** a edge function precisa de deploy próprio; com a versão antiga no servidor, a nova chamada pode cair na heurística local até que a função seja publicada. Envio ao GitHub/Lovable não prova deploy da função.
 - Typecheck e suíte completa: 204 testes aprovados, incluindo regressão de orçamento e alegações comerciais.
+
+### Sugestão de bases candidatas (2026-11-13)
+- Tela e motor deixam de chamar uma base de “ideal” ou prometer garantia/custo mínimo antes da geração. Quantidade e custo são referências teóricas; orçamento acima do teto não permite aplicar candidato.
+- Corrigida seleção balanceada para completar a base com dezenas distintas mesmo quando a faixa intermediária é curta; histórico com dezenas fora do universo é ignorado e entradas inválidas retornam sem sugestões.
+- Typecheck e suíte completa: 207 testes aprovados, com três novos testes de base válida e limites.
+- Ainda pendente de envio: este commit e o anterior aguardam autenticação GitHub; não representam publicação no Lovable.

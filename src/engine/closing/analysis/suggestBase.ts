@@ -1,6 +1,5 @@
 /**
- * suggestBase — sugere uma base ideal (tamanho + dezenas) para atingir
- * uma garantia com o menor custo possível, usando estatística histórica.
+ * suggestBase — sugere bases candidatas por frequência histórica, sem prova prévia de cobertura.
  */
 
 import { schonheimBound } from "../core/combinatorics";
@@ -20,20 +19,27 @@ export interface SuggestBaseInput {
   pick: number;
   ticketPrice: number;
   recentDraws: number[][];
-  targetGuarantee: number;  // acertos garantidos desejados
+  targetGuarantee: number;  // meta de acertos desejada (a validar)
   budget?: number;          // orçamento em R$
   /** conservative | balanced | aggressive */
   risk?: "conservative" | "balanced" | "aggressive";
 }
 
 export function suggestBase(input: SuggestBaseInput): BaseSuggestion[] {
+  if (!Number.isInteger(input.totalNumbers) || !Number.isInteger(input.pick) ||
+      input.pick < 1 || input.totalNumbers <= input.pick ||
+      !Number.isInteger(input.targetGuarantee) || input.targetGuarantee < 1 ||
+      input.targetGuarantee > input.pick || !Number.isFinite(input.ticketPrice) ||
+      input.ticketPrice <= 0) return [];
   const risk = input.risk ?? "balanced";
   const draws = input.recentDraws.slice(0, 80);
 
   // Frequência
   const freq = new Map<number, number>();
   for (let i = 1; i <= input.totalNumbers; i++) freq.set(i, 0);
-  for (const d of draws) for (const n of d) freq.set(n, (freq.get(n) ?? 0) + 1);
+  for (const d of draws) for (const n of d) {
+    if (Number.isInteger(n) && n >= 1 && n <= input.totalNumbers) freq.set(n, (freq.get(n) ?? 0) + 1);
+  }
 
   const sortedByFreq = [...freq.entries()].sort((a, b) => b[1] - a[1]).map(([n]) => n);
 
@@ -68,11 +74,16 @@ export function suggestBase(input: SuggestBaseInput): BaseSuggestion[] {
         if (!picks.includes(n)) picks.push(n);
       }
     }
-    picks = [...new Set(picks)].slice(0, size).sort((a, b) => a - b);
+    picks = [...new Set(picks)];
+    for (const n of sortedByFreq) {
+      if (picks.length >= size) break;
+      if (!picks.includes(n)) picks.push(n);
+    }
+    picks = picks.slice(0, size).sort((a, b) => a - b);
 
     const rationale = [
-      `Base ${size}: cobre garantia de ${input.targetGuarantee} acertos com ~${games} jogos.`,
-      `Custo estimado ${cost.toFixed(2)} (${input.ticketPrice.toFixed(2)}/jogo).`,
+      `Base ${size}: meta solicitada de ${input.targetGuarantee} acertos; ${games} jogos são referência teórica, não prova de cobertura.`,
+      `Custo ilustrativo para ${games} jogos: R$ ${cost.toFixed(2)} (${input.ticketPrice.toFixed(2)}/jogo); a geração real pode exigir mais.`,
       risk === "aggressive"
         ? "Perfil agressivo: prioriza dezenas mais frequentes recentes."
         : risk === "conservative"
@@ -86,7 +97,7 @@ export function suggestBase(input: SuggestBaseInput): BaseSuggestion[] {
       minHits: input.targetGuarantee,
       estimatedGames: games,
       estimatedCost: cost,
-      coverageHint: input.budget && cost <= input.budget ? "Cabe no orçamento" : "Acima do orçamento",
+      coverageHint: input.budget && cost <= input.budget ? "Referência cabe no orçamento" : "Referência acima do orçamento",
       rationale,
     });
   }

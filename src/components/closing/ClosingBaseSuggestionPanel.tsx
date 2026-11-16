@@ -1,6 +1,5 @@
 /**
- * ClosingBaseSuggestionPanel — fechamento assistido: IA sugere base ideal
- * (tamanho + dezenas) para atingir a garantia com menor custo possível.
+ * ClosingBaseSuggestionPanel — fechamento assistido: sugere bases candidatas por frequência recente.
  */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,8 +59,8 @@ export function ClosingBaseSuggestionPanel({ lottery, onApply }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wand2 className="h-5 w-5 text-primary" />
-          Fechamento Assistido — Base Ideal
-          <Badge variant="secondary" className="ml-auto">IA sugere</Badge>
+          Fechamento Assistido — Bases Candidatas
+          <Badge variant="secondary" className="ml-auto">Heurística</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -74,7 +73,7 @@ export function ClosingBaseSuggestionPanel({ lottery, onApply }: Props) {
             />
           </div>
           <div>
-            <Label className="text-xs">Garantia mínima</Label>
+            <Label className="text-xs">Meta de acertos (a validar)</Label>
             <Input
               type="number" min={1} max={lottery.pick} value={targetGuarantee} className="h-9"
               onChange={e => setTargetGuarantee(Math.max(1, Math.min(lottery.pick, Number(e.target.value) || 1)))}
@@ -101,6 +100,7 @@ export function ClosingBaseSuggestionPanel({ lottery, onApply }: Props) {
 
         {suggestions && suggestions.length > 0 && (
           <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">Frequência passada não prevê sorteios futuros. Quantidade e custo são referências teóricas, não jogos gerados nem garantia; valide a cobertura após gerar.</p>
             {suggestions.map((s, i) => {
               const fits = !budget || s.estimatedCost <= budget;
               return (
@@ -111,22 +111,23 @@ export function ClosingBaseSuggestionPanel({ lottery, onApply }: Props) {
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       <Badge variant={i === 0 ? "default" : "outline"} className="font-bold">
-                        {i === 0 ? "Melhor" : `Opção ${i + 1}`}
+                        {i === 0 ? "Menor referência" : `Opção ${i + 1}`}
                       </Badge>
                       <span className="font-semibold text-sm">Base {s.baseSize} dezenas</span>
                       <span className="text-xs text-muted-foreground">·</span>
                       <span className="text-xs text-muted-foreground">
-                        ~{s.estimatedGames} jogos · {formatCurrency(s.estimatedCost)}
+                        Referência: {s.estimatedGames} jogos · {formatCurrency(s.estimatedCost)}
                       </span>
                       {fits && (
                         <span className="flex items-center gap-1 text-emerald-500 text-[11px]">
-                          <CheckCircle2 className="h-3 w-3" /> cabe no orçamento
+                          <CheckCircle2 className="h-3 w-3" /> referência cabe no orçamento
                         </span>
                       )}
                     </div>
                     <Button
                       size="sm"
                       variant={i === 0 ? "default" : "outline"}
+                      disabled={!fits}
                       onClick={() => {
                         onApply({
                           baseNumbers: s.numbers,
