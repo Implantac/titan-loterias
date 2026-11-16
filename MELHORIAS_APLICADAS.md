@@ -175,3 +175,8 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Verificação pública da edge function (2026-11-13)
 - POST anônimo com corpo vazio em `/functions/v1/ai-closing-recommendation` retornou `401` (`UNAUTHORIZED_NO_AUTH_HEADER`). Isso demonstra bloqueio da sonda sem cabeçalho, mas não prova versão da função, autorização por plano ou funcionamento da IA.
 - `docs/DEPLOY-RUNBOOK.md` atualizado para exigir confirmação de deployment e testes em homologação autorizada, sem chamadas pagas repetidas em produção.
+
+### Auditoria RLS somente leitura: evitar falso positivo (2026-11-13)
+- O roteiro agora exige papel `user` verificável e ao menos uma fixture própria por conta em cada tabela auditada. Sem fixture, reporta INCONCLUSIVO e código 2; não confunde tabela vazia com isolamento aprovado.
+- Nenhuma credencial, tabela ou política de produção foi alterada; auditoria real ainda depende de duas contas comuns com fixtures em homologação.
+- `node --check`, typecheck e suíte completa: 213 testes aprovados, incluindo teste de pré-condições sem conexão.
