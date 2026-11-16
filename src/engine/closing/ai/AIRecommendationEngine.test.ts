@@ -13,7 +13,8 @@ describe("ai/AIRecommendationEngine · heuristicRecommendation", () => {
     expect(rec.strategy).toMatch(/covering_design|genetic|simulated_annealing|greedy/);
     expect(rec.minHits).toBeGreaterThan(0);
     expect(rec.maxGames).toBeGreaterThan(0);
-    expect(rec.expectedCoverage).toBeGreaterThan(0);
+    expect(rec).not.toHaveProperty("expectedCoverage");
+    expect(rec).not.toHaveProperty("expectedROI");
     expect(rec.rationale.length).toBeGreaterThanOrEqual(5);
   });
 
@@ -32,11 +33,16 @@ describe("ai/AIRecommendationEngine · heuristicRecommendation", () => {
     expect(rec.budgetFits).toBe(true);
   });
 
+  it("orçamento inferior ao preço de um jogo não oferece plano aplicável", () => {
+    const rec = heuristicRecommendation({ lottery: lotofacil, baseSize: 18, budget: 1, ticketPrice: 3 });
+    expect(rec.maxGames).toBe(0);
+    expect(rec.budgetFits).toBe(false);
+  });
+
   it("orçamento zero: reporta budgetFits false quando custo > 0", () => {
     const rec = heuristicRecommendation({
       lottery: lotofacil, baseSize: 20, riskProfile: "balanced", budget: 0, ticketPrice: 3,
     });
-    // maxGames será 0 (Math.min(x, 0) => 0), cost 0, então budgetFits true, mas rationale menciona insuficiência apenas se cost > budget
     expect(rec.maxGames).toBeGreaterThanOrEqual(0);
   });
 });

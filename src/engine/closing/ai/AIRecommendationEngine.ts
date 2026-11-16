@@ -27,8 +27,6 @@ export interface Recommendation {
   strategy: ClosingStrategy;
   minHits: number;
   maxGames: number;
-  expectedCoverage: number;   // 0-100
-  expectedROI: number;        // % relativo ao custo
   rationale: string[];
   source: "heuristic" | "ai";
   budgetFits: boolean;
@@ -56,7 +54,6 @@ export function heuristicRecommendation(input: RecommendationInput): Recommendat
   );
 
   const totalScenarios = binomial(baseSize, pick);
-  const expectedCoverage = Math.min(99.9, 100 * (1 - Math.exp(-targetGames / Math.max(1, lowerBound))));
 
   const strategy: ClosingStrategy = targetGames >= 200
     ? "covering_design"
@@ -67,15 +64,14 @@ export function heuristicRecommendation(input: RecommendationInput): Recommendat
         : "greedy";
 
   const cost = targetGames * price;
-  const expectedROI = Math.round((expectedCoverage / 100) * 200 - 100);
-  const budgetFits = input.budget ? cost <= input.budget : true;
+  const budgetFits = targetGames > 0 && (input.budget === undefined || cost <= input.budget);
 
   const rationale = [
     `Base de ${baseSize} dezenas gera ${totalScenarios.toLocaleString("pt-BR")} cenários possíveis.`,
-    `Lower bound de Schönheim (mínimo teórico): ${lowerBound} jogos.`,
+    `Cota combinatória de referência: ${lowerBound} jogos; não comprova cobertura do conjunto sugerido.`,
     `Perfil ${risk}: alvo de ${targetGames} jogos (fator ${RISK_MULTIPLIER[risk]}× sobre o bound).`,
-    `Cobertura esperada ~${expectedCoverage.toFixed(1)}% para garantia de ${minHits} acertos.`,
-    `Estratégia sugerida: ${strategy} — melhor equilíbrio para essa escala.`,
+    `Meta de ${minHits} acertos depende dos jogos gerados e de validação posterior; não há cobertura prevista nem ROI esperado.`,
+    `Estratégia sugerida: ${strategy} para avaliação após geração.`,
     input.budget
       ? budgetFits
         ? `Orçamento de R$ ${input.budget.toFixed(2)} comporta o custo estimado de R$ ${cost.toFixed(2)}.`
@@ -87,8 +83,6 @@ export function heuristicRecommendation(input: RecommendationInput): Recommendat
     strategy,
     minHits,
     maxGames: targetGames,
-    expectedCoverage: Math.round(expectedCoverage * 10) / 10,
-    expectedROI,
     rationale,
     source: "heuristic",
     budgetFits,
@@ -105,10 +99,10 @@ export async function aiRecommendation(input: RecommendationInput): Promise<Reco
     const payload = data as { rationale?: string[]; strategy?: ClosingStrategy; minHits?: number; maxGames?: number };
     return {
       ...base,
-      strategy: payload.strategy ?? base.strategy,
-      minHits: payload.minHits ?? base.minHits,
-      maxGames: payload.maxGames ?? base.maxGames,
-      rationale: (payload.rationale && payload.rationale.length > 0) ? payload.rationale : base.rationale,
+      // A resposta remota fornece apenas explicação; números e estratégia são
+      // recalculados localmente para não ultrapassar o orçamento ou a modalidade.
+      rationale: Array.isArray(payload.rationale) && payload.rationale.every(x => typeof x === "string")
+        ? payload.rationale.slice(0, 8) : base.rationale,
       source: "ai",
     };
   } catch {

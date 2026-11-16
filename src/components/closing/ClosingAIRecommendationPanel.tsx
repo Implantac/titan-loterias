@@ -1,5 +1,5 @@
 /**
- * ClosingAIRecommendationPanel — sugere estratégia + garantia + jogos ideais
+ * ClosingAIRecommendationPanel — sugere estratégia + meta de acertos + limite de jogos
  * com base em orçamento e perfil de risco. Aplica no formulário via callback.
  */
 
@@ -82,7 +82,7 @@ export function ClosingAIRecommendationPanel({ lottery, baseSize, onApply }: Pro
       <CardContent className="space-y-3">
         <div className="grid gap-2 md:grid-cols-3">
           <div>
-            <Label className="text-xs">Orçamento (R$)</Label>
+            <Label className="text-xs">Orçamento (R$; 0 = sem teto)</Label>
             <Input
               type="number" min={0} value={budget}
               onChange={e => setBudget(Math.max(0, Number(e.target.value) || 0))}
@@ -115,28 +115,26 @@ export function ClosingAIRecommendationPanel({ lottery, baseSize, onApply }: Pro
           <div className="rounded-lg border p-3 space-y-2 bg-muted/20">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
               <Metric label="Estratégia" value={rec.strategy} />
-              <Metric label="Garantia" value={String(rec.minHits)} />
-              <Metric label="Jogos alvo" value={String(rec.maxGames)} />
-              <Metric label="Cobertura" value={`${rec.expectedCoverage}%`} />
+              <Metric label="Meta (a validar)" value={String(rec.minHits)} />
+              <Metric label="Limite de jogos" value={String(rec.maxGames)} />
             </div>
             <div className="flex items-center gap-2 text-xs">
               {rec.budgetFits ? (
                 <span className="flex items-center gap-1 text-emerald-500">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Cabe no orçamento
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Cabe no orçamento configurado
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-amber-500">
-                  <AlertTriangle className="h-3.5 w-3.5" /> Ultrapassa o orçamento
+                  <AlertTriangle className="h-3.5 w-3.5" /> Orçamento insuficiente para um jogo
                 </span>
               )}
-              <span className="text-muted-foreground">
-                ROI esperado: <span className="font-mono">{rec.expectedROI}%</span>
-              </span>
+              <span className="text-muted-foreground">Sem previsão de cobertura, prêmio ou ROI.</span>
             </div>
+            <p className="text-[11px] text-muted-foreground">Justificativas são sugestões de configuração, não evidência de vantagem; valide os jogos antes de afirmar cobertura.</p>
             <ul className="text-xs space-y-1 list-disc pl-5 text-muted-foreground">
               {rec.rationale.map((r, i) => <li key={i}>{r}</li>)}
             </ul>
-            <Button size="sm" className="w-full" onClick={() => onApply(rec)}>
+            <Button size="sm" className="w-full" disabled={!rec.budgetFits || rec.maxGames < 1} onClick={() => onApply(rec)}>
               <Sparkles className="h-4 w-4 mr-1" /> Aplicar recomendação
             </Button>
           </div>

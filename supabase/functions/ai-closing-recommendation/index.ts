@@ -15,8 +15,6 @@ interface RecommendationBody {
     strategy: string;
     minHits: number;
     maxGames: number;
-    expectedCoverage: number;
-    expectedROI: number;
     rationale: string[];
   };
 }
@@ -56,8 +54,7 @@ Deno.serve(async (req) => {
       typeof lottery.totalNumbers !== "number" || typeof lottery.pick !== "number" ||
       typeof body?.input?.baseSize !== "number" ||
       !heuristic || typeof heuristic.strategy !== "string" ||
-      typeof heuristic.minHits !== "number" || typeof heuristic.maxGames !== "number" ||
-      typeof heuristic.expectedCoverage !== "number"
+      typeof heuristic.minHits !== "number" || typeof heuristic.maxGames !== "number"
     ) {
       return new Response(
         JSON.stringify({ error: "Payload inválido: input.lottery, input.baseSize e heuristic são obrigatórios." }),
@@ -73,11 +70,11 @@ Orçamento: ${body.input.budget ? `R$ ${body.input.budget}` : "não informado"}.
 
 Recomendação heurística atual:
 - Estratégia: ${body.heuristic.strategy}
-- Garantia mínima: ${body.heuristic.minHits}
+- Meta solicitada de acertos: ${body.heuristic.minHits} (não comprovada)
 - Jogos alvo: ${body.heuristic.maxGames}
-- Cobertura esperada: ${body.heuristic.expectedCoverage}%
+- Cobertura ainda não validada; não estime probabilidade, prêmio ou ROI.
 
-Gere 4 a 6 justificativas curtas em português (linguagem natural, sem markdown, uma frase por linha) explicando por que esses parâmetros fazem sentido — cite trade-offs de custo/cobertura/risco.
+Gere 4 a 6 justificativas curtas em português (linguagem natural, sem markdown, uma frase por linha) explicando trade-offs de custo e quantidade de jogos. Não prometa vantagem estatística nem garantia.
 Retorne APENAS um JSON: { "rationale": string[] }`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

@@ -93,6 +93,15 @@ describe("alegações comerciais auditáveis", () => {
     expect(page).toContain("exaustiva: meta não atingida");
   });
 
+  it("recomendador não inventa ROI ou cobertura antes de gerar jogos", () => {
+    const engine = content("src/engine/closing/ai/AIRecommendationEngine.ts");
+    const panel = content("src/components/closing/ClosingAIRecommendationPanel.tsx");
+    expect(engine).not.toContain("expectedROI");
+    expect(engine).not.toContain("expectedCoverage");
+    expect(panel).toContain("Sem previsão de cobertura, prêmio ou ROI");
+    expect(panel).toContain("disabled={!rec.budgetFits || rec.maxGames < 1}");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

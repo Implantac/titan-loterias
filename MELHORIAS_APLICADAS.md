@@ -143,3 +143,9 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Mensagens ao aplicar presets e recomendações agora tratam acertos e jogos como meta/limite, não como garantia pré-validada. Após filtros, a tela informa revalidação da cobertura.
 - Estado visual de sucesso exige meta comprovada; enumeração exaustiva com meta falha é identificada como falha, e amostra não comprova meta. Comparativo troca “Garantia” por “Menor acerto”.
 - Typecheck e suíte completa: 202 testes aprovados, incluindo regressão de mensagens da tela universal.
+
+### Recomendador de fechamentos: sem ROI inventado (2026-11-13)
+- Removidos “ROI esperado” e “cobertura esperada” calculados de fórmula sem validação ou prêmios. Recomendações passam a mostrar apenas estratégia, meta a validar, limite de jogos e orçamento; custo insuficiente para um jogo impede aplicar.
+- Resposta remota da IA só pode fornecer justificativas; estratégia, meta e limite permanecem definidos pelo cálculo local, impedindo que um retorno da IA ultrapasse orçamento ou parâmetros. Prompt da edge function atualizado para não solicitar promessas de cobertura/ROI.
+- **Implantação:** a edge function precisa de deploy próprio; com a versão antiga no servidor, a nova chamada pode cair na heurística local até que a função seja publicada. Envio ao GitHub/Lovable não prova deploy da função.
+- Typecheck e suíte completa: 204 testes aprovados, incluindo regressão de orçamento e alegações comerciais.
