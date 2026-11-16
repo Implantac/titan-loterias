@@ -1,8 +1,8 @@
 # Runbook de implantação — pendências de produção
 
-Gerado em **09/10/2026** a partir da auditoria. Todo o código já está no `main`;
-**o que falta é implantação**, e nada disso pode ser feito a partir do
-repositório — exige o Supabase CLI autenticado e acesso ao painel.
+Gerado em **09/10/2026** a partir da auditoria; verificação pública atualizada em **13/11/2026**.
+O frontend foi confirmado pelo usuário no Lovable. O estado de migrations e Edge Functions
+no Supabase precisa de confirmação separada com acesso autorizado ao projeto.
 
 Cada passo tem o comando **e** como confirmar que funcionou. Não pule a
 verificação: foi justamente assumir que algo estava aplicado que deixou o
@@ -97,21 +97,26 @@ supabase functions deploy \
   sync-lottery-draws
 ```
 
-⚠️ **`ai-closing-recommendation` é a mais urgente.** Enquanto ela não for
-publicada, continua no ar a versão **sem autenticação** que expõe o gateway de
-IA pago.
-
-**Verificar** — a sonda que antes atravessava até o gateway agora deve parar no 401:
+⚠️ **`ai-closing-recommendation` exige verificação separada do frontend.**
+A sonda pública não autenticada abaixo retornou `401` em 13/11/2026 com
+`UNAUTHORIZED_NO_AUTH_HEADER`. Isso demonstra rejeição da requisição sem cabeçalho
+pelo gateway Supabase, **não** prova qual versão do código da função está implantada,
+nem se o novo contrato (sem campos de ROI/cobertura prevista) foi publicado.
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+curl -s -i -X POST \
   "$SUPABASE_URL/functions/v1/ai-closing-recommendation" \
   -H "Content-Type: application/json" -d '{}'
 ```
 
-Antes: `500`. Depois: **`401`**.
-
-E o rate limit deve existir (chame 21x autenticado; a 21ª devolve `429`).
+Para confirmar a versão, um operador autorizado deve comparar o deployment da função
+no painel/CLI com o código em `supabase/functions/ai-closing-recommendation/index.ts`,
+implantar essa versão se necessário e testar com **conta premium de homologação**.
+A resposta autenticada pode depender do saldo do gateway; erro do provedor não
+prova que o novo contrato funciona. Uma conta comum sem plano elegível deve receber
+negação de acesso antes do gateway. Não use contas de produção nem faça 21 chamadas
+pagas para testar o rate limit; teste o limite em homologação isolada com orçamento
+controlado e logs.
 
 ---
 

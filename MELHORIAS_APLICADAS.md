@@ -171,3 +171,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - `npm ci` concluiu; `npm run build` registrou `✓ built in 4m 13s`, gerou `dist/index.html` e assets, e o processo encerrou. O comando que aguardava terminou por timeout da ferramenta antes da captura do código de saída, portanto a evidência é o log de conclusão, não um exit code registrado.
 - O asset `index-DiQTWr41.js` e o módulo `FechamentoUniversalPage-DSQ8jRa-.js` gerados localmente correspondem aos nomes servidos pelo domínio publicado; marcadores das quatro melhorias recentes estão no módulo servido. Isso não demonstra deploy da edge function.
 - Permanecem auditoria RLS com duas contas comuns e verificação separada da edge function.
+
+### Verificação pública da edge function (2026-11-13)
+- POST anônimo com corpo vazio em `/functions/v1/ai-closing-recommendation` retornou `401` (`UNAUTHORIZED_NO_AUTH_HEADER`). Isso demonstra bloqueio da sonda sem cabeçalho, mas não prova versão da função, autorização por plano ou funcionamento da IA.
+- `docs/DEPLOY-RUNBOOK.md` atualizado para exigir confirmação de deployment e testes em homologação autorizada, sem chamadas pagas repetidas em produção.
