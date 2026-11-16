@@ -77,16 +77,16 @@ export function ClosingNextDrawPanel({ onApply }: Props) {
               min={config.pick}
               max={config.numbers}
               value={baseSize}
-              onChange={(e) => { setBaseSize(Number(e.target.value) || config.pick); setRan(false); }}
+              onChange={(e) => { setBaseSize(Math.min(config.numbers, Math.max(config.pick, Number(e.target.value) || config.pick))); setRan(false); }}
             />
           </div>
           <div>
-            <Label className="text-xs">Orçamento (R$)</Label>
+            <Label className="text-xs">Orçamento (R$; 0 = sem teto)</Label>
             <Input
               type="number"
               min={0}
               value={budget}
-              onChange={(e) => { setBudget(Number(e.target.value) || 0); setRan(false); }}
+              onChange={(e) => { setBudget(Math.max(0, Number(e.target.value) || 0)); setRan(false); }}
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export function ClosingNextDrawPanel({ onApply }: Props) {
                 <div className="flex items-center gap-2 text-xs">
                   <Badge variant="secondary" className="font-mono">{rec.strategy}</Badge>
                   <Badge className="font-mono">Meta {rec.minHits} acertos</Badge>
-                  <Badge variant="outline" className="font-mono">{rec.maxGames} jogos</Badge>
+                  <Badge variant="outline" className="font-mono">Teto {rec.maxGames} jogos</Badge>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -114,13 +114,14 @@ export function ClosingNextDrawPanel({ onApply }: Props) {
                 ))}
               </div>
               <div className="grid grid-cols-4 gap-2 text-xs">
-                <MiniStat label="Quentes" value={`${Math.round(rec.hotShare * 100)}%`} good={rec.hotShare >= 0.4} />
-                <MiniStat label="Atrasadas" value={`${Math.round(rec.overdueShare * 100)}%`} good={rec.overdueShare >= 0.15} />
-                <MiniStat label="Frias" value={`${Math.round(rec.coldShare * 100)}%`} bad={rec.coldShare >= 0.3} />
-                <MiniStat label="Balanço" value={`${rec.balanceScore}/100`} good={rec.balanceScore >= 70} />
+                <MiniStat label="Quentes" value={`${Math.round(rec.hotShare * 100)}%`}  />
+                <MiniStat label="Atrasadas" value={`${Math.round(rec.overdueShare * 100)}%`}  />
+                <MiniStat label="Frias" value={`${Math.round(rec.coldShare * 100)}%`}  />
+                <MiniStat label="Balanço" value={`${rec.balanceScore}/100`}  />
               </div>
             </div>
 
+            <p className="text-xs text-muted-foreground">Quentes, frias, atrasadas e balanço descrevem o histórico; não aumentam a probabilidade de uma dezena ser sorteada. A cobertura da meta só pode ser avaliada após gerar os jogos.</p>
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
                 <Zap className="h-3 w-3" /> Justificativa
@@ -131,7 +132,7 @@ export function ClosingNextDrawPanel({ onApply }: Props) {
             </div>
 
             {onApply && (
-              <Button variant="secondary" onClick={() => onApply(rec)}>
+              <Button variant="secondary" disabled={rec.maxGames < 1} onClick={() => onApply(rec)}>
                 Aplicar recomendação
               </Button>
             )}

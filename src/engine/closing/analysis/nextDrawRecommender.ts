@@ -1,10 +1,10 @@
 /**
  * nextDrawRecommender — heurística client-side que analisa sorteios recentes
- * e recomenda base + garantia + estratégia para o PRÓXIMO concurso.
+ * e sugere parâmetros para o próximo concurso, sem prever sorteios.
  *
  * Não usa AI Gateway. Combina:
  *   - dezenas quentes (freq alta últimas 30)
- *   - dezenas frias com atraso alto (potenciais a estourar)
+ *   - dezenas frias/atrasadas (descrição do passado, sem efeito preditivo)
  *   - repetição típica do último sorteio
  *   - soma alvo balanceada
  */
@@ -25,7 +25,6 @@ export interface NextDrawRecommendation {
   maxGames: number;
   strategy: "greedy" | "genetic" | "simulated_annealing" | "hill_climbing" | "covering_design";
   reasoning: string[];
-  expectedCoverage: number; // %
   hotShare: number;
   coldShare: number;
   overdueShare: number;
@@ -35,13 +34,15 @@ export interface NextDrawRecommendation {
 export function recommendNextDraw(input: NextDrawInput): NextDrawRecommendation {
   const { totalNumbers, pick, recentDraws, ticketPrice } = input;
   const risk = input.riskProfile ?? "balanced";
-  const targetBaseSize = input.targetBaseSize ?? Math.min(totalNumbers, pick + Math.round(pick * 0.3));
+  const requested = input.targetBaseSize ?? Math.min(totalNumbers, pick + Math.round(pick * 0.3));
+  const targetBaseSize = Math.min(totalNumbers, Math.max(pick, Math.trunc(Number.isFinite(requested) ? requested : pick)));
 
   const freq = new Map<number, number>();
   const lastSeen = new Map<number, number>();
   for (let i = 1; i <= totalNumbers; i++) { freq.set(i, 0); lastSeen.set(i, recentDraws.length); }
   recentDraws.forEach((d, idx) => {
-    for (const n of d.numbers) {
+    for (const n of new Set(d.numbers)) {
+      if (!Number.isInteger(n) || n < 1 || n > totalNumbers) continue;
       freq.set(n, (freq.get(n) ?? 0) + 1);
       const prev = lastSeen.get(n) ?? recentDraws.length;
       if (idx < prev) lastSeen.set(n, idx);
@@ -73,7 +74,7 @@ export function recommendNextDraw(input: NextDrawInput): NextDrawRecommendation 
     if (chosen.size >= hotCount + overdueCount) break;
   }
   // 3) repetição do último sorteio
-  const lastDraw = recentDraws[0]?.numbers ?? [];
+  const lastDraw = (recentDraws[0]?.numbers ?? []).filter(n => Number.isInteger(n) && n >= 1 && n <= totalNumbers);
   const lastByFreq = [...lastDraw].sort((a, b) => (freq.get(b) ?? 0) - (freq.get(a) ?? 0));
   for (const n of lastByFreq) {
     if (chosen.size >= hotCount + overdueCount + repeatCount) break;
@@ -108,17 +109,17 @@ export function recommendNextDraw(input: NextDrawInput): NextDrawRecommendation 
 
   const minHits = risk === "conservative" ? pick - 2 : risk === "aggressive" ? pick - 1 : pick - 1;
   const budget = input.budget;
-  const maxGames = budget ? Math.floor(budget / ticketPrice) : (risk === "conservative" ? 50 : risk === "aggressive" ? 200 : 100);
-  const expectedCoverage = risk === "conservative" ? 75 : risk === "aggressive" ? 92 : 85;
+  const maxGames = Number.isFinite(budget) && budget !== undefined && budget > 0 && ticketPrice > 0
+    ? Math.max(0, Math.floor(budget / ticketPrice)) : (risk === "conservative" ? 50 : risk === "aggressive" ? 200 : 100);
 
   const reasoning: string[] = [
     `Base ${baseNumbers.length} dezenas com perfil ${risk}: ${Math.round(hotShare * 100)}% quentes, ${Math.round(overdueShare * 100)}% atrasadas.`,
     `Repetição do último concurso (#${recentDraws[0]?.concurso ?? "?"}): ${baseNumbers.filter(n => lastDraw.includes(n)).length} dezenas mantidas.`,
     `Soma da base ${sum} próxima do ideal ${Math.round(idealSum)} (score ${Math.round(balanceScore)}/100).`,
-    `Garantia ${minHits} acertos com estratégia ${strategy} e ${maxGames} jogos alvo (${(maxGames * ticketPrice).toFixed(2)} R$).`,
+    `Meta condicional de ${minHits} acertos (a validar) com estratégia ${strategy}; teto de ${maxGames} jogos (${(maxGames * ticketPrice).toFixed(2)} R$ pelo preço informado).`,
     coldShare > 0.25
-      ? `Alto share de dezenas frias (${Math.round(coldShare * 100)}%) — considere reduzir para melhorar potencial.`
-      : `Baixa exposição a dezenas frias (${Math.round(coldShare * 100)}%).`,
+      ? `Alta proporção histórica de dezenas frias (${Math.round(coldShare * 100)}%); isso não prevê resultados.`
+      : `Baixa proporção histórica de dezenas frias (${Math.round(coldShare * 100)}%); isso não prevê resultados.`,
   ];
 
   return {
@@ -127,7 +128,6 @@ export function recommendNextDraw(input: NextDrawInput): NextDrawRecommendation 
     maxGames,
     strategy,
     reasoning,
-    expectedCoverage,
     hotShare,
     coldShare,
     overdueShare,

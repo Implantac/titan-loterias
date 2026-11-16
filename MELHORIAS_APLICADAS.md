@@ -155,3 +155,9 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Corrigida seleção balanceada para completar a base com dezenas distintas mesmo quando a faixa intermediária é curta; histórico com dezenas fora do universo é ignorado e entradas inválidas retornam sem sugestões.
 - Typecheck e suíte completa: 207 testes aprovados, com três novos testes de base válida e limites.
 - Ainda pendente de envio: este commit e o anterior aguardam autenticação GitHub; não representam publicação no Lovable.
+
+### Recomendação para o próximo concurso (2026-11-13)
+- Removida “cobertura esperada” fixa de 75/85/92% por perfil, sem cálculo sobre jogos. Quentes, frias, atrasadas e balanço são identificados como descrições do histórico, sem poder preditivo comprovado; meta condicional requer validação após gerar.
+- Base-alvo é limitada à modalidade, dezenas inválidas/repetidas no histórico são ignoradas, orçamento inferior ao preço de um jogo impede aplicar plano de zero jogos.
+- Typecheck e suíte completa: 210 testes aprovados; três novos testes para base, histórico e orçamento.
+- Pendente envio à main junto com os dois commits anteriores até restaurar autenticação GitHub.
