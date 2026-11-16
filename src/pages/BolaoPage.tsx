@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
+import { hasExactShareAmount } from "@/utils/bolaoShares";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { generateWithSplitAvoidance, generateByStrategy } from "@/engine/strategies";
@@ -92,7 +93,7 @@ export default function BolaoPage() {
 
   // Participants
   const [participants, setParticipants] = useState<Participant[]>([
-    { id: "1", name: "Organizador (Você)", shares: 2, paid: true },
+    { id: "1", name: "Organizador (Você)", shares: 2, paid: false },
     { id: "2", name: "Participante 2", shares: 1, paid: false },
     { id: "3", name: "Participante 3", shares: 1, paid: false },
   ]);
@@ -187,6 +188,7 @@ export default function BolaoPage() {
   const adminFeeAmount = (baseCost * adminFeePercent) / 100;
   const totalCost = baseCost + adminFeeAmount;
   const costPerShare = totalShares > 0 ? totalCost / totalShares : 0;
+  const exactShareAmount = hasExactShareAmount(totalCost, totalShares);
 
   // Split games among participants
   const cotas = useMemo<CotaAssignment[]>(() => {
@@ -321,16 +323,16 @@ export default function BolaoPage() {
 
   // Payload PIX gerado localmente (não confirma transação)
   const pixPayload = useMemo(() => {
-    if (!pixKey.trim() || !Number.isFinite(costPerShare) || costPerShare <= 0) return "";
+    if (!pixKey.trim() || !exactShareAmount) return "";
     return generatePixPayload({
       key: pixKey.trim(),
       name: pixName.trim() || "ORGANIZADOR BOLAO",
       city: pixCity.trim() || "SAO PAULO",
-      amount: costPerShare > 0 ? Number(costPerShare.toFixed(2)) : undefined,
+      amount: Number(costPerShare.toFixed(2)),
       txid: "BOLAO",
       description: `COTA ${activeConfig.name.toUpperCase()}`,
     });
-  }, [pixKey, pixName, pixCity, costPerShare, activeConfig.name]);
+  }, [pixKey, pixName, pixCity, costPerShare, exactShareAmount, activeConfig.name]);
 
   useEffect(() => {
     let active = true;
@@ -959,7 +961,10 @@ export default function BolaoPage() {
 
                 <p className="text-[10px] text-muted-foreground">O Titan não consulta o banco e não confirma transferências. Confira destinatário, valor e comprovante no aplicativo bancário antes de marcar como pago. O QR abaixo representa uma cota; participantes com várias cotas devem conferir o total individual.</p>
 
-                {pixKey.trim() && !pixPayload && (
+                {!exactShareAmount && games.length > 0 && (
+                  <p role="alert" className="text-xs text-amber-400">O custo planejado não pode ser dividido igualmente em centavos entre as cotas. Ajuste jogos, taxa ou cotas e combine os valores individualmente antes de gerar um QR de valor fixo.</p>
+                )}
+                {pixKey.trim() && exactShareAmount && !pixPayload && (
                   <p role="alert" className="text-xs text-destructive">Chave PIX inválida ou valor da cota indisponível. Confira a chave (CPF, CNPJ, e-mail, celular com +55 ou chave aleatória) e o custo antes de compartilhar.</p>
                 )}
 
@@ -1039,7 +1044,7 @@ export default function BolaoPage() {
                       title="Alternar status de pagamento da cota"
                     >
                       {p.paid ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
-                      {p.paid ? "Pago" : "Pendente"}
+                      {p.paid ? "Marcado pago" : "Pendente"}
                     </Button>
                     <Button
                       size="icon"

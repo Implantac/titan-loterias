@@ -223,3 +223,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Regressão de linguagem do bolão (2026-11-13)
 - PDF usa “marcado pago” em vez de “quitado”, pois não há verificação bancária. Teste de regressão impede retorno de “Contrato Blindado”/“Cobrança PIX Automática” e exige avisos de registro interno, status manual e guarda de chave PIX.
 - Typecheck e 231 testes aprovados em 47 arquivos. Sem teste E2E autenticado ou homologação bancária.
+
+### Cotas não divisíveis em centavos (2026-11-13)
+- Organizador deixa de aparecer como “pago” por padrão. QR PIX de valor fixo só é produzido quando o custo planejado se divide exatamente em centavos entre as cotas; caso contrário, a tela pede ajuste ou combinação de valores individuais. Status mostra “marcado pago”, não comprovação bancária.
+- Testes de fronteira cobrem divisões exatas, restos em centavos, zero e valores inválidos; typecheck e 232 testes em 48 arquivos aprovados. Os totais permanecem estimativas de planejamento, não valores homologados pela Caixa.
