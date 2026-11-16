@@ -18,6 +18,7 @@ import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
 import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
+import { megaBolaoAdvisory } from "@/utils/megaBolaoAdvisory";
 import { isRestorableBolaoParticipants, normalizeShareCount } from "@/utils/bolaoParticipants";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
@@ -188,6 +189,8 @@ export default function BolaoPage() {
   const totalCost = baseCost + adminFeeAmount;
   const costPerShare = totalShares > 0 ? totalCost / totalShares : 0;
   const exactShareAmount = hasExactShareAmount(totalCost, totalShares);
+  const megaAdvisories = activeConfig.id === "megasena"
+    ? megaBolaoAdvisory(games.length, totalShares, baseCost) : [];
 
   // Cotas representam a proporção proposta sobre o grupo inteiro, não jogos exclusivos.
   const cotas = useMemo<CotaAssignment[]>(() => participants.map((p) => ({
@@ -646,6 +649,14 @@ export default function BolaoPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {activeConfig.id === "megasena" && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs space-y-1">
+                  <p className="font-semibold">Planejamento privado ≠ Bolão Caixa</p>
+                  <p>Os limites do recibo oficial variam conforme dezenas e composição dos jogos. Confirme as regras e o registro no canal oficial antes de compartilhar cotas.</p>
+                  {megaAdvisories.map((notice) => <p key={notice} role="status">⚠ {notice}</p>)}
+                  <a href="https://loterias.caixa.gov.br/Paginas/mega-sena.aspx" target="_blank" rel="noopener noreferrer" className="underline">Consultar regras atuais da Mega-Sena na Caixa</a>
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="bolao-title" className="text-xs text-muted-foreground">Nome do Bolão</Label>
                 <Input

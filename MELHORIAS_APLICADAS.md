@@ -243,3 +243,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Transparência individual e destino WhatsApp (2026-11-13)
 - Mensagem individual e registro interno de bolão explicitam a parcela da taxa privada do organizador (não tarifa Caixa); hash dos campos selecionados inclui a taxa separada. Envio WhatsApp evita duplicar DDI +55 e abre compartilhamento sem destinatário em números malformados, em vez de endereçar outro telefone.
 - Typecheck e 236 testes em 50 arquivos aprovados. Nenhuma mensagem foi enviada durante os testes.
+
+### Avisos informativos Mega-Sena x Bolão Caixa (2026-11-13)
+- Consultada página atual da Caixa: https://loterias.caixa.gov.br/Paginas/mega-sena.aspx (acesso 13/11/2026). Tela de planejamento Mega-Sena diferencia bolão privado de recibo oficial, mostra link da fonte e alerta sobre faixa geral de cotas (2–100), até 10 jogos por recibo, mínimo divulgado de R$ 18 por bolão e R$ 7 por cota, usando custo base sem taxa privada. Limites específicos variam com quantidade de dezenas e composição; **sem certificação de elegibilidade**.
+- Typecheck e 238 testes em 51 arquivos aprovados. Falta validar modalidades restantes, tabela por dezenas e jornada autenticada em homologação.
