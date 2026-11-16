@@ -149,6 +149,8 @@ describe("alegações comerciais auditáveis", () => {
       expect(file).not.toMatch(/Contrato Blindado|Cobrança PIX Automática/);
     }
     expect(page).toContain("O Titan não consulta o banco e não confirma transferências");
+    expect(page).toContain("As cotas se referem ao grupo inteiro de jogos");
+    expect(page).not.toContain("Jogos Atribuidos");
     expect(page).toContain("!pixPayload");
     expect(record).toContain("Não é bilhete, recibo de aposta");
     expect(record).toContain("não autentica o PDF inteiro");

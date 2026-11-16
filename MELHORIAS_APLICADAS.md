@@ -227,3 +227,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Cotas não divisíveis em centavos (2026-11-13)
 - Organizador deixa de aparecer como “pago” por padrão. QR PIX de valor fixo só é produzido quando o custo planejado se divide exatamente em centavos entre as cotas; caso contrário, a tela pede ajuste ou combinação de valores individuais. Status mostra “marcado pago”, não comprovação bancária.
 - Testes de fronteira cobrem divisões exatas, restos em centavos, zero e valores inválidos; typecheck e 232 testes em 48 arquivos aprovados. Os totais permanecem estimativas de planejamento, não valores homologados pela Caixa.
+
+### Escopo das cotas no grupo (2026-11-13)
+- Eliminada distribuição visual exclusiva de jogos por participante: ela contradizia a proposta de participação proporcional no grupo inteiro e podia sugerir que cada cotista só participaria de alguns jogos. PDF, mensagem individual e interface agora mostram os jogos como planejamento comum, sujeito ao acordo dos participantes e à aposta oficial externa.
+- Typecheck e 232 testes em 48 arquivos passaram. Não configura nem registra Bolão Caixa; termos de rateio continuam dependentes de confirmação entre participantes.

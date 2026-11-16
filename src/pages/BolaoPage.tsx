@@ -190,51 +190,13 @@ export default function BolaoPage() {
   const costPerShare = totalShares > 0 ? totalCost / totalShares : 0;
   const exactShareAmount = hasExactShareAmount(totalCost, totalShares);
 
-  // Split games among participants
-  const cotas = useMemo<CotaAssignment[]>(() => {
-    const gameCount = games.length;
-    if (totalShares <= 0 || gameCount === 0) {
-      return participants.map((p) => ({
-        participant: p,
-        gameIndices: [],
-        cost: 0,
-        percentage: 0,
-      }));
-    }
-
-    const rawSizes = participants.map((p) => (p.shares / totalShares) * gameCount);
-    const sizes = rawSizes.map(Math.floor);
-    let assigned = sizes.reduce((a, b) => a + b, 0);
-
-    const remainders = rawSizes
-      .map((v, i) => ({ i, r: v - Math.floor(v) }))
-      .sort((a, b) => b.r - a.r);
-
-    let k = 0;
-    while (assigned < gameCount && k < remainders.length) {
-      sizes[remainders[k].i]++;
-      assigned++;
-      k++;
-    }
-
-    const out: CotaAssignment[] = [];
-    let cursor = 0;
-    participants.forEach((p, i) => {
-      const idxs: number[] = [];
-      for (let j = 0; j < sizes[i] && cursor < gameCount; j++) {
-        idxs.push(cursor++);
-      }
-      const participantCost = (p.shares / totalShares) * totalCost;
-      const percentage = (p.shares / totalShares) * 100;
-      out.push({
-        participant: p,
-        gameIndices: idxs,
-        cost: participantCost,
-        percentage,
-      });
-    });
-    return out;
-  }, [participants, games.length, totalShares, totalCost]);
+  // Cotas representam a proporção proposta sobre o grupo inteiro, não jogos exclusivos.
+  const cotas = useMemo<CotaAssignment[]>(() => participants.map((p) => ({
+    participant: p,
+    gameIndices: games.map((_, index) => index),
+    cost: totalShares > 0 ? (p.shares / totalShares) * totalCost : 0,
+    percentage: totalShares > 0 ? (p.shares / totalShares) * 100 : 0,
+  })), [participants, games, totalShares, totalCost]);
 
   // Participant manipulation
   const addParticipant = () => {
@@ -376,7 +338,7 @@ export default function BolaoPage() {
       lines.push(`• Confira o valor individual de ${formatCurrency(cota.cost)} antes de transferir; o QR da tela representa apenas UMA cota.`);
     }
     lines.push("");
-    lines.push(`📋 *Seus Jogos Atribuídos (${cota.gameIndices.length}):*`);
+    lines.push(`📋 *Jogos planejados do grupo (${cota.gameIndices.length}):*`);
     cota.gameIndices.forEach((idx) => {
       const g = games[idx];
       lines.push(`#${String(idx + 1).padStart(3, "0")}: ${g.map(pad).join(" ")}`);
@@ -467,12 +429,12 @@ export default function BolaoPage() {
       String(c.participant.shares),
       `${c.percentage.toFixed(1)}%`,
       formatCurrency(c.cost),
-      c.gameIndices.length > 0 ? `#${c.gameIndices[0] + 1} a #${c.gameIndices[c.gameIndices.length - 1] + 1} (${c.gameIndices.length})` : "Todas",
+      games.length > 0 ? `Todos os ${games.length} planejados` : "Nenhum",
     ]);
 
     autoTable(doc, {
       startY: 170,
-      head: [["#", "Participante", "Cotas", "% Bolao", "Valor Devido", "Jogos Atribuidos"]],
+      head: [["#", "Participante", "Cotas", "% Bolao", "Valor Devido", "Jogos do Grupo"]],
       body: participantRows,
       styles: { font: "helvetica", fontSize: 9, halign: "center", cellPadding: 3 },
       headStyles: { fillColor: [40, 45, 55], textColor: 255 },
@@ -905,7 +867,7 @@ export default function BolaoPage() {
                 </div>
               </div>
               <CardDescription className="text-xs">
-                Defina o número de cotas de cada participante para rateio proporcional dos prêmios.
+                Defina uma proposta de divisão entre participantes. As cotas se referem ao grupo inteiro de jogos, não a jogos exclusivos. Confirme as condições e o comprovante oficial fora do Titan.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -1103,7 +1065,7 @@ export default function BolaoPage() {
                           <p className="text-xs font-mono text-emerald-400 font-bold mt-0.5">
                             {formatCurrency(cota.cost)}
                             <span className="text-muted-foreground text-[10px] font-normal ml-2">
-                              ({cota.gameIndices.length} jogos atribuídos)
+                              ({cota.gameIndices.length} jogos planejados no grupo)
                             </span>
                           </p>
                         </div>
@@ -1137,7 +1099,7 @@ export default function BolaoPage() {
                       {/* Expansor de jogos */}
                       <details className="text-xs group">
                         <summary className="text-muted-foreground hover:text-foreground cursor-pointer font-medium select-none">
-                          Ver jogos atribuídos a esta cota ({cota.gameIndices.length})
+                          Ver jogos planejados do grupo ({cota.gameIndices.length})
                         </summary>
                         <div className="mt-2 space-y-1 max-h-36 overflow-y-auto pt-1">
                           {cota.gameIndices.map((idx) => (
