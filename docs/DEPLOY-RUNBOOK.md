@@ -49,12 +49,14 @@ Painel do Supabase → **Database → Extensions** → ative:
 
 ## 3. Aplicar as migrations
 
-```bash
-supabase db push
-```
+O bloco abaixo documenta as cinco migrations da auditoria de outubro. **Não execute
+`supabase db push` em produção sem revisar o plano completo**: o repositório agora
+também contém uma migration de novembro para o cache de IA, ainda não validada
+no projeto de homologação. Faça backup, liste diferenças pendentes com o CLI e
+valide cada uma em homologação antes de qualquer aplicação em produção.
 
-São 5 novas, todas validadas em PostgreSQL 17 real (aplicação em ordem +
-12 testes funcionais de comportamento):
+As cinco migrations históricas de outubro foram validadas em PostgreSQL 17
+(aplicação em ordem + 12 testes funcionais de comportamento):
 
 | Migration | O que faz |
 |---|---|
@@ -63,6 +65,16 @@ São 5 novas, todas validadas em PostgreSQL 17 real (aplicação em ordem +
 | `120200` | `system_config`; tira o e-mail de admin hardcoded da função |
 | `120300` | Agendamento do sync via `pg_cron` + `invoke_edge_function()` |
 | `120400` | Expiração de links compartilhados |
+| `20261113000000` | **Pendente de homologação:** revoga acesso público ao cache de IA e restringe política a `service_role` |
+
+**Cache de IA (migration de novembro):** o código histórico concede `SELECT` público
+por RLS e usa políticas de escrita intituladas “Service role” sem `TO service_role`.
+Uma sonda pública (`select=id&limit=1`) recebeu HTTP 200 e zero linhas em
+13/11/2026; isso **não prova que haja registros expostos**, mas não é uma
+negação de acesso. Antes de migrar, revise dependências e permissões efetivas em
+homologação. Após a migration, a mesma consulta com chave pública deve ser
+negada (não apenas retornar `[]`); consultas das Edge Functions com `service_role`
+devem continuar funcionando. Nenhuma mudança no banco foi aplicada por esta auditoria.
 
 **Verificar** — as duas tabelas que hoje devolvem 404 precisam existir:
 
