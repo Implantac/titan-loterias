@@ -167,12 +167,12 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
     p.name.toUpperCase(),
     `${p.shares} cota(s)`,
     `R$ ${p.cost.toFixed(2)}`,
-    p.paid ? "QUITADO" : "PENDENTE",
+    p.paid ? "MARCADO PAGO" : "PENDENTE",
   ]);
 
   autoTable(doc, {
     startY: 94,
-    head: [["Item", "Nome do Participante", "Cotas", "Valor", "Status Financeiro"]],
+    head: [["Item", "Nome do Participante", "Cotas", "Valor", "Status informado"]],
     body: participantRows,
     headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontSize: 8 },
     styles: { fontSize: 8, cellPadding: 2 },
@@ -209,7 +209,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
     margin: { left: 14, right: 14 },
   });
 
-  // Cláusulas Jurídicas na última página
+  // Avisos e limitações na última página
   doc.addPage();
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
@@ -227,7 +227,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
     currentY += lines.length * 4.5 + 4;
   });
 
-  // Assinaturas
+  // Espaço opcional para ciência manuscrita; não autentica o arquivo
   currentY += 10;
   doc.setDrawColor(203, 213, 225);
   doc.line(20, currentY + 15, 90, currentY + 15);

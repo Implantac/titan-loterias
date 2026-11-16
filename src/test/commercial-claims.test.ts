@@ -139,6 +139,24 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("bolão não confunde registro interno com aposta ou cobrança confirmada", () => {
+    const page = content("src/pages/BolaoPage.tsx");
+    const dialog = content("src/components/lottery/BolaoContractDialog.tsx");
+    const record = content("src/utils/bolaoContract.ts");
+    const pix = content("src/utils/pix.ts");
+    const shortcuts = content("src/components/lottery/CockpitShortcuts.tsx");
+    for (const file of [page, dialog, shortcuts]) {
+      expect(file).not.toMatch(/Contrato Blindado|Cobrança PIX Automática/);
+    }
+    expect(page).toContain("O Titan não consulta o banco e não confirma transferências");
+    expect(page).toContain("!pixPayload");
+    expect(record).toContain("Não é bilhete, recibo de aposta");
+    expect(record).toContain("não autentica o PDF inteiro");
+    expect(record).not.toContain('"QUITADO"');
+    expect(pix).toContain("não comprova aposta na Caixa");
+    expect(pix).toContain("isValidPixKey(rawKey)");
+  });
+
   it("não anuncia métricas fictícias ou aumento de chance no painel público", () => {
     const panel = content("src/components/common/TitanCommandCenter.tsx");
     expect(panel).not.toContain("CAIXA-API-OK");

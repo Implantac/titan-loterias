@@ -219,3 +219,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Guarda sintática do PIX do organizador (2026-11-13)
 - Geração de QR/copia-e-cola bloqueada para chave fora dos formatos básicos e para custo por cota nulo ou inválido; tela explica como corrigir. A verificação é apenas sintática e **não consulta o banco, titularidade ou existência da chave**. Resultado assíncrono de QR anterior não sobrescreve uma chave/valor recém-alterado.
 - Typecheck e 230 testes passaram; aceitação bancária real permanece sem homologação.
+
+### Regressão de linguagem do bolão (2026-11-13)
+- PDF usa “marcado pago” em vez de “quitado”, pois não há verificação bancária. Teste de regressão impede retorno de “Contrato Blindado”/“Cobrança PIX Automática” e exige avisos de registro interno, status manual e guarda de chave PIX.
+- Typecheck e 231 testes aprovados em 47 arquivos. Sem teste E2E autenticado ou homologação bancária.
