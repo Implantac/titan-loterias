@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateCRC16, generatePixPayload, generatePixQrCodeDataUrl, formatBolaoWhatsAppMessage } from "./pix";
+import { calculateCRC16, isValidPixKey, generatePixPayload, generatePixQrCodeDataUrl, formatBolaoWhatsAppMessage } from "./pix";
 
 describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
   it("calcula CRC16-CCITT de acordo com a especificação padrão do BACEN", () => {
@@ -34,14 +34,22 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
 
   it("gera payload sem valor quando amount não é informado", () => {
     const payload = generatePixPayload({
-      key: "11999998888",
+      key: "+5511999998888",
       name: "Maria Organizadora",
       city: "Campinas",
     });
 
     expect(payload).not.toContain("540"); // Sem tag de valor
     expect(payload).toContain("MARIA ORGANIZADORA");
-    expect(payload).toContain("11999998888");
+    expect(payload).toContain("+5511999998888");
+  });
+
+  it("rejeita chaves inválidas e valores não finitos sem produzir código compartilhável", () => {
+    expect(isValidPixKey("abc")).toBe(false);
+    expect(isValidPixKey("+5511999998888")).toBe(true);
+    expect(isValidPixKey("financeiro@exemplo.com.br")).toBe(true);
+    expect(generatePixPayload({ key: "abc", name: "Teste", amount: 10 })).toBe("");
+    expect(generatePixPayload({ key: "teste@exemplo.com", name: "Teste", amount: NaN })).toBe("");
   });
 
   it("gera QR code Data URL em PNG offline", async () => {

@@ -1,7 +1,7 @@
 /**
- * Titan Loterias — Utilitário Oficial de PIX (Padrão Banco Central do Brasil / BR Code)
+ * Titan Loterias — Gerador local de payload PIX (BR Code; sem validação bancária)
  *
- * Gera payloads EMV QR Code estático compatíveis com qualquer aplicativo bancário (Nubank, Itaú, Bradesco, BB, Inter, etc.)
+ * Gera payloads EMV QR Code estático, sujeitos à validação pelo aplicativo bancário
  * e mensagens automáticas formatadas para grupos de Bolão no WhatsApp.
  */
 
@@ -56,12 +56,21 @@ export function calculateCRC16(str: string): string {
   return (crc & 0xffff).toString(16).toUpperCase().padStart(4, "0");
 }
 
-/**
- * Gera o payload PIX Copia e Cola padrão Banco Central.
- */
+/** Validação sintática; não comprova titularidade, existência ou aceitação bancária. */
+export function isValidPixKey(value: string): boolean {
+  const key = value.trim();
+  return (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key) && key.length <= 77)
+    || /^\+55[1-9][0-9]{10}$/.test(key)
+    || /^\d{11}$/.test(key)
+    || /^\d{14}$/.test(key)
+    || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
+}
+
+/** Gera payload PIX localmente; chave inválida ou valor não representável não gera código. */
 export function generatePixPayload(config: PixConfig): string {
   const rawKey = config.key.trim();
-  if (!rawKey) return "";
+  if (!isValidPixKey(rawKey)) return "";
+  if (config.amount !== undefined && (!Number.isFinite(config.amount) || config.amount <= 0 || config.amount > 9999999999.99)) return "";
 
   const merchantName = sanitizeAscii(config.name || "ORGANIZADOR BOLAO", 25) || "ORGANIZADOR BOLAO";
   const merchantCity = sanitizeAscii(config.city || "SAO PAULO", 15) || "SAO PAULO";

@@ -321,7 +321,7 @@ export default function BolaoPage() {
 
   // Payload PIX gerado localmente (não confirma transação)
   const pixPayload = useMemo(() => {
-    if (!pixKey.trim()) return "";
+    if (!pixKey.trim() || !Number.isFinite(costPerShare) || costPerShare <= 0) return "";
     return generatePixPayload({
       key: pixKey.trim(),
       name: pixName.trim() || "ORGANIZADOR BOLAO",
@@ -333,11 +333,14 @@ export default function BolaoPage() {
   }, [pixKey, pixName, pixCity, costPerShare, activeConfig.name]);
 
   useEffect(() => {
+    let active = true;
+    setPixQrCodeUrl("");
     if (pixPayload) {
-      generatePixQrCodeDataUrl(pixPayload).then(setPixQrCodeUrl);
-    } else {
-      setPixQrCodeUrl("");
+      generatePixQrCodeDataUrl(pixPayload).then((url) => {
+        if (active) setPixQrCodeUrl(url);
+      });
     }
+    return () => { active = false; };
   }, [pixPayload]);
 
   // Estatísticas de pagamentos marcados manualmente
@@ -955,6 +958,10 @@ export default function BolaoPage() {
                 </div>
 
                 <p className="text-[10px] text-muted-foreground">O Titan não consulta o banco e não confirma transferências. Confira destinatário, valor e comprovante no aplicativo bancário antes de marcar como pago. O QR abaixo representa uma cota; participantes com várias cotas devem conferir o total individual.</p>
+
+                {pixKey.trim() && !pixPayload && (
+                  <p role="alert" className="text-xs text-destructive">Chave PIX inválida ou valor da cota indisponível. Confira a chave (CPF, CNPJ, e-mail, celular com +55 ou chave aleatória) e o custo antes de compartilhar.</p>
+                )}
 
                 {/* Exibição do QR Code e Código Copia e Cola */}
                 {pixKey.trim() && pixPayload && (

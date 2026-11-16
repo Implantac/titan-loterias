@@ -215,3 +215,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 - Hash SHA-256 agora falha explicitamente se Web Crypto não estiver disponível, em vez de rotular um hash alternativo como SHA-256. O hash cobre campos selecionados, não autentica PDF, autoria ou anterioridade.
 - QR PIX representa uma cota e não verifica transferências; mensagens individuais mostram o total devido e painel explicita marcação manual. Typecheck e suíte completa: 229 testes aprovados em 47 arquivos. Sem teste bancário, aposta ou homologação.
 - Complemento: mensagem de grupo no WhatsApp passou a tratar jogos como planejamento, informa que PIX copia e cola representa uma cota e orienta conferir valor/destinatário no banco e exigir comprovante oficial da aposta. Atalho do bolão e descrição de dados nos Termos deixaram de sugerir contrato blindado ou registro de aposta. Typecheck e 229 testes aprovados; sem homologação externa.
+
+### Guarda sintática do PIX do organizador (2026-11-13)
+- Geração de QR/copia-e-cola bloqueada para chave fora dos formatos básicos e para custo por cota nulo ou inválido; tela explica como corrigir. A verificação é apenas sintática e **não consulta o banco, titularidade ou existência da chave**. Resultado assíncrono de QR anterior não sobrescreve uma chave/valor recém-alterado.
+- Typecheck e 230 testes passaram; aceitação bancária real permanece sem homologação.
