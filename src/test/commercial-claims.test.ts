@@ -143,6 +143,8 @@ describe("alegações comerciais auditáveis", () => {
     const exportDialog = content("src/components/lottery/ExportCaixaDialog.tsx");
     const studies = content("src/pages/CentralEstudosPage.tsx");
     expect(exportDialog).not.toContain("handleCopyScript");
+    expect(content("src/utils/caixaAutomation.ts")).not.toContain("generateCaixaAutomationScript");
+    expect(content("src/utils/caixaAutomation.ts")).not.toContain("javascript:");
     expect(exportDialog).not.toContain("bookmarkletUrl");
     expect(exportDialog).toContain("Não cole códigos no console");
     expect(studies).not.toContain("aumenta suas chances matemáticas");

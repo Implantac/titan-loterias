@@ -255,3 +255,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Exportação segura e FAQ sem promessa de vantagem (2026-11-13)
 - Interface de exportação deixa de oferecer script para colar no console ou bookmarklet que prometia preencher o carrinho oficial da Caixa automaticamente. Mantidos TXT/gabarito para conferência manual e link externo oficial; nenhum registro ou integração é alegado. Utilitário legado de geração de script permanece no código para revisão separada, mas não é oferecido nesta tela.
 - FAQ de estudos deixa de afirmar aumento de probabilidade via filtros ou prêmio garantido por matriz não verificada; explica condição de cobertura exaustiva. Typecheck e 239 testes em 51 arquivos aprovados. Não houve acesso ao portal Caixa com conta real.
+
+### Remoção do gerador legado de automação da Caixa (2026-11-13)
+- Excluídos do utilitário exportado o script para console e o bookmarklet que buscavam botões no site externo e alegavam adicionar jogos ao carrinho. Exportação local TXT permanece. Teste de regressão impede reintrodução dos geradores nesta tela/utilitário.
+- Typecheck e 237 testes em 51 arquivos aprovados (dois testes antigos de script removidos). Não houve acesso a conta ou aposta real.
