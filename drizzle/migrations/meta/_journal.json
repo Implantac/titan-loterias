@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794947544442,
+      "tag": "0000_tighten_insights_and_pwa_tracking",
+      "breakpoints": true
+    }
+  ]
+}
