@@ -201,15 +201,15 @@ const CentralEstudosPage = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3" className="px-6 border-border/10">
-                  <AccordionTrigger className="hover:no-underline font-bold text-sm">O que é o "Modo Deus" (God Mode)?</AccordionTrigger>
+                  <AccordionTrigger className="hover:no-underline font-bold text-sm">Como conferir os dados de sorteios?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-6">
-                    É um privilégio administrativo reservado aos gestores do sistema, garantindo acesso vitalício e irrestrito a todos os módulos, ignorando limitações de planos ou faturamento para fins de supervisão técnica.
+                    Confira modalidade, número e data do concurso apresentados na tela e compare com o resultado divulgado pela Caixa. Um dado ainda não atualizado no Titan não confirma que o sorteio não ocorreu.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-4" className="px-6 border-border/10">
                   <AccordionTrigger className="hover:no-underline font-bold text-sm">Os dados dos sorteios são atualizados em tempo real?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-6">
-                    Sim. Nossas Edge Functions sincronizam com os resultados oficiais da CEF minutos após o sorteio ser homologado, disparando alertas proativos e atualizando todos os motores de análise instantaneamente.
+                    Não há garantia de atualização em tempo real ou em prazo fixo. A disponibilidade depende da fonte, sincronização e conexão. Antes de tomar uma decisão, confira o concurso e a data exibidos no Titan e consulte o resultado oficial da Caixa.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

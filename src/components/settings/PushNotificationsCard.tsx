@@ -28,7 +28,7 @@ export function PushNotificationsCard() {
               {isSubscribed && <Badge variant="default" className="ml-1">Ativo</Badge>}
             </CardTitle>
             <CardDescription>
-              Receba alertas em tempo real de novos sorteios, resultados e atualizações — mesmo com o app fechado.
+              Ative avisos quando houver dados e notificações disponíveis. A entrega depende do navegador e da conexão; confirme sempre o resultado oficial.
             </CardDescription>
           </div>
         </div>

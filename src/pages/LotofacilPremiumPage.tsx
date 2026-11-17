@@ -736,7 +736,7 @@ export default function LotofacilPremiumPage() {
                       <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                       <div>
                         <CardTitle className="text-sm font-black uppercase tracking-widest">Auditoria de Matriz</CardTitle>
-                        <p className="text-[9px] text-muted-foreground uppercase font-black opacity-60">Resultados em tempo real</p>
+                        <p className="text-[9px] text-muted-foreground uppercase font-black opacity-60">Resultados disponíveis</p>
                       </div>
                     </div>
                     

@@ -139,6 +139,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("não promete sincronização de resultados ou notificações em tempo real", () => {
+    const faq = content("src/pages/CentralEstudosPage.tsx");
+    const push = content("src/components/settings/PushNotificationsCard.tsx");
+    expect(faq).not.toContain("minutos após o sorteio ser homologado");
+    expect(faq).toContain("Não há garantia de atualização em tempo real");
+    expect(push).not.toContain("alertas em tempo real");
+  });
+
   it("não incentiva script de console na Caixa nem promete vantagem matemática no FAQ", () => {
     const exportDialog = content("src/components/lottery/ExportCaixaDialog.tsx");
     const studies = content("src/pages/CentralEstudosPage.tsx");

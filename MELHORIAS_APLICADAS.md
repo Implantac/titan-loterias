@@ -259,3 +259,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Remoção do gerador legado de automação da Caixa (2026-11-13)
 - Excluídos do utilitário exportado o script para console e o bookmarklet que buscavam botões no site externo e alegavam adicionar jogos ao carrinho. Exportação local TXT permanece. Teste de regressão impede reintrodução dos geradores nesta tela/utilitário.
 - Typecheck e 237 testes em 51 arquivos aprovados (dois testes antigos de script removidos). Não houve acesso a conta ou aposta real.
+
+### Transparência de atualização dos resultados (2026-11-13)
+- FAQ deixa de afirmar sincronização em minutos e alertas instantâneos; explica dependência de fonte/conexão e orientação para comparar concurso/data na Caixa. Outros textos de histórico e notificações deixam de prometer tempo real, e FAQ público deixa de expor privilégios administrativos irrelevantes ao apostador.
+- Typecheck e 238 testes em 51 arquivos aprovados. Isto é correção de linguagem, **não comprovação de latência, fonte ou deploy de notificações**.

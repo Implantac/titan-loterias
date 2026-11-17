@@ -123,7 +123,7 @@ export function DrawNotificationChecker() {
               <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30 group-hover:rotate-12 transition-transform duration-500">
                 <Bell className="h-5 w-5 text-primary animate-pulse" />
               </div>
-              <span className="font-bold tracking-tight text-foreground/90 leading-tight">Mantenha-se informado! Ative notificações push para alertas de acertos em tempo real.</span>
+              <span className="font-bold tracking-tight text-foreground/90 leading-tight">Mantenha-se informado! Ative notificações para avisos quando houver atualização. Confirme acertos no resultado oficial da Caixa.</span>
               <div className="ml-auto flex items-center gap-2">
                 <Button size="sm" variant="default" onClick={handleEnableNotifications} className="h-9 px-5 rounded-xl gradient-brand text-primary-foreground font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
                   <BellRing className="h-3.5 w-3.5 mr-1.5" />

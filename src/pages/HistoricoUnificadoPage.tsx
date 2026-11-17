@@ -40,7 +40,7 @@ const HistoricoUnificadoPage = () => {
             Histórico e <span className="gradient-brand-text">Registros</span>
           </h1>
           <p className="text-sm text-muted-foreground font-medium max-w-lg leading-relaxed">
-            Auditoria completa e gestão de ativos. Monitore sua performance e os resultados oficiais em tempo real.
+            Consulte registros internos e resultados disponíveis; confirme concurso e data nos canais oficiais da Caixa.
           </p>
         </div>
       </div>
