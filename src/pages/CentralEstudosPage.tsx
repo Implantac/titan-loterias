@@ -191,13 +191,13 @@ const CentralEstudosPage = () => {
                 <AccordionItem value="item-1" className="px-6 border-border/10">
                   <AccordionTrigger className="hover:no-underline font-black uppercase italic tracking-tighter text-sm">O Titan garante 15 pontos na Lotofácil?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-6">
-                    Não. O Titan é uma ferramenta de auxílio à decisão baseada em inteligência estatística. Ele aumenta suas chances matemáticas ao eliminar jogos improváveis e aplicar filtros profissionais, mas o fator sorte é inerente a qualquer loteria oficial.
+                    Não. O Titan é uma ferramenta de auxílio à decisão baseada em inteligência estatística. Filtros alteram a composição dos jogos, mas não tornam uma combinação válida mais provável de ser sorteada. Não há garantia de prêmio.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2" className="px-6 border-border/10">
                   <AccordionTrigger className="hover:no-underline font-bold text-sm">Qual a diferença entre o Gerador e o Fechamento?</AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-6">
-                    O Gerador cria jogos individuais baseados em filtros estatísticos. O Fechamento (Wheeling) é uma técnica que usa uma matriz matemática para garantir que, se você acertar uma quantidade X de números dentro do seu universo escolhido, você terá pelo menos um prêmio de Y pontos garantido.
+                    O Gerador cria jogos individuais baseados em filtros estatísticos. O Fechamento (Wheeling) organiza jogos em uma matriz. Uma meta de acertos só pode ser afirmada quando verificada exaustivamente e condicionada a que as dezenas sorteadas estejam na base escolhida; isso não garante prêmio financeiro.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3" className="px-6 border-border/10">

@@ -15,10 +15,8 @@ import {
   Download,
   ExternalLink,
   Printer,
-  Sparkles,
   Zap,
   FileText,
-  Bookmark,
   Info,
   FileDown,
 } from "lucide-react";
@@ -26,8 +24,6 @@ import { toast } from "sonner";
 import {
   formatGamesToCologaTxt,
   downloadGamesAsTxt,
-  generateCaixaAutomationScript,
-  generateBookmarkletUrl,
 } from "@/utils/caixaAutomation";
 import { generateVolantesGabaritoPdf } from "@/utils/printableVolantesPdf";
 
@@ -46,19 +42,9 @@ export function ExportCaixaDialog({
   lotteryName,
   lotteryId,
 }: ExportCaixaDialogProps) {
-  const [copiedScript, setCopiedScript] = useState(false);
   const [copiedTxt, setCopiedTxt] = useState(false);
 
   const txtContent = formatGamesToCologaTxt(games);
-  const scriptContent = generateCaixaAutomationScript(games, lotteryName);
-  const bookmarkletUrl = generateBookmarkletUrl(games, lotteryName);
-
-  const handleCopyScript = () => {
-    navigator.clipboard.writeText(scriptContent);
-    setCopiedScript(true);
-    toast.success("Script de automação copiado com sucesso!");
-    setTimeout(() => setCopiedScript(false), 2500);
-  };
 
   const handleCopyTxt = () => {
     navigator.clipboard.writeText(txtContent);
@@ -91,7 +77,7 @@ export function ExportCaixaDialog({
             </DialogTitle>
           </div>
           <DialogDescription>
-            Automatize o preenchimento no site oficial da Caixa ou exporte para softwares lotéricos.
+            Exporte jogos planejados para conferência. O Titan não envia jogos à Caixa nem confirma registro de apostas.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,84 +97,18 @@ export function ExportCaixaDialog({
             </TabsTrigger>
           </TabsList>
 
-          {/* ABA 1: LOTERIAS ONLINE DA CAIXA */}
+          {/* ABA 1: CONFERÊNCIA EM CANAL OFICIAL */}
           <TabsContent value="caixa" className="space-y-4 pt-3">
-            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-amber-300">
-                <Sparkles className="w-4 h-4" />
-                Preenchedor Automático em 1 Clique (Zero Digitação)
-              </div>
-              <p>
-                Não perca tempo marcando volante por volante. Este script clica nas dezenas e coloca todos os seus{" "}
-                <strong>{games.length} jogos</strong> diretamente no carrinho de apostas oficial da Caixa.
-              </p>
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-2">
+              <p className="font-bold">Confira e registre manualmente nos canais oficiais</p>
+              <p>O Titan não preenche carrinho, executa scripts no portal da Caixa, vende cotas ou emite recibo de aposta. Compare as dezenas, o concurso, o preço e as regras no canal oficial antes de qualquer pagamento.</p>
+              <p>Não cole códigos no console do navegador de um site bancário ou de apostas.</p>
             </div>
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5" /> Passo a Passo Rápido:
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                <div className="p-3 rounded-lg bg-secondary/30 border border-border/40 space-y-1">
-                  <div className="font-bold text-primary">1. Abrir a Caixa</div>
-                  <p className="text-muted-foreground text-[11px]">
-                    Acesse o portal e selecione a modalidade <strong>{lotteryName}</strong>.
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-secondary/30 border border-border/40 space-y-1">
-                  <div className="font-bold text-primary">2. Abrir o Console</div>
-                  <p className="text-muted-foreground text-[11px]">
-                    Aperte <kbd className="px-1 py-0.5 bg-background rounded text-[10px]">F12</kbd> (ou clique com botão direito &gt; Inspecionar &gt; Console).
-                  </p>
-                </div>
-                <div className="p-3 rounded-lg bg-secondary/30 border border-border/40 space-y-1">
-                  <div className="font-bold text-primary">3. Colar e Executar</div>
-                  <p className="text-muted-foreground text-[11px]">
-                    Cole o script copiado abaixo e pressione <kbd className="px-1 py-0.5 bg-background rounded text-[10px]">Enter</kbd>.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
-              <Button
-                onClick={handleCopyScript}
-                className="w-full sm:w-auto flex-1 gap-2 bg-primary hover:bg-primary/90 font-bold"
-              >
-                {copiedScript ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-                {copiedScript ? "Script Copiado!" : "Copiar Script Automático"}
-              </Button>
-
-              <Button
-                variant="outline"
-                asChild
-                className="w-full sm:w-auto gap-2 border-border/60"
-              >
-                <a
-                  href="https://www.loteriasonline.caixa.gov.br/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Ir para Loterias Caixa
-                </a>
-              </Button>
-            </div>
-
-            <div className="p-2.5 rounded-lg bg-secondary/20 border border-border/30 text-[11px] text-muted-foreground flex items-center justify-between">
-              <span>Opção Bookmarklet: Arraste o botão para sua barra de favoritos:</span>
-              <a
-                href={bookmarkletUrl}
-                onClick={(e) => e.preventDefault()}
-                draggable="true"
-                className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground font-semibold text-xs border border-border/60 flex items-center gap-1 cursor-grab"
-                title="Arraste para a barra de favoritos do navegador"
-              >
-                <Bookmark className="w-3 h-3 text-primary" />
-                Preencher Caixa
+            <Button variant="outline" asChild className="w-full gap-2">
+              <a href="https://www.loteriasonline.caixa.gov.br/" target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-4 h-4" /> Abrir portal Loterias Caixa
               </a>
-            </div>
+            </Button>
           </TabsContent>
 
           {/* ABA 2: FORMATO COLOGA TXT */}
@@ -199,7 +119,7 @@ export function ExportCaixaDialog({
                   Pré-visualização do Formato Universal TXT:
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  Compatível com Cologa, LotoFácil Expert e Casas Lotéricas
+                  Formato de texto para conferência; compatibilidade externa não verificada
                 </span>
               </div>
               <textarea

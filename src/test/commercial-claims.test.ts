@@ -139,6 +139,16 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("não incentiva script de console na Caixa nem promete vantagem matemática no FAQ", () => {
+    const exportDialog = content("src/components/lottery/ExportCaixaDialog.tsx");
+    const studies = content("src/pages/CentralEstudosPage.tsx");
+    expect(exportDialog).not.toContain("handleCopyScript");
+    expect(exportDialog).not.toContain("bookmarkletUrl");
+    expect(exportDialog).toContain("Não cole códigos no console");
+    expect(studies).not.toContain("aumenta suas chances matemáticas");
+    expect(studies).toContain("verificada exaustivamente");
+  });
+
   it("bolão não confunde registro interno com aposta ou cobrança confirmada", () => {
     const page = content("src/pages/BolaoPage.tsx");
     const dialog = content("src/components/lottery/BolaoContractDialog.tsx");

@@ -251,3 +251,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Mensagem honesta sobre filtro de padrões (2026-11-13)
 - Bolão deixa de sugerir que o filtro de padrões evita dividir prêmio; texto informa que não aumenta chance de acerto nem garante exclusividade de eventual premiação. PDF e controle de quantidade usam “jogos planejados” em vez de “aposta” como registro efetivo.
 - Typecheck e 238 testes em 51 arquivos aprovados. Efeito do filtro depende dos testes estatísticos existentes e não representa previsão de ganhos.
+
+### Exportação segura e FAQ sem promessa de vantagem (2026-11-13)
+- Interface de exportação deixa de oferecer script para colar no console ou bookmarklet que prometia preencher o carrinho oficial da Caixa automaticamente. Mantidos TXT/gabarito para conferência manual e link externo oficial; nenhum registro ou integração é alegado. Utilitário legado de geração de script permanece no código para revisão separada, mas não é oferecido nesta tela.
+- FAQ de estudos deixa de afirmar aumento de probabilidade via filtros ou prêmio garantido por matriz não verificada; explica condição de cobertura exaustiva. Typecheck e 239 testes em 51 arquivos aprovados. Não houve acesso ao portal Caixa com conta real.
