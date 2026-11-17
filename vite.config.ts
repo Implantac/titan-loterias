@@ -107,17 +107,8 @@ export default defineConfig(({ mode }) => ({
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
-          {
-            // Chamadas Supabase REST/Functions — rede primeiro, cache curto como fallback
-            urlPattern: /^https:\/\/.*\.supabase\.co\/(rest|functions)\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "supabase-api",
-              networkTimeoutSeconds: 6,
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 10 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
+          // Não armazenar respostas Supabase REST/Functions no service worker:
+          // podem conter dados de conta e sobreviver a logout/troca de usuário.
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",

@@ -279,3 +279,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Último concurso em cache/importações fora de ordem (2026-11-13)
 - Banner e painel de sincronização passam a selecionar o maior número de concurso válido carregado, sem supor que o primeiro registro do cache/importação seja o mais recente. Teste cobre registros fora de ordem e dados vazios/inválidos.
 - Typecheck e 242 testes em 53 arquivos aprovados. Build Vite tentou transformar 5.385 módulos, mas ficou em “rendering chunks” e atingiu timeout de 10 minutos; processo residual foi interrompido. **Build não homologado** nesta etapa.
+
+### Service worker não armazena respostas Supabase (2026-11-13)
+- Removida regra `NetworkFirst` que persistia respostas REST/Functions Supabase em Cache Storage por até 10 minutos; no mesmo navegador, respostas de conta poderiam sobreviver a logout/troca de usuário. Na inicialização e troca de controlador, o app solicita remoção do cache legado `supabase-api` sem mexer no cache de assets estáticos.
+- Typecheck e 243 testes em 53 arquivos aprovados. Teste estático não substitui inspeção de Cache Storage, logout/troca de contas e publicação de novo service worker em homologação. **Nova publicação é necessária**; versão antiga pode continuar ativa até atualizar.

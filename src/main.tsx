@@ -37,4 +37,12 @@ createRoot(document.getElementById("root")!).render(
   </HelmetProvider>
 );
 
+// Remove o cache de API criado por versões anteriores do service worker.
+// Não interfere no cache de assets; nenhuma resposta de conta deve persistir offline.
+if ("caches" in window) {
+  const clearLegacyApiCache = () => { void window.caches.delete("supabase-api").catch(() => {}); };
+  clearLegacyApiCache();
+  navigator.serviceWorker?.addEventListener("controllerchange", clearLegacyApiCache);
+}
+
 void registerServiceWorker();

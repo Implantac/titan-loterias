@@ -139,6 +139,13 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("service worker não guarda respostas de APIs autenticadas em cache compartilhado", () => {
+    const vite = content("vite.config.ts");
+    expect(vite).not.toContain('cacheName: "supabase-api"');
+    expect(vite).not.toContain('cacheableResponse: { statuses: [0, 200] }');
+    expect(content("src/main.tsx")).toContain('caches.delete("supabase-api")');
+  });
+
   it("banner exibe concurso e data disponíveis sem declarar dados ao vivo", () => {
     const banner = content("src/components/LotteryContextBanner.tsx");
     const sync = content("src/components/lottery/LotterySyncStatus.tsx");
