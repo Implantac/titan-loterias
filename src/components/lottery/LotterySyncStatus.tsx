@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { latestAvailableDraw } from "@/utils/latestAvailableDraw";
 
 export function LotterySyncStatus() {
   const { syncing, lastSyncAt, syncDraws, syncError, draws } = useLotteryContext();
-  const latestDraw = draws[0];
+  const latestDraw = latestAvailableDraw(draws);
 
   return (
     <div className="rounded-2xl glass-card p-6 border-primary/20 bg-primary/5 relative overflow-hidden group">

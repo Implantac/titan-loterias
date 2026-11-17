@@ -1,11 +1,11 @@
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { Badge } from "@/components/ui/badge";
+import { latestAvailableDraw } from "@/utils/latestAvailableDraw";
 import { motion } from "framer-motion";
 
 export function LotteryContextBanner() {
   const { config, draws, loading, dataOrigin, syncError } = useLotteryContext();
-  const latest = draws.reduce<(typeof draws)[number] | null>((best, draw) =>
-    !best || draw.concurso > best.concurso ? draw : best, null);
+  const latest = latestAvailableDraw(draws);
   const source = { official: "Base do Titan (dados importados)", cache: "Cache local", import: "Importação manual", mock: "Dados simulados" }[dataOrigin];
 
   return (

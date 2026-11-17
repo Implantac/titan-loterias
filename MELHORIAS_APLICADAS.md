@@ -275,3 +275,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Guarda antes de compartilhar/exportar bolão (2026-11-13)
 - Jogos simples passam por revalidação (tamanho, dezenas inteiras distintas e intervalo) antes de PIX, mensagens, salvamento e PDF/TXT; os diálogos de exportação também recusam dados inválidos mesmo se permanecerem abertos. Modalidades que requerem campos extras ou posições (Super Sete, Federal, Dia de Sorte, +Milionária, Timemania) ficam indisponíveis para esses compartilhamentos genéricos até haver implementação específica. Isso não certifica conformidade das demais com a Caixa.
 - Typecheck e 241 testes em 52 arquivos aprovados; testes estáticos de bloqueio complementam testes unitários de fronteira.
+
+### Último concurso em cache/importações fora de ordem (2026-11-13)
+- Banner e painel de sincronização passam a selecionar o maior número de concurso válido carregado, sem supor que o primeiro registro do cache/importação seja o mais recente. Teste cobre registros fora de ordem e dados vazios/inválidos.
+- Typecheck e 242 testes em 53 arquivos aprovados. Build Vite tentou transformar 5.385 módulos, mas ficou em “rendering chunks” e atingiu timeout de 10 minutos; processo residual foi interrompido. **Build não homologado** nesta etapa.
