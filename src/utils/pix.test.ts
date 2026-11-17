@@ -52,6 +52,16 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
     expect(generatePixPayload({ key: "teste@exemplo.com", name: "Teste", amount: NaN })).toBe("");
   });
 
+  it("não compartilha chave ou código PIX malformados em mensagem do grupo", () => {
+    const msg = formatBolaoWhatsAppMessage({ bolaoTitle: "Grupo", lotteryName: "Mega-Sena", gamesCount: 2,
+      totalCost: 12, costPerShare: 6, totalShares: 2, pixKey: "chave inválida", pixPayload: "codigo-antigo",
+      organizerName: "Nome não verificado" });
+    expect(msg).not.toContain("chave inválida");
+    expect(msg).not.toContain("codigo-antigo");
+    expect(msg).not.toContain("Nome não verificado");
+    expect(msg).not.toContain("DADOS PARA PAGAMENTO PIX");
+  });
+
   it("gera QR code Data URL em PNG offline", async () => {
     const payload = generatePixPayload({
       key: "teste@chave.com",

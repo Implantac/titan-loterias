@@ -34,6 +34,7 @@ import autoTable from "jspdf-autotable";
 import { Progress } from "@/components/ui/progress";
 import {
   generatePixPayload,
+  isValidPixKey,
   generatePixQrCodeDataUrl,
   formatBolaoWhatsAppMessage,
 } from "@/utils/pix";
@@ -320,11 +321,11 @@ export default function BolaoPage() {
     lines.push(`Valor planejado: *${formatCurrency(cota.cost)}*`);
     lines.push(`Inclui taxa privada do organizador (não é tarifa Caixa): *${formatCurrency(totalShares > 0 ? adminFeeAmount * cota.participant.shares / totalShares : 0)}*`);
     lines.push(`Jogos planejados no grupo: *${games.length}* (confirme registro oficial)`);
-    if (pixKey.trim()) {
+    if (isValidPixKey(pixKey)) {
       lines.push("");
       lines.push(`⚡ *DADOS PARA PAGAMENTO PIX:*`);
       lines.push(`• Chave PIX: \`${pixKey.trim()}\``);
-      if (pixName.trim()) lines.push(`• Titular: *${pixName.trim()}*`);
+      if (pixName.trim()) lines.push(`• Nome informado: *${pixName.trim()}* (confira titular no banco)`);
       lines.push(`• Confira o valor individual de ${formatCurrency(cota.cost)} antes de transferir; o QR da tela representa apenas UMA cota.`);
     }
     lines.push("");
@@ -350,7 +351,7 @@ export default function BolaoPage() {
       organizerFeeAmount: adminFeeAmount,
       costPerShare,
       totalShares,
-      pixKey: pixKey.trim(),
+      pixKey: isValidPixKey(pixKey) ? pixKey.trim() : "",
       pixPayload,
       organizerName: pixName.trim(),
       strategySummary: creationMode === "closing" ? "Fechamento Matemático com Matrizes Titan" : "Filtro Anti-Divisão & Alta Entropia",

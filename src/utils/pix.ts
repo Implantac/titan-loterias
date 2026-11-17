@@ -174,12 +174,14 @@ export function formatBolaoWhatsAppMessage(config: BolaoWhatsAppConfig): string 
     `💰 *VALOR POR COTA:*`,
     `👉 *R$ ${config.costPerShare.toFixed(2).replace(".", ",")}*`,
     "",
-    `⚡ *DADOS PARA PAGAMENTO PIX:*`,
-    config.pixKey ? `• Chave PIX informada pelo organizador: \`${config.pixKey}\`` : "",
-    config.organizerName ? `• Titular: *${config.organizerName}*` : "",
   ].filter(Boolean);
 
-  if (config.pixPayload) {
+  if (isValidPixKey(config.pixKey)) {
+    lines.push("", `⚡ *CHAVE PIX INFORMADA PELO ORGANIZADOR:*`, `• Chave: \`${config.pixKey.trim()}\``);
+    if (config.organizerName) lines.push(`• Nome informado: *${config.organizerName}* (confira titular no banco)`);
+  }
+
+  if (config.pixPayload && isValidPixKey(config.pixKey)) {
     lines.push(
       "",
       `📱 *PIX COPIA E COLA — VALOR DE UMA COTA:*`,

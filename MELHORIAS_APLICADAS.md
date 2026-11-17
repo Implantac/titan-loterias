@@ -288,3 +288,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Privacidade dos rascunhos locais do bolão (2026-11-13)
 - Dados PIX (chave/titular/cidade), nomes e telefones dos participantes, título livre e status de pagamento deixam de ser persistidos no `localStorage` do bolão. Ao abrir a aplicação, chaves antigas são removidas e rascunho legado é reduzido à modalidade e jogos numéricos; jogos podem continuar no navegador, informações pessoais precisam ser redigitadas ao recarregar.
 - Typecheck e 246 testes em 54 arquivos aprovados. Limpeza só ocorre quando o navegador carregar a nova versão; não remove dados de cópias já exportadas, outros dispositivos ou backups.
+
+### Mensagens PIX com validação de chave (2026-11-13)
+- Mensagens individuais e de grupo deixam de compartilhar chave PIX digitada fora dos formatos sintáticos aceitos; grupo também omite payload antigo caso a chave seja inválida. Nome informado pelo organizador não é apresentado como titular verificado: participante deve conferir no banco.
+- Typecheck e 247 testes em 54 arquivos aprovados. Validação sintática não confirma existência, titularidade ou pagamento.
