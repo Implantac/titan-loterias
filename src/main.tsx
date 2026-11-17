@@ -6,7 +6,9 @@ import App from "./App.tsx";
 import "./index.css";
 import "./lovable-badge-hide.css";
 import { initPerformanceMetrics } from "./lib/performance-metrics";
+import { scrubLegacyBolaoStorage } from "./utils/bolaoLocalPrivacy";
 
+try { scrubLegacyBolaoStorage(localStorage); } catch { /* armazenamento indisponível */ }
 void initPerformanceMetrics();
 import "./i18n";
 import { registerServiceWorker } from "./pwa/registerSW";

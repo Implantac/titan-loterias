@@ -20,7 +20,8 @@ import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
 import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
 import { megaBolaoAdvisory } from "@/utils/megaBolaoAdvisory";
-import { isRestorableBolaoParticipants, normalizeShareCount } from "@/utils/bolaoParticipants";
+import { normalizeShareCount } from "@/utils/bolaoParticipants";
+import { scrubLegacyBolaoStorage } from "@/utils/bolaoLocalPrivacy";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
 import { LOTTERY_BET_COST } from "@/engine/betting-budget";
 import { generateWithSplitAvoidance, generateByStrategy } from "@/engine/strategies";
@@ -105,10 +106,10 @@ export default function BolaoPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [savingBets, setSavingBets] = useState(false);
 
-  // PIX e Automação Caixa
-  const [pixKey, setPixKey] = useState<string>(() => localStorage.getItem("titan_bolao_pix_key") || "");
-  const [pixName, setPixName] = useState<string>(() => localStorage.getItem("titan_bolao_pix_name") || "");
-  const [pixCity, setPixCity] = useState<string>(() => localStorage.getItem("titan_bolao_pix_city") || "SAO PAULO");
+  // Dados PIX só vivem nesta sessão de tela; não persistir chave ou titular no navegador.
+  const [pixKey, setPixKey] = useState("");
+  const [pixName, setPixName] = useState("");
+  const [pixCity, setPixCity] = useState("SAO PAULO");
   const [pixQrCodeUrl, setPixQrCodeUrl] = useState<string>("");
   const [exportCaixaOpen, setExportCaixaOpen] = useState(false);
   const [redemptionOpen, setRedemptionOpen] = useState(false);
@@ -118,19 +119,9 @@ export default function BolaoPage() {
   // Referência interna por jogo simples; preço vigente precisa ser conferido nos canais Caixa
   const ticketPrice = LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
 
-  // Persistir configs de PIX
-  useEffect(() => {
-    try {
-      localStorage.setItem("titan_bolao_pix_key", pixKey);
-      localStorage.setItem("titan_bolao_pix_name", pixName);
-      localStorage.setItem("titan_bolao_pix_city", pixCity);
-    } catch {
-      /* ignore */
-    }
-  }, [pixKey, pixName, pixCity]);
-
   // Restore from storage if no games passed via route
   useEffect(() => {
+    try { scrubLegacyBolaoStorage(localStorage); } catch { /* storage indisponível */ }
     const requested = new URLSearchParams(location.search).get("lottery");
     if (requested && requested !== activeConfig.id) return;
     if (!locationState?.games || locationState.games.length === 0) {
@@ -140,10 +131,6 @@ export default function BolaoPage() {
           const parsed = JSON.parse(saved);
           if (isRestorableBolaoDraft(parsed, activeConfig.id, activeConfig.pick, activeConfig.numbers)) {
             setGames(parsed.games);
-            if (parsed.title) setBolaoTitle(parsed.title);
-            if (isRestorableBolaoParticipants(parsed.participants)) {
-              setParticipants(parsed.participants as Participant[]);
-            }
           }
         }
       } catch {
@@ -167,17 +154,15 @@ export default function BolaoPage() {
         localStorage.setItem(
           STORAGE_KEY,
           JSON.stringify({
-            title: bolaoTitle,
             lotteryId: activeConfig.id,
             games,
-            participants,
           })
         );
       } catch {
         /* ignore */
       }
     }
-  }, [bolaoTitle, activeConfig.id, games, participants]);
+  }, [activeConfig.id, games]);
 
   // Total numbers / Cotas metrics
   const totalShares = useMemo(
@@ -925,6 +910,8 @@ export default function BolaoPage() {
                     />
                   </div>
                 </div>
+
+                <p className="text-[10px] text-muted-foreground">Chave PIX, titular, participantes e status de pagamento não são salvos no rascunho do navegador. Ao recarregar a página, informe-os novamente.</p>
 
                 {/* Status da Arrecadação */}
                 <div className="space-y-1.5 pt-1">

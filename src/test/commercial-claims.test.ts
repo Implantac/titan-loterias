@@ -195,6 +195,8 @@ describe("alegações comerciais auditáveis", () => {
     expect(page).toContain("Não aumenta a chance de acerto nem garante");
     expect(page).toContain("!pixPayload");
     expect(record).toContain("Não é bilhete, recibo de aposta");
+    expect(page).not.toContain("titan_bolao_pix_key");
+    expect(page).toContain("scrubLegacyBolaoStorage(localStorage)");
     expect(record).toContain("não autentica o PDF inteiro");
     expect(record).not.toContain('"QUITADO"');
     expect(pix).toContain("não comprova aposta na Caixa");
