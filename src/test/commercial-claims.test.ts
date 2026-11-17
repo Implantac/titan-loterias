@@ -139,6 +139,16 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("banner exibe concurso e data disponíveis sem declarar dados ao vivo", () => {
+    const banner = content("src/components/LotteryContextBanner.tsx");
+    const sync = content("src/components/lottery/LotterySyncStatus.tsx");
+    expect(banner).toContain("Último concurso disponível:");
+    expect(banner).toContain("origem selecionada:");
+    expect(banner).not.toContain("Dados sincronizados");
+    expect(sync).not.toContain("'Live'");
+    expect(sync).toContain("Última tentativa de sincronização:");
+  });
+
   it("não promete sincronização de resultados ou notificações em tempo real", () => {
     const faq = content("src/pages/CentralEstudosPage.tsx");
     const push = content("src/components/settings/PushNotificationsCard.tsx");

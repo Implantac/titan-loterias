@@ -263,3 +263,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Transparência de atualização dos resultados (2026-11-13)
 - FAQ deixa de afirmar sincronização em minutos e alertas instantâneos; explica dependência de fonte/conexão e orientação para comparar concurso/data na Caixa. Outros textos de histórico e notificações deixam de prometer tempo real, e FAQ público deixa de expor privilégios administrativos irrelevantes ao apostador.
 - Typecheck e 238 testes em 51 arquivos aprovados. Isto é correção de linguagem, **não comprovação de latência, fonte ou deploy de notificações**.
+
+### Proveniência visível dos concursos no banner (2026-11-13)
+- Banner de modalidade mostra quantidade de registros, origem selecionada (não origem certificada), último concurso e data informada; deixa de sugerir dados ao vivo com “Tensors Indexed”/“Dados sincronizados”. Painel de sincronização deixa de usar “Live” e rotula horário como última tentativa, não atualização certificada do sorteio.
+- Typecheck e 239 testes em 51 arquivos aprovados. Ainda faltam telemetria real de ingestão, atualização da fonte e confronto operacional com a Caixa.

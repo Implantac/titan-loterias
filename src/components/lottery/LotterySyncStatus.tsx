@@ -20,19 +20,19 @@ export function LotterySyncStatus() {
               Sincronização de Dados
             </h3>
             <Badge variant="outline" className={`text-[9px] font-black uppercase tracking-widest px-2 py-0 ${syncing ? 'animate-pulse border-amber-500/50 text-amber-500' : 'border-emerald-500/50 text-emerald-500'}`}>
-              {syncing ? 'Processando' : 'Live'}
+              {syncing ? 'Processando' : 'Sem tempo real'}
             </Badge>
           </div>
           
           <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">
             <div className="flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-              <span>Último Concurso: #{latestDraw?.concurso || "---"}</span>
+              <span>Último concurso disponível: #{latestDraw?.concurso || "---"} · data: {latestDraw?.date || "indisponível"}</span>
             </div>
             <span className="w-1 h-1 rounded-full bg-border" />
             <div className="flex items-center gap-1">
               {lastSyncAt ? (
-                <span>Atualizado em {format(lastSyncAt, "HH:mm:ss", { locale: ptBR })}</span>
+                <span>Última tentativa de sincronização: {format(lastSyncAt, "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</span>
               ) : (
                 <span>Aguardando Sincronização</span>
               )}

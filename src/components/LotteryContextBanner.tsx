@@ -3,7 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 
 export function LotteryContextBanner() {
-  const { config, draws, loading } = useLotteryContext();
+  const { config, draws, loading, dataOrigin, syncError } = useLotteryContext();
+  const latest = draws.reduce<(typeof draws)[number] | null>((best, draw) =>
+    !best || draw.concurso > best.concurso ? draw : best, null);
+  const source = { official: "Base do Titan (dados importados)", cache: "Cache local", import: "Importação manual", mock: "Dados simulados" }[dataOrigin];
 
   return (
     <motion.div
@@ -30,14 +33,18 @@ export function LotteryContextBanner() {
           <div className="flex items-center gap-1.5">
             <div className={`w-1.5 h-1.5 rounded-full ${loading ? "bg-amber-400 animate-pulse" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"}`} />
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-80">
-              {loading ? "Sincronizando Core..." : draws.length > 0 ? "Dados sincronizados" : "Aguardando Data"}
+              {loading ? "Carregando dados..." : syncError ? "Falha na sincronização; confira os dados" : draws.length > 0 ? "Dados disponíveis (não em tempo real)" : "Sem dados disponíveis"}
             </p>
           </div>
           <span className="w-1 h-1 rounded-full bg-border" />
           <p className="text-[10px] font-mono font-bold text-muted-foreground opacity-40 uppercase tracking-tighter">
-            {draws.length.toLocaleString()} Tensors Indexed
+            {draws.length.toLocaleString()} registros · origem selecionada: {source}
           </p>
         </div>
+        <p className="text-[10px] text-muted-foreground mt-1">
+          {latest ? `Último concurso disponível: #${latest.concurso} · data informada: ${latest.date || "não disponível"}. ` : "Nenhum concurso carregado. "}
+          Compare com o resultado oficial da Caixa antes de usar estes dados.
+        </p>
       </div>
     </motion.div>
   );
