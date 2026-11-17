@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
+import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
 import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
 import { megaBolaoAdvisory } from "@/utils/megaBolaoAdvisory";
@@ -274,13 +275,13 @@ export default function BolaoPage() {
   };
 
   const handleImportSaved = () => {
-    const valid = savedBetsList.filter((b) => b.numbers.length === activeConfig.pick);
+    const valid = savedBetsList.filter((b) => isValidSimpleBolaoGame(b.numbers, activeConfig));
     if (valid.length === 0) {
-      toast.warning("Nenhum jogo salvo compatível com esta loteria.");
+      toast.warning("Nenhum jogo simples válido para esta modalidade. Federal e Super Sete exigem regras próprias.");
       return;
     }
     setGames(valid.map((b) => b.numbers));
-    toast.success(`${valid.length} jogos salvos importados para o bolão!`);
+    toast.success(`${valid.length} jogos simples válidos importados; confira as regras oficiais antes de apostar.`);
   };
 
   const pad = (n: number) => n.toString().padStart(2, "0");

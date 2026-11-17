@@ -267,3 +267,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Proveniência visível dos concursos no banner (2026-11-13)
 - Banner de modalidade mostra quantidade de registros, origem selecionada (não origem certificada), último concurso e data informada; deixa de sugerir dados ao vivo com “Tensors Indexed”/“Dados sincronizados”. Painel de sincronização deixa de usar “Live” e rotula horário como última tentativa, não atualização certificada do sorteio.
 - Typecheck e 239 testes em 51 arquivos aprovados. Ainda faltam telemetria real de ingestão, atualização da fonte e confronto operacional com a Caixa.
+
+### Revalidação de jogos salvos ao importar no bolão (2026-11-13)
+- Importação de jogos salvos deixa de conferir apenas quantidade de dezenas: exige inteiros distintos no intervalo e tamanho exato das modalidades de dezenas simples. Federal e Super Sete não são tratados como jogos simples intercambiáveis; precisam de validação específica antes de importar. Aviso orienta confirmação externa.
+- Typecheck e 241 testes em 52 arquivos aprovados. Ainda falta aplicar validação em todas as outras origens e exportações do bolão.
