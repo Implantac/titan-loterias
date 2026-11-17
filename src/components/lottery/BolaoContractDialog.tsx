@@ -1,3 +1,5 @@
+import { LOTTERIES } from "@/data/lotteries";
+import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -36,15 +38,23 @@ export function BolaoContractDialog({
   onOpenChange,
   config,
 }: BolaoContractDialogProps) {
+  const lottery = LOTTERIES.find(l => l.id === config.lotteryId);
+  const validGames = !!lottery && config.games.length > 0 && config.games.every(g => isValidSimpleBolaoGame(g, lottery));
   const [contractData, setContractData] = useState<BolaoContractData | null>(null);
   const [copiedHash, setCopiedHash] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
   useEffect(() => {
-    if (open && config.games.length > 0) {
-      createBolaoContract(config).then(setContractData);
+    if (!open || !validGames) {
+      setContractData(null);
+      return;
     }
-  }, [open, config]);
+    let active = true;
+    createBolaoContract(config).then(result => {
+      if (active) setContractData(result);
+    }).catch(() => { if (active) setContractData(null); });
+    return () => { active = false; };
+  }, [open, config, validGames]);
 
   const handleCopyHash = () => {
     if (!contractData) return;
@@ -55,6 +65,7 @@ export function BolaoContractDialog({
   };
 
   const handleDownloadPdf = async () => {
+    if (!validGames) { toast.error("Jogos inválidos ou modalidade não suportada neste registro."); return; }
     try {
       setGeneratingPdf(true);
       await generateBolaoContractPdf(config);
@@ -161,7 +172,7 @@ export function BolaoContractDialog({
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground font-mono">{p.shares} cota(s)</span>
                     <Badge variant={p.paid ? "default" : "outline"} className="text-[10px] h-4">
-                      {p.paid ? "Pago" : "Pendente"}
+                      {p.paid ? "Marcado pago" : "Pendente"}
                     </Badge>
                   </div>
                 </div>
@@ -179,7 +190,7 @@ export function BolaoContractDialog({
           <Button
             size="sm"
             onClick={handleDownloadPdf}
-            disabled={generatingPdf}
+            disabled={generatingPdf || !validGames}
             className="gap-1.5 font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             <FileDown className="w-4 h-4" />

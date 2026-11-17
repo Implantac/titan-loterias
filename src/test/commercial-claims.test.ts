@@ -180,6 +180,9 @@ describe("alegações comerciais auditáveis", () => {
     }
     expect(page).toContain("O Titan não consulta o banco e não confirma transferências");
     expect(page).toContain("As cotas se referem ao grupo inteiro de jogos");
+    expect(page).toContain("games.every(game => isValidSimpleBolaoGame(game, activeConfig))");
+    expect(content("src/components/lottery/ExportCaixaDialog.tsx")).toContain("disabled={!validGames}");
+    expect(content("src/components/lottery/BolaoContractDialog.tsx")).toContain("disabled={generatingPdf || !validGames}");
     expect(page).not.toContain("Jogos Atribuidos");
     expect(page).not.toContain("para não dividir o prêmio caso seja premiado");
     expect(page).toContain("Não aumenta a chance de acerto nem garante");

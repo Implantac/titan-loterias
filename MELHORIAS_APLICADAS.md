@@ -271,3 +271,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Revalidação de jogos salvos ao importar no bolão (2026-11-13)
 - Importação de jogos salvos deixa de conferir apenas quantidade de dezenas: exige inteiros distintos no intervalo e tamanho exato das modalidades de dezenas simples. Federal e Super Sete não são tratados como jogos simples intercambiáveis; precisam de validação específica antes de importar. Aviso orienta confirmação externa.
 - Typecheck e 241 testes em 52 arquivos aprovados. Ainda falta aplicar validação em todas as outras origens e exportações do bolão.
+
+### Guarda antes de compartilhar/exportar bolão (2026-11-13)
+- Jogos simples passam por revalidação (tamanho, dezenas inteiras distintas e intervalo) antes de PIX, mensagens, salvamento e PDF/TXT; os diálogos de exportação também recusam dados inválidos mesmo se permanecerem abertos. Modalidades que requerem campos extras ou posições (Super Sete, Federal, Dia de Sorte, +Milionária, Timemania) ficam indisponíveis para esses compartilhamentos genéricos até haver implementação específica. Isso não certifica conformidade das demais com a Caixa.
+- Typecheck e 241 testes em 52 arquivos aprovados; testes estáticos de bloqueio complementam testes unitários de fronteira.

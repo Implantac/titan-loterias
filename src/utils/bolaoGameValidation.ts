@@ -2,7 +2,7 @@ import type { LotteryConfig } from "@/data/lotteries";
 
 /** Apenas modalidades com jogo formado por dezenas distintas sem posições. */
 const SIMPLE_NUMBER_LOTTERIES = new Set([
-  "megasena", "lotofacil", "quina", "lotomania", "duplasena", "timemania", "diadesorte", "maismilionaria",
+  "megasena", "lotofacil", "quina", "lotomania", "duplasena",
 ]);
 
 export function isValidSimpleBolaoGame(game: unknown, lottery: LotteryConfig): game is number[] {

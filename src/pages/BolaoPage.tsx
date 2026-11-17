@@ -190,6 +190,7 @@ export default function BolaoPage() {
   const totalCost = baseCost + adminFeeAmount;
   const costPerShare = totalShares > 0 ? totalCost / totalShares : 0;
   const exactShareAmount = hasExactShareAmount(totalCost, totalShares);
+  const canSharePlannedGames = games.length > 0 && games.every(game => isValidSimpleBolaoGame(game, activeConfig));
   const megaAdvisories = activeConfig.id === "megasena"
     ? megaBolaoAdvisory(games.length, totalShares, baseCost) : [];
 
@@ -288,7 +289,7 @@ export default function BolaoPage() {
 
   // Payload PIX gerado localmente (não confirma transação)
   const pixPayload = useMemo(() => {
-    if (!pixKey.trim() || !exactShareAmount) return "";
+    if (!pixKey.trim() || !exactShareAmount || !canSharePlannedGames) return "";
     return generatePixPayload({
       key: pixKey.trim(),
       name: pixName.trim() || "ORGANIZADOR BOLAO",
@@ -297,7 +298,7 @@ export default function BolaoPage() {
       txid: "BOLAO",
       description: `COTA ${activeConfig.name.toUpperCase()}`,
     });
-  }, [pixKey, pixName, pixCity, costPerShare, exactShareAmount, activeConfig.name]);
+  }, [pixKey, pixName, pixCity, costPerShare, exactShareAmount, canSharePlannedGames, activeConfig.name]);
 
   useEffect(() => {
     let active = true;
@@ -393,8 +394,8 @@ export default function BolaoPage() {
 
   // PDF Export
   const downloadBolaoPDF = () => {
-    if (games.length === 0) {
-      toast.error("Adicione ou gere jogos antes de exportar o registro interno.");
+    if (!canSharePlannedGames) {
+      toast.error("Revise jogos e modalidade antes de exportar o registro interno.");
       return;
     }
 
@@ -482,8 +483,8 @@ export default function BolaoPage() {
 
   // Save to saved_bets
   const handleSaveToMyBets = async () => {
-    if (games.length === 0) {
-      toast.error("Nenhum jogo no bolão para salvar.");
+    if (!canSharePlannedGames) {
+      toast.error("Jogos inválidos ou modalidade ainda não suportada para salvar neste fluxo.");
       return;
     }
     if (isAtLimit) {
@@ -532,7 +533,7 @@ export default function BolaoPage() {
           <Button
             variant="outline"
             onClick={() => setContractOpen(true)}
-            disabled={games.length === 0}
+            disabled={!canSharePlannedGames}
             className="gap-1.5 font-bold border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-xs h-9"
           >
             <Shield className="w-3.5 h-3.5" /> Registro interno (SHA-256)
@@ -547,7 +548,7 @@ export default function BolaoPage() {
           <Button
             variant="outline"
             onClick={() => setTeimosinhaOpen(true)}
-            disabled={games.length === 0}
+            disabled={!canSharePlannedGames}
             className="gap-1.5 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs h-9"
           >
             <Repeat className="w-3.5 h-3.5" /> Ciclo Teimosinha
@@ -555,7 +556,7 @@ export default function BolaoPage() {
           <Button
             variant="outline"
             onClick={() => setExportCaixaOpen(true)}
-            disabled={games.length === 0}
+            disabled={!canSharePlannedGames}
             className="gap-1.5 font-bold border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs h-9"
           >
             <Zap className="w-3.5 h-3.5 text-amber-400" /> Exportar Caixa / TXT
@@ -563,14 +564,14 @@ export default function BolaoPage() {
           <Button
             variant="outline"
             onClick={downloadBolaoPDF}
-            disabled={games.length === 0}
+            disabled={!canSharePlannedGames}
             className="gap-1.5 font-bold text-xs h-9"
           >
             <FileDown className="w-3.5 h-3.5 text-primary" /> Registro PDF
           </Button>
           <Button
             onClick={sendGroupWhatsApp}
-            disabled={games.length === 0}
+            disabled={!canSharePlannedGames}
             className="gap-1.5 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/20 text-xs h-9"
           >
             <Send className="w-3.5 h-3.5" /> WhatsApp Grupo
@@ -579,6 +580,12 @@ export default function BolaoPage() {
       </div>
 
       <LotteryContextBanner />
+
+      {!canSharePlannedGames && games.length > 0 && (
+        <p role="alert" className="text-sm text-amber-400 border border-amber-500/30 rounded-lg p-3">
+          Há jogos inválidos ou esta modalidade exige campos adicionais/posicionais não contemplados no planejamento simples. Compartilhamento, PIX, salvamento e exportação ficam indisponíveis neste fluxo; confira as regras oficiais.
+        </p>
+      )}
 
       {/* KPI Top Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -829,7 +836,7 @@ export default function BolaoPage() {
                       size="sm"
                       variant="ghost"
                       onClick={handleSaveToMyBets}
-                      disabled={savingBets || isAtLimit}
+                      disabled={!canSharePlannedGames || savingBets || isAtLimit}
                       className="h-6 text-[11px] text-primary"
                     >
                       <Save className="w-3 h-3 mr-1" /> Salvar em Meus Jogos
@@ -939,7 +946,7 @@ export default function BolaoPage() {
                 {!exactShareAmount && games.length > 0 && (
                   <p role="alert" className="text-xs text-amber-400">O custo planejado não pode ser dividido igualmente em centavos entre as cotas. Ajuste jogos, taxa ou cotas e combine os valores individualmente antes de gerar um QR de valor fixo.</p>
                 )}
-                {pixKey.trim() && exactShareAmount && !pixPayload && (
+                {pixKey.trim() && canSharePlannedGames && exactShareAmount && !pixPayload && (
                   <p role="alert" className="text-xs text-destructive">Chave PIX inválida ou valor da cota indisponível. Confira a chave (CPF, CNPJ, e-mail, celular com +55 ou chave aleatória) e o custo antes de compartilhar.</p>
                 )}
 
@@ -1054,6 +1061,7 @@ export default function BolaoPage() {
                     size="sm"
                     variant="secondary"
                     onClick={() => copyText(makeGroupMessage(), "group", "Resumo do grupo")}
+                    disabled={!canSharePlannedGames}
                     className="h-7 text-[11px] gap-1"
                   >
                     <Copy className="w-3 h-3" />
@@ -1087,6 +1095,7 @@ export default function BolaoPage() {
                           <Button
                             size="sm"
                             variant="outline"
+                            disabled={!canSharePlannedGames}
                             onClick={() =>
                               copyText(
                                 makeParticipantMessage(cota),
@@ -1101,6 +1110,7 @@ export default function BolaoPage() {
                           </Button>
                           <Button
                             size="sm"
+                            disabled={!canSharePlannedGames}
                             onClick={() => sendParticipantWhatsApp(cota)}
                             className="h-8 text-xs gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                           >

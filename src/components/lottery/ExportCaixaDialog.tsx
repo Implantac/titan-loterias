@@ -1,3 +1,5 @@
+import { LOTTERIES } from "@/data/lotteries";
+import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { useState } from "react";
 import {
   Dialog,
@@ -42,11 +44,14 @@ export function ExportCaixaDialog({
   lotteryName,
   lotteryId,
 }: ExportCaixaDialogProps) {
+  const lottery = LOTTERIES.find(l => l.id === lotteryId);
+  const validGames = !!lottery && games.length > 0 && games.every(g => isValidSimpleBolaoGame(g, lottery));
   const [copiedTxt, setCopiedTxt] = useState(false);
 
   const txtContent = formatGamesToCologaTxt(games);
 
   const handleCopyTxt = () => {
+    if (!validGames) { toast.error("Jogos inválidos ou modalidade não suportada."); return; }
     navigator.clipboard.writeText(txtContent);
     setCopiedTxt(true);
     toast.success("Dezenas no formato Cologa copiadas!");
@@ -54,12 +59,14 @@ export function ExportCaixaDialog({
   };
 
   const handleDownloadTxt = () => {
+    if (!validGames) { toast.error("Jogos inválidos ou modalidade não suportada."); return; }
     const filename = `titan_${lotteryId}_${games.length}_jogos`;
     downloadGamesAsTxt(filename, games);
     toast.success(`Arquivo ${filename}.txt baixado!`);
   };
 
   const handlePrint = () => {
+    if (!validGames) return;
     window.print();
   };
 
@@ -81,6 +88,7 @@ export function ExportCaixaDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {!validGames && <p role="alert" className="text-sm text-destructive">Jogos inválidos ou modalidade com campos adicionais/posicionais: exportação desativada neste fluxo.</p>}
         <Tabs defaultValue="caixa" className="w-full mt-2">
           <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="caixa" className="gap-1.5 text-xs">
@@ -133,6 +141,7 @@ export function ExportCaixaDialog({
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={handleDownloadTxt}
+                disabled={!validGames}
                 className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <Download className="w-4 h-4" />
@@ -141,6 +150,7 @@ export function ExportCaixaDialog({
               <Button
                 variant="outline"
                 onClick={handleCopyTxt}
+                disabled={!validGames}
                 className="gap-2"
               >
                 {copiedTxt ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
@@ -159,7 +169,9 @@ export function ExportCaixaDialog({
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
+                    disabled={!validGames}
                     onClick={() => {
+                      if (!validGames) return;
                       generateVolantesGabaritoPdf({ games, lotteryName, lotteryId });
                       toast.success("Gabarito de marcação em PDF gerado!");
                     }}
@@ -172,6 +184,7 @@ export function ExportCaixaDialog({
                     size="sm"
                     variant="outline"
                     onClick={handlePrint}
+                    disabled={!validGames}
                     className="gap-1.5 h-8 text-xs"
                   >
                     <Printer className="w-3.5 h-3.5" />
