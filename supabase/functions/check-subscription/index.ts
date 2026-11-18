@@ -18,10 +18,6 @@ serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
-  // GUARD: `stripe.customers.list({ email: undefined })` NÃO filtra — ele lista
-  // TODOS os clientes da conta e `data[0]` seria um assinante qualquer, aplicando
-  // o plano/portal de outra pessoa a este usuário. Cadastro por telefone existe
-  // neste produto, então e-mail nulo é um caminho alcançável.
   if (!auth.email) {
     return new Response(
       JSON.stringify({ error: "Conta sem e-mail associado. Adicione um e-mail no seu perfil para gerenciar o plano." }),
@@ -41,16 +37,21 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: auth.email, limit: 1 });
-
-    if (customers.data.length === 0) {
-      await supabaseClient.from("profiles").update({ plan: "free" }).eq("id", auth.userId);
+    // Missing binding is not evidence that a paid account has no subscription.
+    const { data: profile, error: profileError } = await supabaseClient.from("profiles")
+      .select("stripe_customer_id").eq("id", auth.userId).single();
+    if (profileError || !profile) throw new Error("Billing binding unavailable");
+    if (!profile.stripe_customer_id) {
+      if (auth.plan !== "free") {
+        return new Response(JSON.stringify({ error: "Conta de pagamento não vinculada. Contate o suporte." }), {
+          status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       return new Response(JSON.stringify({ plan: "free", subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const customerId = customers.data[0].id;
+    const customerId = profile.stripe_customer_id;
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",

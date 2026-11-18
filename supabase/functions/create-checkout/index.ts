@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { requireUserAuth, corsHeaders } from "../_shared/auth.ts";
 import { PLAN_PRICES, allowedOrigin } from "../_shared/billing.ts";
 
@@ -11,10 +12,6 @@ serve(async (req) => {
   const auth = await requireUserAuth(req);
   if (auth instanceof Response) return auth;
 
-  // GUARD: `stripe.customers.list({ email: undefined })` NÃO filtra — ele lista
-  // TODOS os clientes da conta e `data[0]` seria um assinante qualquer, aplicando
-  // o plano/portal de outra pessoa a este usuário. Cadastro por telefone existe
-  // neste produto, então e-mail nulo é um caminho alcançável.
   if (!auth.email) {
     return new Response(
       JSON.stringify({ error: "Conta sem e-mail associado. Adicione um e-mail no seu perfil para gerenciar o plano." }),
@@ -40,20 +37,28 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    const customers = await stripe.customers.list({ email: auth.email, limit: 1 });
-    let customerId: string | undefined;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
+    // A customer lookup by email can select a different account. Binding must
+    // exist in the authenticated profile before any payment session is issued.
+    const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+    const { data: profile, error: profileError } = await admin.from("profiles")
+      .select("stripe_customer_id").eq("id", auth.userId).single();
+    if (profileError || !profile) throw new Error("Billing binding unavailable");
+    let customerId: string = profile.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe.customers.create({ email: auth.email, metadata: { user_id: auth.userId } },
+        { idempotencyKey: `titan-customer-${auth.userId}` });
+      const { data: bound, error: bindError } = await admin.from("profiles")
+        .update({ stripe_customer_id: customer.id }).eq("id", auth.userId)
+        .is("stripe_customer_id", null).select("stripe_customer_id").single();
+      if (bindError || bound?.stripe_customer_id !== customer.id)
+        throw new Error("Could not bind Stripe customer to account");
+      customerId = customer.id;
     }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : auth.email,
       line_items: [{ price: planConfig.price_id, quantity: 1 }],
       mode: planConfig.mode,
-      // Pagamento único sem cliente prévio não cria cliente no Stripe por padrão —
-      // o webhook ficaria sem customerId e não liberaria o acesso vitalício.
-      ...(planConfig.mode === "payment" && !customerId ? { customer_creation: "always" as const } : {}),
       success_url: `${origin}/payment-success?plan=${planId}`,
       cancel_url: `${origin}/planos`,
       metadata: { user_id: auth.userId, plan_id: planId },
