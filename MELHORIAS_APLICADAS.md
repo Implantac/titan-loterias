@@ -304,3 +304,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Exemplo honesto na seção pública “Como funciona” (2026-11-13)
 - Seção da landing passa a diferenciar resultados disponíveis, cobertura condicional e jogos apenas planejados. Exemplo **ilustrativo** Mega-Sena: três jogos simples a R$ 6,00 de referência, total R$ 18,00, duas cotas de R$ 9,00 sem taxa privada; orienta confirmar preço e regras atuais na Caixa, sem sugerir aposta registrada ou retorno.
 - Typecheck e 249 testes em 55 arquivos aprovados. P3 de página dedicada, capturas de tela reais e validação mobile ainda pendentes.
+
+### Guia público “Como funciona” (2026-11-13)
+- Nova rota pública `/como-funciona`, acessível por navegação e rodapé, reaproveita explicação de metodologia e descreve percurso de cinco passos até o comprovante externo da Caixa. Inclui exemplo de custo hipotético, limites de PIX/PDF/hash e links para regras oficiais, bolão e planos, sem solicitar aposta ou compra.
+- Typecheck e 250 testes em 55 arquivos aprovados. Capturas reais, avaliação mobile e smoke test em ambiente publicado ainda pendentes.

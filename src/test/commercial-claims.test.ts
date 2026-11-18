@@ -46,6 +46,15 @@ describe("alegações comerciais auditáveis", () => {
     expect(worksheet).toContain("não há retorno líquido calculável");
   });
 
+  it("guia público esclarece o caminho até o comprovante oficial", () => {
+    const guide = content("src/pages/ComoFuncionaPage.tsx");
+    expect(content("src/App.tsx")).toContain('path="/como-funciona"');
+    expect(content("src/components/landing/Navbar.tsx")).toContain('to: "/como-funciona"');
+    expect(guide).toContain("Registre os jogos somente nos canais oficiais da Caixa");
+    expect(guide).toContain("não confirmam transferência");
+    expect(guide).toContain("Não é simulação de prêmio");
+  });
+
   it("não apresenta amostragem como garantia no painel executivo", () => {
     const executive = content("src/components/closing/ClosingExecutiveSummaryPanel.tsx");
     expect(executive).toContain("v.exhaustive && v.testedScenarios > 0 && v.meetsGuarantee");

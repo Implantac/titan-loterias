@@ -299,6 +299,7 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold text-xs text-primary uppercase tracking-wider mb-4">Institucional</h4>
               <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <li><Link to="/como-funciona" className="hover:text-foreground transition-colors">Como funciona</Link></li>
                 <li><Link to="/sobre" className="hover:text-foreground transition-colors">Sobre Nós</Link></li>
                 <li><Link to="/seguranca" className="hover:text-foreground transition-colors">Segurança</Link></li>
                 <li><Link to="/termos" className="hover:text-foreground transition-colors">Termos de Uso</Link></li>

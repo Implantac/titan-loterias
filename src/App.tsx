@@ -61,6 +61,7 @@ const ClosingSharePage = lazy(() => import("@/pages/ClosingSharePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OAuthConsentPage = lazy(() => import("@/pages/OAuthConsentPage"));
 const CentralEstudosPage = lazy(() => import("@/pages/CentralEstudosPage"));
+const ComoFuncionaPage = lazy(() => import("@/pages/ComoFuncionaPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -149,6 +150,7 @@ const AppContent = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/planos" element={<PlanosPage />} />
+        <Route path="/como-funciona" element={<ComoFuncionaPage />} />
         <Route path="/suporte" element={<SuportePage />} />
         <Route path="/termos" element={<LegalPage doc="termos" />} />
         <Route path="/privacidade" element={<LegalPage doc="privacidade" />} />

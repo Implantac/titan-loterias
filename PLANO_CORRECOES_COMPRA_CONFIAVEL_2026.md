@@ -91,3 +91,4 @@
 - **P1.2 — avisos informativos Mega-Sena:** fonte oficial vinculada na interface; alertas de mínimo geral, cota mínima e máximo de jogos por recibo sem apresentar o planejamento como Bolão Caixa. Tabela de limites por dezenas, outras modalidades e registro real ainda pendentes.
 - **P1.2 — revalidação parcial:** importação, compartilhamento e exportação genérica do bolão exigem jogos simples válidos; modalidades com campos adicionais/posicionais não usam o fluxo genérico. Ainda faltam regras oficiais por modalidade, preço vigente, recibo real e E2E autenticado.
 - **P3 — seção pública parcial:** “Como funciona” na landing explica limites e inclui exemplo de custo hipotético sem retorno; página pública dedicada, imagens reais e avaliação mobile seguem pendentes.
+- **P3 — página dedicada implementada no código:** `/como-funciona` com exemplo hipotético e limitações operacionais; falta validar visual/mobile, capturas reais e publicação no Lovable.

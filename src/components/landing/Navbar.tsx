@@ -19,6 +19,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: "Recursos", to: "/landing" },
+    { name: "Como funciona", to: "/como-funciona" },
     { name: "Fechamentos", to: "/fechamentos" },
     { name: "Módulo de Bolão", to: "/bolao" },
     { name: "Planos", to: "/planos" },
