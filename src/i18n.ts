@@ -149,10 +149,10 @@ const resources = {
         "total_earned": "Total Ganho",
         "available_balance": "Saldo Disponível",
         "invite_title": "Convide e Ganhe",
-        "invite_desc": "Ganhe 30% de comissão recorrente em cada assinatura ativa indicada.",
+        "invite_desc": "Acompanhe indicações e confirme condições de comissão com o suporte.",
         "benefits": {
-          "lifetime": "Comissão vitalícia em assinaturas",
-          "min_payout": "Pagamento mínimo R$ 100,00",
+          "lifetime": "Condições de comissão sujeitas a confirmação",
+          "min_payout": "Consulte critérios de pagamento com o suporte",
           "dashboard": "Dashboard de acompanhamento real",
           "material": "Material promocional exclusivo"
         }

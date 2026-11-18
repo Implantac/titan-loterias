@@ -99,7 +99,7 @@ export function AffiliateDashboard() {
       <Card className="glass-card border-primary/20">
         <CardHeader>
           <CardTitle className="text-lg font-black uppercase italic tracking-tight">Convide e Ganhe</CardTitle>
-          <CardDescription>Ganhe 30% de comissão recorrente em cada assinatura ativa indicada.</CardDescription>
+          <CardDescription>Acompanhe indicações e valores informados na sua conta. Condições de comissão e pagamento devem ser confirmadas com o suporte antes de divulgar.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -117,16 +117,16 @@ export function AffiliateDashboard() {
             <h4 className="text-xs font-bold uppercase mb-2">Vantagens do Programa Titan:</h4>
             <ul className="grid md:grid-cols-2 gap-2">
               <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Comissão vitalícia em assinaturas
+                <div className="w-1 h-1 rounded-full bg-primary" /> Condições de comissão sujeitas a confirmação
               </li>
               <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Pagamento mínimo R$ 100,00
+                <div className="w-1 h-1 rounded-full bg-primary" /> Consulte critérios de pagamento com o suporte
               </li>
               <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Dashboard de acompanhamento real
+                <div className="w-1 h-1 rounded-full bg-primary" /> Indicadores disponíveis no painel
               </li>
               <li className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Material promocional exclusivo
+                <div className="w-1 h-1 rounded-full bg-primary" /> Materiais sujeitos à disponibilidade
               </li>
             </ul>
           </div>

@@ -3,9 +3,9 @@ import { Users, TrendingUp, ShieldCheck, Zap } from "lucide-react";
 
 export function SocialProofBar() {
   const socialItems = [
-    { icon: TrendingUp, label: "Resultados Oficiais", detail: "Sincronização direta Caixa" },
-    { icon: ShieldCheck, label: "Garantia Comprovada", detail: "Matrizes com cálculo exaustivo" },
-    { icon: Users, label: "Módulo de Bolão", detail: "Rateio e exportação WhatsApp" },
+    { icon: TrendingUp, label: "Resultados Disponíveis", detail: "Confira concurso e data na Caixa" },
+    { icon: ShieldCheck, label: "Cobertura Condicional", detail: "Verifique a matriz e suas condições" },
+    { icon: Users, label: "Planejamento de Bolão", detail: "Cotas e mensagens internas" },
     { icon: Zap, label: "Acesso Vitalício", detail: "Pagamento único sem mensalidade" },
   ];
 

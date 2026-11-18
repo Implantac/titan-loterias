@@ -7,7 +7,7 @@ export default function AffiliatePage() {
     <div className="space-y-6">
       <PageHeader 
         title="Programa de Afiliados" 
-        description="Transforme sua rede em receita recorrente com o Titan Loterias."
+        description="Consulte indicações e valores registrados; confirme condições de comissão e pagamento com o suporte."
         icon={Users}
       />
       <AffiliateDashboard />

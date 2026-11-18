@@ -401,9 +401,9 @@ export class NativeLotteryAgent {
         "",
         `#### 🎯 Onde a Estratégia Realmente Atua?`,
         `Na **Gestão Combinatória**. Você não altera a sorte de uma única bolinha, mas você pode:`,
-        `• Não jogar o dinheiro no lixo com jogos absurdos (como 6 pares na Mega ou 15 números na moldura na Lotofácil).`,
-        `• Usar **fechamentos matemáticos comprovados** para premiar múltiplos volantes simultaneamente.`,
-        `• Usar **split-avoidance** para não dividir o prêmio com milhares de apostadores desavisados.`
+        `• Definir um teto de gastos; padrões visuais não tornam uma combinação válida menos provável no sorteio.`,
+        `• Conferir se uma matriz tem cobertura condicional validada para a base e os filtros usados; isso não garante prêmio financeiro.`,
+        `• Usar filtros de padrões populares se quiser, sem supor maior chance de acerto ou exclusividade de prêmio.`
       );
     }
 

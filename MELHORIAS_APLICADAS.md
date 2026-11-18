@@ -316,3 +316,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### FAQ traduzida e depoimentos não verificados (2026-11-13)
 - `src/i18n.ts` alimentava o FAQ público com promessas de cobertura máxima, criptografia ponta a ponta, atualização em tempo real, ROI teórico e vitalício como única opção com todas as atualizações futuras. Textos alinhados ao anual recorrente, vitalício único e limites verificáveis; removedor de depoimentos não verificados da tradução e do componente não utilizado para evitar reativação acidental.
 - Typecheck e 252 testes em 55 arquivos aprovados. Revisão de outros textos comerciais e testes do checkout em sandbox continuam pendentes.
+
+### Claims da faixa pública, agente e programa de indicações (2026-11-13)
+- Faixa pública deixa de anunciar “Sincronização direta Caixa” e “Garantia Comprovada”; agora recomenda conferir concurso e cobertura condicional. Resposta do agente deixa de tratar jogos de padrões visuais como dinheiro perdido, de prometer múltiplos prêmios ou impedir divisão de eventual prêmio.
+- Programa de afiliados deixa de divulgar 30% recorrentes, comissão vitalícia e pagamento mínimo de R$ 100,00 sem regras operacionais/contratuais verificadas. Números registrados no painel continuam exibidos, mas condições devem ser confirmadas com suporte antes de divulgação. Typecheck e 253 testes em 55 arquivos aprovados.

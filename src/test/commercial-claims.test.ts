@@ -46,6 +46,17 @@ describe("alegações comerciais auditáveis", () => {
     expect(worksheet).toContain("não há retorno líquido calculável");
   });
 
+  it("não anuncia sincronização direta, prêmio por filtro ou comissão não comprovada", () => {
+    const proof = content("src/components/common/SocialProofBar.tsx");
+    const agent = content("src/ai/agent/nativeLotteryAgent.ts");
+    const affiliate = content("src/components/AffiliateDashboard.tsx");
+    expect(proof).not.toContain("Sincronização direta Caixa");
+    expect(proof).not.toContain("Garantia Comprovada");
+    expect(agent).not.toContain("para não dividir o prêmio com milhares");
+    expect(affiliate).not.toContain("30% de comissão recorrente");
+    expect(affiliate).not.toContain("Pagamento mínimo R$ 100,00");
+  });
+
   it("guia público esclarece o caminho até o comprovante oficial", () => {
     const guide = content("src/pages/ComoFuncionaPage.tsx");
     expect(content("src/App.tsx")).toContain('path="/como-funciona"');
