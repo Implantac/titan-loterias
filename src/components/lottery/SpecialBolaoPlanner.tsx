@@ -17,16 +17,18 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
   const [numbers, setNumbers] = useState<string[]>(Array(6).fill(""));
   const [trevos, setTrevos] = useState<string[]>(Array(2).fill(""));
   const [shares, setShares] = useState(2);
-  const [customPrice, setCustomPrice] = useState<number | null>(null);
+  const [priceInput, setPriceInput] = useState("");
   const [priceSource, setPriceSource] = useState("");
   const name = kind === "supersete" ? "Super Sete" : "+Milionária";
   const internalPrice = kind === "supersete" ? 3 : 6;
+  const manualPriceValid = !priceInput || (/^\d+(?:[.,]\d{1,2})?$/.test(priceInput) && Number(priceInput.replace(",", ".")) >= 0.01 && Number(priceInput.replace(",", ".")) <= 1000);
+  const customPrice = priceInput && manualPriceValid ? Number(priceInput.replace(",", ".")) : null;
   const price = customPrice ?? internalPrice;
   const selectedGames = games.filter(g => g.kind === kind);
   const total = selectedGames.length * price;
   const allocation = allocateBolaoCents(total, Array(shares).fill(1));
   const canExport = selectedGames.length > 0 && selectedGames.every(isValidSpecialBolaoGame) &&
-    !!allocation && (customPrice === null || !!priceSource.trim());
+    !!allocation && manualPriceValid && (!priceInput || !!priceSource.trim());
 
   const addGame = () => {
     const game: SpecialBolaoGame = kind === "supersete"
@@ -36,6 +38,7 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
       toast.error(kind === "supersete" ? "Escolha um dígito de 0 a 9 para cada uma das 7 colunas." : "Informe 6 dezenas distintas de 1 a 50 e 2 trevos distintos de 1 a 6.");
       return;
     }
+    if (games.length >= 100) { toast.error("Limite de 100 jogos por planejamento; remova um jogo antes de continuar."); return; }
     setGames(prev => [...prev, game]);
     setColumns(Array(7).fill("")); setNumbers(Array(6).fill("")); setTrevos(Array(2).fill(""));
   };
@@ -43,7 +46,7 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
     if (!canExport) return;
     const text = `${specialBolaoInternalTxt(selectedGames)}\nPREÇO/JOGO=${formatCurrency(price)} (${customPrice === null ? "referência interna" : `manual: ${priceSource}`}; confirmar na Caixa)\nTOTAL PLANEJADO=${formatCurrency(total)}\nCOTAS PRIVADAS=${shares}\nVALORES INDIVIDUAIS=${allocation?.map(c => formatCurrency(c / 100)).join("; ")}\nNÃO COMPROVA PARTICIPAÇÃO OU PAGAMENTO`;
     const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
-    const link = document.createElement("a"); link.href = url; link.download = `planejamento-${kind}.txt`; link.click();
+    const link = document.createElement("a"); link.href = url; link.download = `planejamento-${kind}.txt`; document.body.appendChild(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   const exportPdf = () => {
@@ -94,14 +97,16 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
       <label className="text-xs">Cotas privadas de planejamento (2 a 100)
         <Input type="number" min={2} max={100} step={1} value={shares} onChange={e => { const n = Number(e.target.value); if (Number.isInteger(n) && n >= 2 && n <= 100) setShares(n); }} /></label>
       <label className="text-xs">Preço manual por jogo (R$; opcional)
-        <Input type="number" min="0.01" max="1000" step="0.01" value={customPrice ?? ""} placeholder={String(internalPrice)}
-          onChange={e => { const n = Number(e.target.value); setCustomPrice(e.target.value && Number.isFinite(n) && n >= 0.01 && n <= 1000 ? Math.round(n * 100) / 100 : null); }} /></label>
+        <Input type="number" min="0.01" max="1000" step="0.01" value={priceInput} placeholder={String(internalPrice)}
+          onChange={e => setPriceInput(e.target.value)} /></label>
       <label className="text-xs">Fonte/data do preço manual
         <Input maxLength={120} value={priceSource} placeholder="Ex.: Caixa em DD/MM/AAAA" onChange={e => setPriceSource(e.target.value)} /></label>
     </div>
     <p className="text-sm">Custo estimado: {formatCurrency(total)} · cota aproximada: {formatCurrency(total / shares)}. Valores de referência sujeitos a conferência na Caixa.</p>
-    {allocation && allocation.some(c => c !== allocation[0]) && <p className="text-xs text-amber-400">A divisão não é exata em centavos; acerte valores individuais com os participantes antes de transferir.</p>}
-    {customPrice !== null && !priceSource.trim() && <p role="alert" className="text-xs text-destructive">Informe a fonte/data do preço manual antes de exportar.</p>}
+    {allocation && <div className="text-sm"><p className="font-semibold">Rateio interno exato, por cota (não comprova pagamento):</p>
+      <ol className="grid grid-cols-2 sm:grid-cols-4 gap-1 max-h-32 overflow-auto">{allocation.map((cents, i) => <li key={i}>Cota {i + 1}: {formatCurrency(cents / 100)}</li>)}</ol></div>}
+    {!!priceInput && !manualPriceValid && <p role="alert" className="text-xs text-destructive">Preço inválido: informe de R$ 0,01 a R$ 1.000,00 com até duas casas decimais.</p>}
+    {!!priceInput && manualPriceValid && !priceSource.trim() && <p role="alert" className="text-xs text-destructive">Informe a fonte/data do preço manual antes de exportar.</p>}
     <div className="flex gap-2 flex-wrap"><Button disabled={!canExport} onClick={exportText}>Baixar TXT interno</Button>
       <Button disabled={!canExport} variant="outline" onClick={exportPdf}>Baixar PDF interno</Button></div>
     <p className="text-xs text-muted-foreground">Arquivos internos não comprovam registro, pagamento ou aceitação do bolão pela Caixa. Confirme tudo no recibo oficial.</p>
