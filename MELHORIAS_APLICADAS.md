@@ -312,3 +312,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### FAQ e contato de suporte alinhados aos Termos (2026-11-13)
 - Corrigidas respostas que negavam acesso gratuito em qualquer situação, inventavam plano mensal/prorrata, prometiam Pix/cartões específicos, recursos vitalícios futuros ilimitados e afirmavam criptografia ponta a ponta. Anual recorrente, vitalício único, arrependimento, limites do bolão e comprovante oficial seguem comunicação prudente.
 - Removidas promessas de horário fixo e resposta em 24h sem evidência operacional. Contatos existentes mantidos, porém **não houve verificação independente de atendimento**. Typecheck e 251 testes em 55 arquivos aprovados.
+
+### FAQ traduzida e depoimentos não verificados (2026-11-13)
+- `src/i18n.ts` alimentava o FAQ público com promessas de cobertura máxima, criptografia ponta a ponta, atualização em tempo real, ROI teórico e vitalício como única opção com todas as atualizações futuras. Textos alinhados ao anual recorrente, vitalício único e limites verificáveis; removedor de depoimentos não verificados da tradução e do componente não utilizado para evitar reativação acidental.
+- Typecheck e 252 testes em 55 arquivos aprovados. Revisão de outros textos comerciais e testes do checkout em sandbox continuam pendentes.

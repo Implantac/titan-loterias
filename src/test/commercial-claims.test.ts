@@ -129,6 +129,15 @@ describe("alegações comerciais auditáveis", () => {
     expect(planner).toContain("Planejador de Orçamento");
   });
 
+  it("FAQ traduzida da landing não promete cobertura máxima nem pagamento único como opção exclusiva", () => {
+    const translations = content("src/i18n.ts");
+    expect(translations).toContain("O anual é uma assinatura com renovação automática");
+    expect(translations).not.toContain("garantir máxima cobertura sem divisão");
+    expect(translations).not.toContain("Utilizamos criptografia de ponta a ponta");
+    expect(translations).not.toContain("atualizados em tempo real direto da Caixa");
+    expect(translations).not.toContain("Ricardo Silva");
+  });
+
   it("suporte não contradiz planos nem promete meios e prazos não verificados", () => {
     const support = content("src/pages/SuportePage.tsx");
     expect(support).toContain("renova automaticamente a cada 12 meses");

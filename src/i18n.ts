@@ -35,7 +35,7 @@ const resources = {
           "badge": "TITAN INTEL • INTELIGÊNCIA ESTATÍSTICA APLICADA",
           "title": "CIÊNCIA DE DADOS REAL",
           "subtitle": "Análise Estatística • Acesso de Elite",
-          "description": "Analise mais de 24 mil concursos oficiais, revele padrões que passam despercebidos e monte apostas com base em estatística, probabilidade e IA — não em achismo.",
+          "description": "Consulte os resultados disponíveis e planeje jogos com ferramentas estatísticas. Confira concurso e data na Caixa; resultados passados não predizem o próximo sorteio.",
           "cta_primary": "Testar Gratuitamente",
           "cta_secondary": "Conhecer os Recursos"
         },
@@ -45,7 +45,7 @@ const resources = {
           "items": {
             "xray": {
               "title": "Análise Histórica Avançada",
-              "description": "Processamos o histórico oficial completo para revelar frequência, atraso, ciclos e distribuição de cada dezena em múltiplas dimensões."
+              "description": "Analisamos o histórico disponível para descrever frequência, atraso e distribuição de dezenas; confira a origem e o período exibidos."
             },
             "ia": {
               "title": "Motor Heurístico & Estatístico",
@@ -57,7 +57,7 @@ const resources = {
             },
             "backtest": {
               "title": "Simulador de Performance",
-              "description": "Coloque sua estratégia contra centenas de concursos passados e descubra o ROI teórico antes de gastar um real com apostas."
+              "description": "Compare estratégias com concursos passados. Sem custos e rateios históricos completos, não há retorno financeiro verificável."
             },
             "simulation": {
               "title": "Laboratório de Estratégias",
@@ -65,7 +65,7 @@ const resources = {
             },
             "sync": {
               "title": "Sincronização Oficial",
-              "description": "Resultados oficiais atualizados em tempo real direto da Caixa, com verificação de integridade e cobertura matemática em cada análise."
+              "description": "Consulte os concursos disponíveis na base do Titan e confira número, data e resultado nos canais oficiais da Caixa."
             }
           }
         },
@@ -73,7 +73,7 @@ const resources = {
           "title": "Arquitetura de Inteligência",
           "step1": {
             "title": "Coleta de Históricos",
-            "desc": "Consolidamos todos os concursos oficiais em uma base de dados única, pronta para análise temporal profunda."
+            "desc": "Consulte a base de resultados disponíveis e confirme cada concurso na fonte oficial."
           },
           "step2": {
             "title": "Análise Estatística",
@@ -81,53 +81,33 @@ const resources = {
           },
           "step3": {
             "title": "Detecção de Padrões e Cobertura",
-            "desc": "Heurísticas estatísticas e matrizes combinatórias mapeiam a cobertura ideal para as dezenas selecionadas."
+            "desc": "Matrizes e heurísticas organizam jogos; cobertura depende de condições explícitas e validação."
           },
           "step4": {
             "title": "Estratégia Quantitativa",
-            "desc": "Aplicamos filtros de dispersão, equilíbrio estrutural e fechamentos matemáticos para maximizar sua cobertura."
+            "desc": "Filtros e fechamentos organizam combinações sem prever sorteios ou garantir premiação."
           },
           "step5": {
             "title": "Apostas Estratégicas & Bolão",
-            "desc": "Você recebe combinações prontas com o Titan Score — decisões baseadas em dados e aptas para gestão de bolão."
+            "desc": "Planeje jogos e cotas; o Titan não registra apostas, vende cotas ou emite recibo oficial."
           }
         },
         "faq": {
           "q1": "O Titan Loterias garante que eu vou ganhar na loteria?",
           "a1": "Não. Nenhuma ferramenta, sistema ou pessoa pode garantir prêmios em jogos de sorte. O Titan Loterias é uma plataforma de análise estatística e inteligência combinatória que ajuda você a tomar decisões mais informadas — mas o resultado final continua sendo probabilístico.",
           "q2": "Como funciona a análise dos modelos?",
-          "a2": "Nossos motores analíticos processam o histórico oficial de cada loteria aplicando modelos estatísticos rigorosos: Cadeias de Markov, simulações de Monte Carlo, heurísticas de ciclo, tendência e desdobramentos combinatórios. O objetivo é mapear a distribuição empírica das dezenas e garantir máxima cobertura sem divisão desnecessária de prêmio.",
+          "a2": "As ferramentas resumem dados históricos e organizam combinações. Uma meta de cobertura só pode ser afirmada quando verificada sob condições explícitas; não há garantia de prêmio ou de evitar divisão.",
           "q3": "Preciso entender de matemática ou estatística para usar?",
-          "a3": "Não. A plataforma foi desenhada para ser intuitiva: você escolhe a loteria, define seus parâmetros e recebe apostas com pontuação estratégica pronta. Todo o rigor matemático fica nos bastidores.",
+          "a3": "Não. Escolha uma modalidade, revise os parâmetros e confira os jogos propostos. O registro da aposta ocorre somente nos canais oficiais da Caixa.",
           "q4": "Quais loterias são suportadas?",
-          "a4": "Suportamos as principais loterias da Caixa Econômica Federal: Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena, Timemania, Dia de Sorte, Super Sete e +Milionária.",
+          "a4": "Modalidades e recursos variam por ferramenta. Confira a modalidade específica e as limitações de exportação antes de contratar.",
           "q5": "Meus dados e apostas ficam seguros?",
-          "a5": "Sim. Utilizamos criptografia de ponta a ponta, autenticação segura e infraestrutura em conformidade com a LGPD. Seus dados pessoais e histórico de apostas nunca são compartilhados.",
+          "a5": "Consulte a Política de Privacidade para entender o tratamento de dados. Não compartilhe sua senha; registros internos de jogos não são comprovantes oficiais.",
           "q6": "Como funciona o pagamento?",
-          "a6": "O Acesso Vitalício é um pagamento único de R$ 99,90 — sem mensalidade, sem renovação automática, sem cobrança recorrente. Você paga uma vez e usa para sempre, com todas as atualizações futuras incluídas."
+          "a6": "O anual é uma assinatura com renovação automática a cada 12 meses; o vitalício é pagamento único sem renovação. Confira preços, condições e métodos disponíveis no checkout e nos Termos de Uso."
         },
-        "disclaimer": "As análises são baseadas em dados históricos, estatística, probabilidade e matemática combinatória. O sistema não garante ganhos e deve ser utilizado como ferramenta de suporte à decisão.",
-        "testimonials": {
-          "title": "O que dizem, nossos usuários",
-          "subtitle": "Junte-se a milhares de apostadores brasileiros que trocaram o achismo por decisões guiadas por estatística e inteligência matemática.",
-          "items": {
-            "t1": {
-              "name": "Ricardo Silva",
-              "role": "Analista de Dados • SP",
-              "content": "O Titan Loterias mudou completamente a forma como eu enxergo os sorteios. A profundidade das análises e a cobertura matemática dos fechamentos impressionam — é o nível de rigor que eu esperava encontrar em uma ferramenta profissional."
-            },
-            "t2": {
-              "name": "Ana Oliveira",
-              "role": "Apostadora Recorrente • RJ",
-              "content": "As simulações e o backtest me pouparam centenas de reais em apostas sem critério. Hoje eu só jogo com estratégia validada — e minha consistência de acertos secundários subiu de forma clara."
-            },
-            "t3": {
-              "name": "Marcos Santos",
-              "role": "Entusiasta de Estatística • MG",
-              "content": "Melhor plataforma de loterias do Brasil. Os fechamentos matemáticos e o Titan Score entregam cobertura real, com critério — nada de gerador aleatório disfarçado de inteligência."
-            }
-          }
-        }
+        "disclaimer": "As análises são baseadas em dados históricos, estatística, probabilidade e matemática combinatória. O sistema não garante ganhos e deve ser utilizado como ferramenta de suporte à decisão."
+
       },
 
 
