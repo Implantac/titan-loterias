@@ -39,6 +39,7 @@ import {
   generatePixQrCodeDataUrl,
   formatBolaoWhatsAppMessage,
 } from "@/utils/pix";
+import { SpecialBolaoPlanner } from "@/components/lottery/SpecialBolaoPlanner";
 import { ExportCaixaDialog } from "@/components/lottery/ExportCaixaDialog";
 import { CaixaPrizeRedemptionDialog } from "@/components/lottery/CaixaPrizeRedemptionDialog";
 import { BolaoContractDialog } from "@/components/lottery/BolaoContractDialog";
@@ -534,6 +535,10 @@ export default function BolaoPage() {
       toast.warning(`${games.length - ok} jogo(s) não foram salvos devido ao limite do plano.`);
     }
   };
+
+  if (activeConfig.id === "supersete" || activeConfig.id === "maismilionaria") {
+    return <div className="max-w-7xl mx-auto px-4 py-8"><SpecialBolaoPlanner key={activeConfig.id} kind={activeConfig.id} /></div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 px-4 sm:px-6">
