@@ -6,8 +6,8 @@ export function HowItWorksSection() {
     {
       num: "01",
       icon: Database,
-      title: "Coleta de Históricos Oficiais",
-      desc: "Consolidamos todos os concursos oficiais das loterias da Caixa em uma base única, pronta para consultas e modelagens temporais.",
+      title: "Consulta de Resultados Disponíveis",
+      desc: "Consulte o concurso e a data disponíveis na base do Titan e confira o resultado na Caixa antes de analisar. Atualização não é em tempo real.",
     },
     {
       num: "02",
@@ -19,19 +19,19 @@ export function HowItWorksSection() {
       num: "03",
       icon: Cpu,
       title: "Detecção de Padrões e Cobertura",
-      desc: "Modelos multi-fatoriais e algoritmos combinatórios mapeiam as melhores combinações para cobrir o universo escolhido.",
+      desc: "Algoritmos organizam combinações e permitem avaliar cobertura sob condições explícitas; não preveem dezenas sorteadas.",
     },
     {
       num: "04",
       icon: ShieldCheck,
-      title: "Fechamentos com Garantia Comprovada",
+      title: "Fechamentos com Condições Verificáveis",
       desc: "Confira as condições de cada fechamento e se a verificação é exaustiva ou amostral. Nenhum fechamento garante prêmio.",
     },
     {
       num: "05",
       icon: Users,
-      title: "Apostas Prontas & Gestão de Bolão",
-      desc: "Gere bilhetes individuais ou monte bolões com divisão automática de cotas, recibos detalhados e compartilhamento via WhatsApp.",
+      title: "Jogos Planejados & Gestão de Bolão",
+      desc: "Planeje jogos e cotas, compartilhe um registro interno e confirme os jogos nos canais oficiais. O Titan não registra apostas nem vende cotas.",
     },
   ];
 
@@ -54,8 +54,14 @@ export function HowItWorksSection() {
                 Como a <span className="gradient-brand-text">Plataforma</span> Funciona
               </h2>
               <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
-                Um fluxo de 5 etapas para transformar dados brutos de loterias em decisões combinatórias inteligentes.
+                Cinco etapas de organização e análise, com limites claros: resultados passados não predizem sorteios futuros.
               </p>
+            </div>
+
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground space-y-2">
+              <p className="font-semibold text-foreground">Exemplo ilustrativo de planejamento — Mega-Sena</p>
+              <p>3 jogos simples × R$ 6,00 de referência = R$ 18,00; 2 cotas iguais de R$ 9,00, sem taxa privada. Confirme preço vigente, regras e disponibilidade com a Caixa.</p>
+              <p>São jogos planejados, não apostas realizadas. Não há previsão de prêmio, retorno ou ganho.</p>
             </div>
 
             <div className="space-y-6">

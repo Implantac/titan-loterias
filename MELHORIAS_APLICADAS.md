@@ -300,3 +300,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Teste de regressão de troca de contas (2026-11-13)
 - Teste de componente do `AuthProvider` simula login A→B, consulta privada em cache, resposta tardia de perfil A e logout. Confirma limpeza do TanStack Query, perfil B preservado e ausência de dados A após troca; não utiliza contas reais.
 - Typecheck e 249 testes em 55 arquivos aprovados. E2E com duas contas comuns/RLS do servidor continuam pendentes.
+
+### Exemplo honesto na seção pública “Como funciona” (2026-11-13)
+- Seção da landing passa a diferenciar resultados disponíveis, cobertura condicional e jogos apenas planejados. Exemplo **ilustrativo** Mega-Sena: três jogos simples a R$ 6,00 de referência, total R$ 18,00, duas cotas de R$ 9,00 sem taxa privada; orienta confirmar preço e regras atuais na Caixa, sem sugerir aposta registrada ou retorno.
+- Typecheck e 249 testes em 55 arquivos aprovados. P3 de página dedicada, capturas de tela reais e validação mobile ainda pendentes.

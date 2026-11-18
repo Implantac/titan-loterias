@@ -16,6 +16,8 @@ describe("alegações comerciais auditáveis", () => {
     const showcase = content("src/components/landing/ScreensShowcase.tsx");
     const specials = content("src/components/landing/SeasonalJackpotsSection.tsx");
     expect(process).not.toContain("Validando integridade de 100% dos concursos");
+    expect(process).not.toContain("Apostas Prontas & Gestão de Bolão");
+    expect(process).toContain("São jogos planejados, não apostas realizadas");
     expect(showcase).not.toContain("14.502");
     expect(showcase).toContain("Demonstração ilustrativa");
     expect(specials).not.toMatch(/R\$ (?:500|200|35)\+ Milhões/);
