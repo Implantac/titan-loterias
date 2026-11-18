@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Mail, HelpCircle, Clock, Shield, CreditCard, Zap, Users, ArrowLeft } from "lucide-react";
+import { MessageCircle, Mail, HelpCircle, Shield, CreditCard, Zap, Users, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
 import { useNavigate } from "react-router-dom";
@@ -15,40 +15,40 @@ const faqCategories = [
     title: "Conta e Acesso",
     icon: Users,
     faqs: [
-      { q: "Como criar minha conta?", a: "Acesse a página de cadastro, preencha seu nome, e-mail, telefone e senha. Após o cadastro, ative o Acesso Vitalício para liberar todas as funcionalidades." },
-      { q: "Esqueci minha senha, como recuperar?", a: "Na página de login, clique em \"Esqueci minha senha\". Enviaremos um link de recuperação para o e-mail cadastrado." },
-      { q: "Existe plano gratuito ou período de teste?", a: "Não trabalhamos com plano gratuito. O acesso é liberado com o pagamento único do Acesso Vitalício, com reembolso integral em até 7 dias." },
-      { q: "Posso usar a mesma conta em vários dispositivos?", a: "Sim! Sua conta pode ser acessada de qualquer dispositivo com navegador. Seus dados ficam sincronizados automaticamente." },
+      { q: "Como criar minha conta?", a: "Acesse o cadastro e confira os dados solicitados. Os recursos disponíveis dependem do plano contratado e das condições exibidas antes do pagamento." },
+      { q: "Esqueci minha senha, como recuperar?", a: "Use 'Esqueci minha senha' na página de login e siga as instruções enviadas ao e-mail cadastrado." },
+      { q: "Existe plano gratuito ou período de teste?", a: "Consulte os planos e eventuais períodos de teste na página de contratação; não presuma que o acesso vitalício seja obrigatório." },
+      { q: "Posso usar a mesma conta em vários dispositivos?", a: "Acesse com suas credenciais em dispositivos compatíveis. Confira dados disponíveis após entrar; atualizações podem depender da conexão." },
     ],
   },
   {
     title: "Planos e Pagamento",
     icon: CreditCard,
     faqs: [
-      { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartões de crédito e débito (Visa, Mastercard, Elo, American Express) e Pix, processados de forma segura pelo Stripe." },
-      { q: "O acesso vitalício tem mensalidade?", a: "Não. O Acesso Vitalício é um pagamento único: você paga uma vez e mantém o acesso sem cobranças recorrentes, sem renovação automática e sem fatura no mês seguinte." },
-      { q: "Posso trocar de plano a qualquer momento?", a: "O sistema também oferece planos por assinatura (mensal e anual). Nessas modalidades o upgrade é cobrado proporcionalmente e o downgrade passa a valer no ciclo seguinte. Quem opta pelo Acesso Vitalício não precisa se preocupar com ciclos — o acesso é permanente." },
-      { q: "Como cancelo uma assinatura?", a: "Acesse \"Gerenciar assinatura\" na página de planos. O cancelamento é imediato e você mantém o acesso até o fim do período já pago. O Acesso Vitalício não possui cancelamento, pois não há cobrança recorrente." },
-      { q: "Posso solicitar reembolso?", a: "Sim, oferecemos reembolso integral em até 7 dias após a compra, sem perguntas. Basta entrar em contato pelo WhatsApp ou e-mail." },
-      { q: "O plano Vitalício inclui atualizações futuras?", a: "Sim! O plano Vitalício garante acesso permanente a todas as funcionalidades atuais e futuras, sem custo adicional." },
+      { q: "Quais formas de pagamento são aceitas?", a: "Confira métodos e valor final no checkout antes de confirmar o pagamento; disponibilidade pode variar." },
+      { q: "O plano anual renova automaticamente?", a: "Sim. É uma assinatura que renova automaticamente a cada 12 meses. Confira valor, próxima cobrança e condições nos Termos e no checkout." },
+      { q: "O acesso vitalício tem mensalidade?", a: "Não. É pagamento único, sem renovação automática, sujeito à continuidade do serviço e aos Termos de Uso." },
+      { q: "Como cancelo a assinatura anual?", a: "Solicite pelos canais de suporte ou pelo portal de cobrança, se disponível na sua conta. Confirme o prazo e a data da próxima cobrança." },
+      { q: "Posso solicitar reembolso?", a: "Há direito de arrependimento em até 7 dias, conforme os Termos de Uso. Contate o suporte; prazo e meio do estorno dependem da forma de pagamento." },
+      { q: "O vitalício inclui todas as atualizações futuras?", a: "Consulte recursos e limites dos Termos de Uso. Não prometemos recursos ainda não lançados nem disponibilidade indefinida de serviços de terceiros." },
     ],
   },
   {
     title: "Funcionalidades",
     icon: Zap,
     faqs: [
-      { q: "Como funcionam as análises da IA?", a: "Nossa IA analisa padrões estatísticos, frequências, atrasos e tendências dos sorteios históricos para gerar combinações otimizadas. Importante: não garantimos resultados." },
-      { q: "Quais loterias são suportadas?", a: "Suportamos Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena, Timemania, Dia de Sorte, Super Sete, +Milionária e Loteria Federal, com dados atualizados automaticamente." },
-      { q: "O que são fechamentos?", a: "Fechamentos são sistemas matemáticos que garantem uma cobertura mínima de acertos apenas se os números sorteados estiverem dentro do conjunto escolhido. Não aumentam a chance do prêmio principal." },
-      { q: "Posso salvar e gerenciar minhas apostas?", a: "Sim! Você pode salvar apostas geradas, adicionar rótulos, conferir resultados e acompanhar seu histórico completo na plataforma." },
+      { q: "As análises da IA garantem acertos?", a: "Não. Filtros e análises organizam jogos, mas não preveem os números sorteados nem garantem prêmio." },
+      { q: "Quais loterias são suportadas?", a: "Modalidades e recursos variam por ferramenta; confira a modalidade específica antes de contratar. Algumas exigem regras adicionais para exportação." },
+      { q: "O que são fechamentos?", a: "São matrizes de jogos com metas condicionadas à base escolhida. Uma cobertura só é demonstrada quando verificada exaustivamente; não garante prêmio financeiro." },
+      { q: "O Titan registra minhas apostas?", a: "Não. Jogos salvos, fichas, PDF e hash são registros internos. Somente os canais oficiais da Caixa podem registrar a aposta e emitir o comprovante correspondente." },
     ],
   },
   {
     title: "Segurança e Privacidade",
     icon: Shield,
     faqs: [
-      { q: "Meus dados estão seguros?", a: "Sim! Utilizamos criptografia de ponta a ponta, autenticação segura e servidores protegidos. Seus dados nunca são compartilhados com terceiros." },
-      { q: "A plataforma é legalizada?", a: "O Titan Loterias é uma ferramenta de análise estatística. Não realizamos apostas nem intermediamos jogos. Você faz suas apostas diretamente nas lotéricas." },
+      { q: "Como meus dados são tratados?", a: "Consulte a Política de Privacidade. Evite compartilhar senhas; dados de pagamentos e apostas oficiais devem ser conferidos nos canais responsáveis." },
+      { q: "O Titan vende cotas de Bolão Caixa?", a: "Não. O módulo serve para planejamento privado; não vende cotas, confirma PIX nem substitui o recibo oficial da Caixa." },
     ],
   },
 ];
@@ -96,10 +96,7 @@ export default function SuportePage() {
               <div>
                 <h3 className="font-semibold text-foreground">WhatsApp</h3>
                 <p className="text-sm text-muted-foreground mt-1">(43) 99858-1400</p>
-                <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>Seg a Sex, 9h às 18h</span>
-                </div>
+                <p className="text-xs text-muted-foreground mt-2">Confira a disponibilidade do atendimento ao enviar sua mensagem.</p>
               </div>
             </a>
           </Card>
@@ -112,10 +109,7 @@ export default function SuportePage() {
               <div>
                 <h3 className="font-semibold text-foreground">E-mail</h3>
                 <p className="text-sm text-muted-foreground mt-1">suporte@titanloterias.com</p>
-                <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>Resposta em até 24h</span>
-                </div>
+                <p className="text-xs text-muted-foreground mt-2">Prazo de resposta não garantido; informe sua dúvida e um contato para retorno.</p>
               </div>
             </a>
           </Card>

@@ -129,6 +129,16 @@ describe("alegações comerciais auditáveis", () => {
     expect(planner).toContain("Planejador de Orçamento");
   });
 
+  it("suporte não contradiz planos nem promete meios e prazos não verificados", () => {
+    const support = content("src/pages/SuportePage.tsx");
+    expect(support).toContain("renova automaticamente a cada 12 meses");
+    expect(support).toContain("Somente os canais oficiais da Caixa");
+    for (const claim of ["Não trabalhamos com plano gratuito", "planos por assinatura (mensal e anual)",
+      "criptografia de ponta a ponta", "Resposta em até 24h", "Aceitamos cartões de crédito e débito"]) {
+      expect(support).not.toContain(claim);
+    }
+  });
+
   it("plano anual recorrente e vitalício único são descritos sem descontos inventados", () => {
     const plans = content("src/pages/PlanosPage.tsx");
     const pricing = content("src/components/common/PricingSection.tsx");

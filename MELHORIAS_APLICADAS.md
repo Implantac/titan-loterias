@@ -308,3 +308,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Guia público “Como funciona” (2026-11-13)
 - Nova rota pública `/como-funciona`, acessível por navegação e rodapé, reaproveita explicação de metodologia e descreve percurso de cinco passos até o comprovante externo da Caixa. Inclui exemplo de custo hipotético, limites de PIX/PDF/hash e links para regras oficiais, bolão e planos, sem solicitar aposta ou compra.
 - Typecheck e 250 testes em 55 arquivos aprovados. Capturas reais, avaliação mobile e smoke test em ambiente publicado ainda pendentes.
+
+### FAQ e contato de suporte alinhados aos Termos (2026-11-13)
+- Corrigidas respostas que negavam acesso gratuito em qualquer situação, inventavam plano mensal/prorrata, prometiam Pix/cartões específicos, recursos vitalícios futuros ilimitados e afirmavam criptografia ponta a ponta. Anual recorrente, vitalício único, arrependimento, limites do bolão e comprovante oficial seguem comunicação prudente.
+- Removidas promessas de horário fixo e resposta em 24h sem evidência operacional. Contatos existentes mantidos, porém **não houve verificação independente de atendimento**. Typecheck e 251 testes em 55 arquivos aprovados.
