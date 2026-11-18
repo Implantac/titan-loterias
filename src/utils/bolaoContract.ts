@@ -24,6 +24,7 @@ export interface BolaoContractConfig {
   organizerCity: string;
   totalCost: number;
   organizerFeeAmount?: number;
+  priceReference?: string;
   totalShares: number;
   costPerShare: number;
   participants: BolaoContractParticipant[];
@@ -76,6 +77,7 @@ export async function createBolaoContract(config: BolaoContractConfig): Promise<
     `PIX=${config.organizerPixKey}`,
     `TOTAL_COST=${config.totalCost.toFixed(2)}`,
     `ORGANIZER_FEE=${(config.organizerFeeAmount ?? 0).toFixed(2)}`,
+    `PRICE_REFERENCE=${config.priceReference ?? "TABELA_INTERNA_TITAN"}`,
     `TOTAL_SHARES=${config.totalShares}`,
     `PARTICIPANTS=${sortedParticipants}`,
     `GAMES=${sortedGames}`,
@@ -159,11 +161,12 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   doc.text(`Custo Total: R$ ${config.totalCost.toFixed(2)} | Cotas Totais: ${config.totalShares} | Valor/Cota: R$ ${config.costPerShare.toFixed(2)}`, 14, 76);
   doc.text(`Data local de geração do registro: ${contract.formattedDate}`, 14, 81);
   doc.text(`Inclui taxa privada do organizador (não Caixa): R$ ${(config.organizerFeeAmount ?? 0).toFixed(2)}`, 14, 85);
+  doc.text(`Preço: ${config.priceReference ? `manual (${config.priceReference})` : "tabela interna Titan"}; confirme na Caixa`, 14, 88);
 
   // Tabela de Participantes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
-  doc.text("2. QUADRO DE COTISTAS E PARTICIPANTES", 14, 90);
+  doc.text("2. QUADRO DE COTISTAS E PARTICIPANTES", 14, 98);
 
   const participantRows = config.participants.map((p, idx) => [
     `#${String(idx + 1).padStart(2, "0")}`,
@@ -174,7 +177,7 @@ export async function generateBolaoContractPdf(config: BolaoContractConfig): Pro
   ]);
 
   autoTable(doc, {
-    startY: 94,
+    startY: 102,
     head: [["Item", "Nome do Participante", "Cotas", "Valor", "Status informado"]],
     body: participantRows,
     headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontSize: 8 },

@@ -18,6 +18,7 @@ import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
 import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
+import { allocateBolaoCents } from "@/utils/bolaoAllocation";
 import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
 import { megaBolaoAdvisory } from "@/utils/megaBolaoAdvisory";
 import { normalizeShareCount } from "@/utils/bolaoParticipants";
@@ -60,6 +61,29 @@ interface CotaAssignment {
 
 const STORAGE_KEY = "titan_bolao_draft_v1";
 
+function IndividualPix({ payload, amount, onCopy }: { payload: string; amount: number; onCopy: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [qr, setQr] = useState("");
+  useEffect(() => {
+    let active = true;
+    setQr("");
+    if (expanded && payload) generatePixQrCodeDataUrl(payload).then(url => { if (active) setQr(url); });
+    return () => { active = false; };
+  }, [expanded, payload]);
+  if (!payload) return null;
+  return <div className="space-y-2 text-xs">
+    <Button size="sm" variant="outline" className="h-8" onClick={() => setExpanded(v => !v)}>
+      {expanded ? "Ocultar" : "Conferir"} PIX individual ({formatCurrency(amount)})
+    </Button>
+    {expanded && <div className="space-y-2 rounded border border-border p-2">
+      <p>Valor individual planejado. Confira destinatário e valor no banco; o Titan não confirma transferência.</p>
+      {qr && <img src={qr} width={120} height={120} alt={`QR PIX individual de ${formatCurrency(amount)}`} />}
+      <div className="flex gap-2 items-center"><code className="overflow-hidden text-ellipsis whitespace-nowrap flex-1" title={payload}>{payload}</code>
+        <Button size="sm" variant="outline" onClick={onCopy}>Copiar código</Button></div>
+    </div>}
+  </div>;
+}
+
 export default function BolaoPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,6 +111,9 @@ export default function BolaoPage() {
   );
 
   const [adminFeePercent, setAdminFeePercent] = useState<number>(0);
+  const [customTicketPrice, setCustomTicketPrice] = useState<number | null>(null);
+  const [priceSource, setPriceSource] = useState("");
+  const [externalChecklist, setExternalChecklist] = useState([false, false, false, false]);
   const [games, setGames] = useState<number[][]>(locationState?.games ?? []);
 
   // Creation mode
@@ -118,7 +145,9 @@ export default function BolaoPage() {
   const [teimosinhaOpen, setTeimosinhaOpen] = useState(false);
 
   // Referência interna por jogo simples; preço vigente precisa ser conferido nos canais Caixa
-  const ticketPrice = LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
+  const ticketPrice = customTicketPrice ?? LOTTERY_BET_COST[activeConfig.id] ?? 3.0;
+  useEffect(() => setExternalChecklist([false, false, false, false]), [games, activeConfig.id, ticketPrice, participants]);
+  useEffect(() => { setCustomTicketPrice(null); setPriceSource(""); }, [activeConfig.id]);
 
   // Restore from storage if no games passed via route
   useEffect(() => {
@@ -172,21 +201,22 @@ export default function BolaoPage() {
   );
 
   const baseCost = games.length * ticketPrice;
-  const adminFeeAmount = (baseCost * adminFeePercent) / 100;
+  const adminFeeAmount = Math.round(baseCost * adminFeePercent) / 100;
   const totalCost = baseCost + adminFeeAmount;
   const costPerShare = totalShares > 0 ? totalCost / totalShares : 0;
   const exactShareAmount = hasExactShareAmount(totalCost, totalShares);
-  const canSharePlannedGames = games.length > 0 && games.every(game => isValidSimpleBolaoGame(game, activeConfig));
+  const allocatedCents = useMemo(() => allocateBolaoCents(totalCost, participants.map(p => p.shares)), [totalCost, participants]);
+  const canSharePlannedGames = !!allocatedCents && (customTicketPrice === null || !!priceSource.trim()) && games.length > 0 && games.every(game => isValidSimpleBolaoGame(game, activeConfig));
   const megaAdvisories = activeConfig.id === "megasena"
     ? megaBolaoAdvisory(games.length, totalShares, baseCost) : [];
 
   // Cotas representam a proporção proposta sobre o grupo inteiro, não jogos exclusivos.
-  const cotas = useMemo<CotaAssignment[]>(() => participants.map((p) => ({
+  const cotas = useMemo<CotaAssignment[]>(() => participants.map((p, index) => ({
     participant: p,
     gameIndices: games.map((_, index) => index),
-    cost: totalShares > 0 ? (p.shares / totalShares) * totalCost : 0,
+    cost: allocatedCents ? allocatedCents[index] / 100 : 0,
     percentage: totalShares > 0 ? (p.shares / totalShares) * 100 : 0,
-  })), [participants, games, totalShares, totalCost]);
+  })), [participants, games, totalShares, allocatedCents]);
 
   // Participant manipulation
   const addParticipant = () => {
@@ -301,7 +331,7 @@ export default function BolaoPage() {
   const paidStats = useMemo(() => {
     const paidParticipants = participants.filter((p) => p.paid);
     const paidShares = paidParticipants.reduce((acc, p) => acc + (p.shares || 1), 0);
-    const paidAmount = totalShares > 0 ? (paidShares / totalShares) * totalCost : 0;
+    const paidAmount = allocatedCents ? participants.reduce((sum, p, i) => sum + (p.paid ? allocatedCents[i] : 0), 0) / 100 : 0;
     const progressPercent = totalCost > 0 ? Math.min(100, Math.round((paidAmount / totalCost) * 100)) : 0;
     return {
       paidCount: paidParticipants.length,
@@ -309,7 +339,13 @@ export default function BolaoPage() {
       paidAmount,
       progressPercent,
     };
-  }, [participants, totalShares, totalCost]);
+  }, [participants, totalCost, allocatedCents]);
+
+  const individualPixPayload = (cota: CotaAssignment) =>
+    canSharePlannedGames && isValidPixKey(pixKey) && cota.cost > 0
+      ? generatePixPayload({ key: pixKey.trim(), name: pixName.trim() || "ORGANIZADOR BOLAO",
+          city: pixCity.trim() || "SAO PAULO", amount: cota.cost,
+          description: `COTA ${activeConfig.name.toUpperCase()}` }) : "";
 
   // WhatsApp individual message
   const makeParticipantMessage = (cota: CotaAssignment) => {
@@ -319,6 +355,7 @@ export default function BolaoPage() {
     lines.push(`Participante: *${cota.participant.name}*`);
     lines.push(`Cotas: *${cota.participant.shares}* de *${totalShares}* (${cota.percentage.toFixed(1)}% do bolão)`);
     lines.push(`Valor planejado: *${formatCurrency(cota.cost)}*`);
+    lines.push(`Preço de referência: ${formatCurrency(ticketPrice)}/jogo. ${customTicketPrice !== null ? `Fonte/data informada: ${priceSource}` : "Tabela interna do Titan; confirme na Caixa."}`);
     lines.push(`Inclui taxa privada do organizador (não é tarifa Caixa): *${formatCurrency(totalShares > 0 ? adminFeeAmount * cota.participant.shares / totalShares : 0)}*`);
     lines.push(`Jogos planejados no grupo: *${games.length}* (confirme registro oficial)`);
     if (isValidPixKey(pixKey)) {
@@ -326,7 +363,7 @@ export default function BolaoPage() {
       lines.push(`⚡ *DADOS PARA PAGAMENTO PIX:*`);
       lines.push(`• Chave PIX: \`${pixKey.trim()}\``);
       if (pixName.trim()) lines.push(`• Nome informado: *${pixName.trim()}* (confira titular no banco)`);
-      lines.push(`• Confira o valor individual de ${formatCurrency(cota.cost)} antes de transferir; o QR da tela representa apenas UMA cota.`);
+      lines.push(`• Valor individual planejado: ${formatCurrency(cota.cost)}. Confira destinatário e valor no banco; o Titan não confirma pagamento.`);
     }
     lines.push("");
     lines.push(`📋 *Jogos planejados do grupo (${cota.gameIndices.length}):*`);
@@ -351,8 +388,10 @@ export default function BolaoPage() {
       organizerFeeAmount: adminFeeAmount,
       costPerShare,
       totalShares,
+      priceReference: customTicketPrice !== null ? priceSource : undefined,
+      participantAmounts: exactShareAmount ? undefined : cotas.map(c => ({ name: c.participant.name, amount: c.cost })),
       pixKey: isValidPixKey(pixKey) ? pixKey.trim() : "",
-      pixPayload,
+      pixPayload: exactShareAmount ? pixPayload : "",
       organizerName: pixName.trim(),
       strategySummary: creationMode === "closing" ? "Fechamento Matemático com Matrizes Titan" : "Filtro Anti-Divisão & Alta Entropia",
     });
@@ -400,7 +439,8 @@ export default function BolaoPage() {
     const info = [
       `Loteria: ${activeConfig.name}   |   Concurso Referencia: #${draws?.[0]?.concurso ? draws[0].concurso + 1 : "Proximo"}`,
       `Custo Planejado: ${formatCurrency(totalCost)}   |   Jogos: ${games.length}   |   Referencia/jogo: ${formatCurrency(ticketPrice)}`,
-      `Taxa privada do organizador (nao Caixa): ${formatCurrency(adminFeeAmount)}   |   ${totalShares} cotas: ${formatCurrency(costPerShare)}/cota`,
+      `Taxa privada do organizador (nao Caixa): ${formatCurrency(adminFeeAmount)}   |   ${totalShares} cotas: ${formatCurrency(costPerShare)}/cota (aprox.)`,
+      `Referencia de preco: ${customTicketPrice !== null ? `manual, ${priceSource}` : "tabela interna Titan"}; confirmar na Caixa`,
       `Proposta de rateio: confirmar por escrito com todos os participantes.`,
       `Documento gerado em ${new Date().toLocaleString("pt-BR")} via Titan Loterias`,
     ];
@@ -569,9 +609,24 @@ export default function BolaoPage() {
 
       {!canSharePlannedGames && games.length > 0 && (
         <p role="alert" className="text-sm text-amber-400 border border-amber-500/30 rounded-lg p-3">
-          Há jogos inválidos ou esta modalidade exige campos adicionais/posicionais não contemplados no planejamento simples. Compartilhamento, PIX, salvamento e exportação ficam indisponíveis neste fluxo; confira as regras oficiais.
+          Revise os jogos e o rateio. Modalidades com campos adicionais/posicionais não usam este fluxo; se informou preço manual, preencha também fonte e data. Compartilhamento, PIX, salvamento e exportação ficam indisponíveis até corrigir.
         </p>
       )}
+
+      <section aria-labelledby="external-checklist-title" className="rounded-xl border border-primary/20 bg-card/50 p-4 space-y-3">
+        <h2 id="external-checklist-title" className="font-bold text-sm">Checklist pessoal de conferência externa</h2>
+        <p className="text-xs text-muted-foreground">Marcação manual nesta tela, sem armazenamento. O Titan não consulta a Caixa nem autentica recibos; marque apenas após verificar por conta própria.</p>
+        {[
+          "Conferi modalidade, concurso e dezenas nos canais oficiais da Caixa",
+          "Conferi preço vigente, custo total e cotas com os participantes",
+          "Registrei os jogos fora do Titan nos canais oficiais da Caixa",
+          "Conferi e guardei o comprovante oficial emitido pela Caixa",
+        ].map((label, i) => <label key={label} className="flex gap-2 items-start text-xs cursor-pointer">
+          <input type="checkbox" checked={externalChecklist[i]} onChange={e => setExternalChecklist(prev => prev.map((value, index) => index === i ? e.target.checked : value))} />
+          <span>{label}</span>
+        </label>)}
+        <p className="text-xs text-muted-foreground">{externalChecklist.filter(Boolean).length}/4 itens marcados por você. Isto não comprova aposta, pagamento ou participação oficial.</p>
+      </section>
 
       {/* KPI Top Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -679,6 +734,18 @@ export default function BolaoPage() {
               </div>
 
               <p className="text-xs text-muted-foreground">Valor de referência configurado no Titan; confirme preço e regras atuais nos canais oficiais da Caixa antes de apostar. O Titan não registra jogos.</p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div><Label htmlFor="bolao-price" className="text-xs">Referência manual por jogo simples (R$)</Label>
+                  <Input id="bolao-price" type="number" min="0.01" max="1000" step="0.01" value={customTicketPrice ?? ""}
+                    placeholder={String(LOTTERY_BET_COST[activeConfig.id] ?? "")}
+                    onChange={e => { const value = Number(e.target.value); setCustomTicketPrice(e.target.value && Number.isFinite(value) && value >= 0.01 && value <= 1000 ? Math.round(value * 100) / 100 : null); }} />
+                </div>
+                <div><Label htmlFor="bolao-source" className="text-xs">Fonte/data informada pelo organizador</Label>
+                  <Input id="bolao-source" maxLength={120} value={priceSource} placeholder="Ex.: Caixa, consulta em DD/MM/AAAA"
+                    onChange={e => setPriceSource(e.target.value)} />
+                </div>
+              </div>
+              {customTicketPrice !== null && <p className="text-xs text-amber-400">Preço manual desta sessão (não verificado pelo Titan). {priceSource ? `Fonte informada: ${priceSource}` : "Informe a fonte e a data antes de compartilhar."}</p>}
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
@@ -932,7 +999,7 @@ export default function BolaoPage() {
                 <p className="text-[10px] text-muted-foreground">O Titan não consulta o banco e não confirma transferências. Confira destinatário, valor e comprovante no aplicativo bancário antes de marcar como pago. O QR abaixo representa uma cota; participantes com várias cotas devem conferir o total individual.</p>
 
                 {!exactShareAmount && games.length > 0 && (
-                  <p role="alert" className="text-xs text-amber-400">O custo planejado não pode ser dividido igualmente em centavos entre as cotas. Ajuste jogos, taxa ou cotas e combine os valores individualmente antes de gerar um QR de valor fixo.</p>
+                  <p role="status" className="text-xs text-amber-400">Centavos residuais distribuídos por ordem dos participantes. Confira os valores individuais abaixo: a soma fecha o custo planejado, mas não é regra de Bolão Caixa.</p>
                 )}
                 {pixKey.trim() && canSharePlannedGames && exactShareAmount && !pixPayload && (
                   <p role="alert" className="text-xs text-destructive">Chave PIX inválida ou valor da cota indisponível. Confira a chave (CPF, CNPJ, e-mail, celular com +55 ou chave aleatória) e o custo antes de compartilhar.</p>
@@ -1033,7 +1100,7 @@ export default function BolaoPage() {
                   <UserPlus className="w-4 h-4" /> Adicionar Participante
                 </Button>
                 <div className="text-xs text-muted-foreground font-mono">
-                  Total: <strong className="text-foreground">{totalShares} cotas</strong> · {formatCurrency(costPerShare)}/cota
+                  Total: <strong className="text-foreground">{totalShares} cotas</strong> · {formatCurrency(costPerShare)}/cota{exactShareAmount ? "" : " (aprox.; veja valores individuais)"}
                 </div>
               </div>
 
@@ -1058,7 +1125,7 @@ export default function BolaoPage() {
                 </div>
 
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-2 scrollbar-thin">
-                  {cotas.map((cota) => (
+                  {cotas.map((cota, index) => (
                     <div
                       key={cota.participant.id}
                       className="rounded-xl border border-border/40 bg-card/60 p-3 space-y-2.5 transition-all hover:border-primary/30"
@@ -1106,6 +1173,9 @@ export default function BolaoPage() {
                           </Button>
                         </div>
                       </div>
+
+                      <IndividualPix payload={individualPixPayload(cota)} amount={cota.cost}
+                        onCopy={() => copyText(individualPixPayload(cota), `pix-${cota.participant.id}`, "PIX individual")} />
 
                       {/* Expansor de jogos */}
                       <details className="text-xs group">
@@ -1161,10 +1231,11 @@ export default function BolaoPage() {
           organizerFeeAmount: adminFeeAmount,
           totalShares,
           costPerShare,
-          participants: participants.map((p) => ({
+          priceReference: customTicketPrice !== null ? priceSource : undefined,
+          participants: participants.map((p, index) => ({
             name: p.name,
             shares: p.shares,
-            cost: p.shares * costPerShare,
+            cost: allocatedCents ? allocatedCents[index] / 100 : 0,
             paid: !!p.paid,
           })),
           games,

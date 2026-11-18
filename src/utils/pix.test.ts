@@ -52,6 +52,15 @@ describe("PIX & WhatsApp Bolão Generator (BACEN EMV Standard)", () => {
     expect(generatePixPayload({ key: "teste@exemplo.com", name: "Teste", amount: NaN })).toBe("");
   });
 
+  it("mostra totais individuais ao distribuir centavos residuais", () => {
+    const msg = formatBolaoWhatsAppMessage({ bolaoTitle: "Grupo", lotteryName: "Mega-Sena", gamesCount: 1,
+      totalCost: 10, costPerShare: 10 / 3, totalShares: 3, pixKey: "",
+      participantAmounts: [{ name: "A", amount: 3.34 }, { name: "B", amount: 3.33 }, { name: "C", amount: 3.33 }] });
+    expect(msg).toContain("APROXIMADO");
+    expect(msg).toContain("A: R$ 3,34");
+    expect(msg).toContain("C: R$ 3,33");
+  });
+
   it("não compartilha chave ou código PIX malformados em mensagem do grupo", () => {
     const msg = formatBolaoWhatsAppMessage({ bolaoTitle: "Grupo", lotteryName: "Mega-Sena", gamesCount: 2,
       totalCost: 12, costPerShare: 6, totalShares: 2, pixKey: "chave inválida", pixPayload: "codigo-antigo",

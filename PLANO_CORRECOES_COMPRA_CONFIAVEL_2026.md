@@ -93,3 +93,4 @@
 - **P3 — seção pública parcial:** “Como funciona” na landing explica limites e inclui exemplo de custo hipotético sem retorno; página pública dedicada, imagens reais e avaliação mobile seguem pendentes.
 - **P3 — página dedicada implementada no código:** `/como-funciona` com exemplo hipotético e limitações operacionais; falta validar visual/mobile, capturas reais e publicação no Lovable.
 - **P3 — suporte parcial:** FAQ corrigida para condições comerciais e limites do produto; horário/SLA não comprovados removidos. Verificar operação dos canais e prazo real de resposta antes de publicar qualquer compromisso.
+- **P1.2 — rateio e referência funcional:** valores individuais fecham em centavos, PIX individual é gerado localmente, preço manual exige fonte/data e checklist externo não comprova aposta. Falta E2E mobile, validação bancária e modelagem específica de modalidades posicionais/com campos adicionais.

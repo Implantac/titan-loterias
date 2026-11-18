@@ -150,6 +150,8 @@ export interface BolaoWhatsAppConfig {
   organizerFeeAmount?: number;
   costPerShare: number;
   totalShares: number;
+  priceReference?: string;
+  participantAmounts?: { name: string; amount: number }[];
   pixKey: string;
   pixPayload?: string;
   organizerName?: string;
@@ -171,10 +173,17 @@ export function formatBolaoWhatsAppMessage(config: BolaoWhatsAppConfig): string 
     `• Inclui taxa privada do organizador (não é tarifa Caixa): *R$ ${(config.organizerFeeAmount ?? 0).toFixed(2).replace(".", ",")}*`,
     `• Total de Cotas: *${config.totalShares} cotas*`,
     "",
-    `💰 *VALOR POR COTA:*`,
+    `💰 *VALOR POR COTA ${config.participantAmounts ? "APROXIMADO" : ""}:*`,
     `👉 *R$ ${config.costPerShare.toFixed(2).replace(".", ",")}*`,
     "",
   ].filter(Boolean);
+
+  if (config.priceReference) lines.push(`• Fonte/data do preço manual informada: ${config.priceReference}; confirme na Caixa.`);
+
+  if (config.participantAmounts) {
+    lines.push("", "*Valores individuais com centavos residuais distribuídos por ordem:*",
+      ...config.participantAmounts.map(p => `• ${p.name}: R$ ${p.amount.toFixed(2).replace(".", ",")}`));
+  }
 
   if (isValidPixKey(config.pixKey)) {
     lines.push("", `⚡ *CHAVE PIX INFORMADA PELO ORGANIZADOR:*`, `• Chave: \`${config.pixKey.trim()}\``);

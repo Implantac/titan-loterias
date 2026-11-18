@@ -236,6 +236,9 @@ describe("alegações comerciais auditáveis", () => {
     }
     expect(page).toContain("O Titan não consulta o banco e não confirma transferências");
     expect(page).toContain("As cotas se referem ao grupo inteiro de jogos");
+    expect(page).toContain("allocateBolaoCents(totalCost");
+    expect(page).toContain("Checklist pessoal de conferência externa");
+    expect(page).toContain("Fonte/data informada pelo organizador");
     expect(page).toContain("games.every(game => isValidSimpleBolaoGame(game, activeConfig))");
     expect(content("src/components/lottery/ExportCaixaDialog.tsx")).toContain("disabled={!validGames}");
     expect(content("src/components/lottery/BolaoContractDialog.tsx")).toContain("disabled={generatingPdf || !validGames}");
