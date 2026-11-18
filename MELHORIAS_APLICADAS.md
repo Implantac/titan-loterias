@@ -292,3 +292,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Mensagens PIX com validação de chave (2026-11-13)
 - Mensagens individuais e de grupo deixam de compartilhar chave PIX digitada fora dos formatos sintáticos aceitos; grupo também omite payload antigo caso a chave seja inválida. Nome informado pelo organizador não é apresentado como titular verificado: participante deve conferir no banco.
 - Typecheck e 247 testes em 54 arquivos aprovados. Validação sintática não confirma existência, titularidade ou pagamento.
+
+### Isolamento de estado na troca de conta (2026-11-13)
+- `AuthProvider` limpa o cache em memória do TanStack Query quando muda o ID da conta ou ocorre logout, inclusive consultas privadas sem ID na chave. Respostas atrasadas de perfil, papel e assinatura só são aplicadas se ainda pertencerem ao usuário corrente; estado de conta anterior é limpo antes de carregar a nova.
+- Typecheck e 248 testes em 54 arquivos aprovados; regressão estática cobre guardas. **Sem E2E com duas contas comuns** nem prova de RLS no servidor; homologar troca de usuário em mesmo navegador antes de considerar isolamento validado.

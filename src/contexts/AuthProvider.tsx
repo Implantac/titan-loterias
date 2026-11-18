@@ -1,5 +1,6 @@
-import { useEffect, useState, ReactNode, useCallback } from "react";
+import { useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { Session } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthContext, type AuthContextType, type PlanType, type Profile } from "./AuthContext";
 import { isFullAccessEmail } from "@/core/fullAccess";
@@ -15,6 +16,18 @@ const asFullAccessProfile = (profile: Profile): Profile => ({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+  const currentUserId = useRef<string | null>(null);
+  const switchAccount = useCallback((nextId: string | null) => {
+    if (currentUserId.current === nextId) return;
+    currentUserId.current = nextId;
+    queryClient.clear(); // inclui consultas privadas sem userId na queryKey
+    if (nextId) setLoading(true);
+    setProfile(null);
+    setIsAdmin(false);
+    setIsSuperAdmin(false);
+    setUserRole("user");
+  }, [queryClient]);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string, email?: string | null) => {
     try {
       const data = await AuthService.getProfile(userId);
-      if (data) {
+      if (data && currentUserId.current === userId) {
         setProfile(
           isFullAccessEmail(email)
             ? asFullAccessProfile(data as Profile)
@@ -39,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAdmin = useCallback(async (userId: string, email?: string | null) => {
     if (isFullAccessEmail(email)) {
+      if (currentUserId.current !== userId) return;
       setIsAdmin(true);
       setIsSuperAdmin(true);
       setUserRole("super_admin");
@@ -47,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const { isAdmin: admin, isSuperAdmin: superAdmin, roles } = await checkAdminStatus(userId);
+      if (currentUserId.current !== userId) return;
       setIsAdmin(admin);
       setIsSuperAdmin(superAdmin);
       setUserRole(superAdmin ? "super_admin" : admin ? "admin" : roles[0] || "user");
@@ -55,12 +70,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const syncSubscription = useCallback(async (accessToken: string) => {
+  const syncSubscription = useCallback(async (accessToken: string, userId: string) => {
     try {
       const data = await syncSubscriptionPlan(accessToken);
       if (data?.plan) {
         setProfile((prev) => {
-          if (!prev) return prev;
+          if (!prev || currentUserId.current !== userId || prev.id !== userId) return prev;
           return isFullAccessEmail(prev.email)
             ? asFullAccessProfile(prev)
             : { ...prev, plan: data.plan as PlanType };
@@ -80,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Carrega subscrição em background para não travar o login
     if (accessToken) {
-      syncSubscription(accessToken).catch(err => 
+      syncSubscription(accessToken, userId).catch(err => 
         console.error("[Auth] Background subscription sync failed:", err)
       );
     }
@@ -100,13 +115,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!mounted) return;
             
             const hasUser = !!nextSession?.user;
+            switchAccount(nextSession?.user?.id ?? null);
             setSession(nextSession);
             
             if (hasUser) {
               // Only block loading for essential data
               loadUserData(nextSession.user!.id, nextSession!.access_token, nextSession!.user.email)
                 .finally(() => {
-                  if (mounted) setLoading(false);
+                  if (mounted && currentUserId.current === nextSession!.user.id) setLoading(false);
                 });
             } else {
               setProfile(null);
@@ -129,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             setLoading(false);
           } else if (initialSession?.user) {
+            switchAccount(initialSession.user.id);
             setSession(initialSession);
             // Non-blocking load
             loadUserData(initialSession.user.id, initialSession.access_token, initialSession.user.email)
@@ -162,10 +179,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subPromise.then(sub => sub?.unsubscribe());
       clearTimeout(timeout);
     };
-  }, [loadUserData]);
+  }, [loadUserData, switchAccount]);
 
   const signOut = async () => {
     await AuthService.signOut();
+    switchAccount(null);
     setSession(null);
     setProfile(null);
   };

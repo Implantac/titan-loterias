@@ -139,6 +139,14 @@ describe("alegações comerciais auditáveis", () => {
     expect(content("src/pages/BolaoPage.tsx")).toContain('isRestorableBolaoDraft');
   });
 
+  it("troca de conta limpa consultas em memória e descarta respostas tardias", () => {
+    const auth = content("src/contexts/AuthProvider.tsx");
+    expect(auth).toContain("queryClient.clear()");
+    expect(auth).toContain("currentUserId.current === userId");
+    expect(auth).toContain("prev.id !== userId");
+    expect(auth).toContain("switchAccount(null)");
+  });
+
   it("service worker não guarda respostas de APIs autenticadas em cache compartilhado", () => {
     const vite = content("vite.config.ts");
     expect(vite).not.toContain('cacheName: "supabase-api"');
