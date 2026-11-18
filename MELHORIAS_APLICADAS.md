@@ -296,3 +296,7 @@ Limitação: uma única janela/sorteio de sementes não substitui avaliação re
 ### Isolamento de estado na troca de conta (2026-11-13)
 - `AuthProvider` limpa o cache em memória do TanStack Query quando muda o ID da conta ou ocorre logout, inclusive consultas privadas sem ID na chave. Respostas atrasadas de perfil, papel e assinatura só são aplicadas se ainda pertencerem ao usuário corrente; estado de conta anterior é limpo antes de carregar a nova.
 - Typecheck e 248 testes em 54 arquivos aprovados; regressão estática cobre guardas. **Sem E2E com duas contas comuns** nem prova de RLS no servidor; homologar troca de usuário em mesmo navegador antes de considerar isolamento validado.
+
+### Teste de regressão de troca de contas (2026-11-13)
+- Teste de componente do `AuthProvider` simula login A→B, consulta privada em cache, resposta tardia de perfil A e logout. Confirma limpeza do TanStack Query, perfil B preservado e ausência de dados A após troca; não utiliza contas reais.
+- Typecheck e 249 testes em 55 arquivos aprovados. E2E com duas contas comuns/RLS do servidor continuam pendentes.
