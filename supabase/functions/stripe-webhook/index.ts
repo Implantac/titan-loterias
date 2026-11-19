@@ -24,19 +24,6 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" }) : null;
 const admin = createClient(supabaseUrl, supabaseServiceKey, { auth: { persistSession: false } });
 
-async function getEmailForCustomer(customerId: string): Promise<string | null> {
-  if (!stripe) return null;
-  try {
-    const cust = await stripe.customers.retrieve(customerId);
-    if (cust && !("deleted" in cust && cust.deleted)) {
-      return (cust as Stripe.Customer).email ?? null;
-    }
-  } catch (e) {
-    log("customer.retrieve failed", { customerId, error: (e as Error).message });
-  }
-  return null;
-}
-
 async function computePlanForCustomer(customerId: string): Promise<"free" | "premium" | "professional" | "lifetime"> {
   if (!stripe) return "free";
 
@@ -67,64 +54,27 @@ async function computePlanForCustomer(customerId: string): Promise<"free" | "pre
   return detected;
 }
 
-/**
- * Atualiza o plano do perfil. Retorna `false` quando a escrita falhou — o caller
- * DEVE propagar isso como HTTP 500 para que o Stripe reenvie o evento.
- *
- * Também persiste `stripe_customer_id` quando disponível: procurar cliente por
- * e-mail é frágil (usuário pode trocar de e-mail) e, quando o e-mail é nulo,
- * `stripe.customers.list({ email: undefined })` lista TODOS os clientes.
- */
-/**
- * Resultado da sincronização do plano. A distinção importa:
- *   "error"   → falha de infraestrutura (rede, RLS, timeout). O Stripe DEVE
- *               reenviar; responder 500 é o comportamento certo.
- *   "missing" → a conta simplesmente não existe com esse e-mail. Reenviar não
- *               muda nada: o evento seria reprocessado por 3 dias até o Stripe
- *               desistir, gerando ruído sem recuperar nada.
- *   "ok"      → plano aplicado.
- */
+/** A Stripe customer must already be bound to exactly one authenticated profile. */
 type PlanSyncResult = "ok" | "missing" | "error";
-
-async function syncPlanByEmail(
-  email: string,
-  plan: string,
-  customerId?: string | null,
-  eventId?: string,
-): Promise<PlanSyncResult> {
-  const payload: Record<string, unknown> = { plan };
-  if (customerId) payload.stripe_customer_id = customerId;
-
-  const { error, count } = await admin
-    .from("profiles")
-    .update(payload, { count: "exact" })
-    .eq("email", email);
-
+async function syncPlanByCustomer(customerId: string, plan: string, eventId: string): Promise<PlanSyncResult> {
+  const { error, count } = await admin.from("profiles")
+    .update({ plan }, { count: "exact" }).eq("stripe_customer_id", customerId);
   if (error) {
-    log("profiles.update failed", { email, plan, error: error.message });
+    log("profile plan update failed", { eventId });
     return "error";
   }
-  if (!count) {
-    // Não é falha de infraestrutura: não vale forçar retry. Mas o pagamento
-    // existe e o plano NÃO foi aplicado — isso precisa ficar registrado para
-    // recuperação manual em vez de sumir num log.
-    log("WARN no profile matched email — plan not applied", { email, plan });
-    if (eventId) {
-      // upsert com ignoreDuplicates: se o Stripe reenviar o mesmo evento, o
-      // unique(event_id) não estoura — o registro original é preservado.
-      const { error: recErr } = await admin.from("webhook_events").upsert(
-        {
-          event_id: `pending-plan:${eventId}`,
-          event_type: "plan_sync.missing_profile",
-          payload: { email, plan, customerId: customerId ?? null },
-        },
-        { onConflict: "event_id", ignoreDuplicates: true },
-      );
-      if (recErr) log("could not record pending plan sync", { error: recErr.message });
-    }
+  if (count !== 1) {
+    // Never assign a paid plan based on a mutable email. Flag unmatched events
+    // for a manual, audited reconciliation before acknowledging delivery.
+    const { error: recErr } = await admin.from("webhook_events").upsert({
+      event_id: `pending-plan:${eventId}`,
+      event_type: "plan_sync.missing_binding",
+      payload: { customerId, plan },
+    }, { onConflict: "event_id", ignoreDuplicates: true });
+    if (recErr) return "error";
+    log("WARN no bound profile for customer", { eventId });
     return "missing";
   }
-  log("profile plan synced", { email, plan, rows: count });
   return "ok";
 }
 
@@ -194,13 +144,9 @@ serve(async (req) => {
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         const customerId = (session.customer as string) || null;
-        const email = session.customer_details?.email || session.customer_email || (customerId ? await getEmailForCustomer(customerId) : null);
-        if (!email) {
-          log("no email on checkout session", { sessionId: session.id });
-          break;
-        }
-        const plan = customerId ? await computePlanForCustomer(customerId) : "free";
-        if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
+        if (!customerId || session.payment_status !== "paid") break;
+        const plan = await computePlanForCustomer(customerId);
+        if ((await syncPlanByCustomer(customerId, plan, event.id)) === "error") syncFailed = true;
         break;
       }
 
@@ -209,24 +155,16 @@ serve(async (req) => {
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-        const email = await getEmailForCustomer(customerId);
-        if (!email) {
-          log("no email for customer", { customerId });
-          break;
-        }
-        const plan = event.type === "customer.subscription.deleted" ? "free" : await computePlanForCustomer(customerId);
-        if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
+        const plan = await computePlanForCustomer(customerId);
+        if ((await syncPlanByCustomer(customerId, plan, event.id)) === "error") syncFailed = true;
         break;
       }
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
-        const email = await getEmailForCustomer(customerId);
-        if (email) {
-          const plan = await computePlanForCustomer(customerId);
-          if ((await syncPlanByEmail(email, plan, customerId, event.id)) === "error") syncFailed = true;
-        }
+        const plan = await computePlanForCustomer(customerId);
+        if ((await syncPlanByCustomer(customerId, plan, event.id)) === "error") syncFailed = true;
         break;
       }
 

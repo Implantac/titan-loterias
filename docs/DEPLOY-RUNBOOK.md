@@ -215,3 +215,34 @@ Não são bloqueadores, mas ficam registrados:
   lugares. Fundir é refatoração com risco de regressão; deixado de propósito.
 - **`read-create-play-main/`** (7,3 MB) permanece: `roadmap.md` registra que a
   remoção foi vetada.
+
+## Revisão de vínculo Stripe (código de novembro, ainda não implantado)
+
+**Não implante apenas uma função:** `create-checkout`, `customer-portal`,
+`check-subscription` e `stripe-webhook` agora dependem de
+`profiles.stripe_customer_id`. A migração
+`20261113000001_protect_stripe_customer_binding.sql` impede que usuários
+comuns alterem esse vínculo; depende da coluna introduzida em `120000`.
+**Não execute `db push` em produção para aplicar só isto:** ele pode incluir
+outras migrations pendentes. Backup, inventário das versões efetivas e ensaio em
+homologação são pré-requisitos.
+
+Antes do deploy, com acesso administrativo autorizado, confira em homologação:
+
+```sql
+-- Não exporte e-mails, IDs ou resultados individuais para o chat.
+SELECT count(*) AS paid_without_binding FROM public.profiles
+ WHERE plan IN ('premium', 'professional', 'lifetime') AND stripe_customer_id IS NULL;
+SELECT stripe_customer_id, count(*) FROM public.profiles
+ WHERE stripe_customer_id IS NOT NULL GROUP BY stripe_customer_id HAVING count(*) > 1;
+```
+
+Reconcilie vínculos legados a partir de evidências Stripe verificadas (não apenas
+e-mail), incluindo assinaturas e compras vitalícias. Teste tentativa de alterar
+`stripe_customer_id` por uma conta `authenticated` comum (deve falhar), criação
+de checkout, pagamento teste, webhook assinado, portal e consulta do plano em
+**duas contas comuns distintas**. Eventos sem vínculo ficam registrados como
+`plan_sync.missing_binding` para reconciliação manual; não concedem plano por
+e-mail. Confirmar se o webhook de teste efetivamente entregou o evento e se o
+plano foi atualizado no perfil correto. Testar também estorno/cancelamento.
+Sem estas verificações, checkout e billing permanecem **não homologados**.
