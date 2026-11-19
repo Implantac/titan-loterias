@@ -72,7 +72,7 @@ serve(async (req) => {
       }
     }
 
-    if (detectedPlan !== "professional") {
+    if (detectedPlan !== "lifetime") {
       const sessions = await stripe.checkout.sessions.list({
         customer: customerId,
         limit: 100,
@@ -91,7 +91,9 @@ serve(async (req) => {
       }
     }
 
-    await supabaseClient.from("profiles").update({ plan: detectedPlan }).eq("id", auth.userId);
+    const { error: updateError } = await supabaseClient.from("profiles")
+      .update({ plan: detectedPlan }).eq("id", auth.userId);
+    if (updateError) throw new Error("Could not persist verified subscription plan");
 
     return new Response(JSON.stringify({
       plan: detectedPlan,

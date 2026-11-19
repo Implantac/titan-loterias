@@ -117,11 +117,12 @@ serve(async (req) => {
   // O Stripe reenvia eventos. Sem este controle, o mesmo evento pode ser
   // processado várias vezes e não há trilha de auditoria de pagamento.
   try {
-    const { data: already } = await admin
+    const { data: already, error: lookupError } = await admin
       .from("webhook_events")
       .select("id")
       .eq("event_id", event.id)
       .maybeSingle();
+    if (lookupError) throw new Error("Webhook event lookup unavailable");
     if (already) {
       log("event already processed — skipping", { id: event.id });
       return new Response(JSON.stringify({ received: true, duplicate: true }), {
@@ -129,10 +130,11 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-  } catch (err) {
-    // Tabela ausente não pode impedir o processamento; apenas perdemos a
-    // deduplicação. O log fica para diagnóstico.
-    log("WARN idempotency lookup failed", { message: (err as Error).message });
+  } catch {
+    // Without a reliable event ledger, acknowledge nothing: Stripe can retry.
+    return new Response(JSON.stringify({ error: "Webhook event ledger unavailable" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -184,13 +186,14 @@ serve(async (req) => {
       });
     }
 
-    await admin.from("webhook_events").insert({
+    const { error: recordError } = await admin.from("webhook_events").insert({
       event_id: event.id,
       event_type: event.type,
       processed_at: new Date().toISOString(),
-    }).then(({ error }) => {
-      if (error) log("WARN webhook_events insert failed", { message: error.message });
     });
+    // Duplicate delivery may race the lookup; the first delivery already recorded it.
+    if (recordError && recordError.code !== "23505")
+      throw new Error("Could not record processed webhook event");
 
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
