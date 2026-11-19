@@ -30,7 +30,11 @@ export default function PlanosPage() {
         window.location.assign(result.url);
         return;
       }
-      toast.info("Seu acesso já está ativo.");
+      if (result?.subscribed && result.plan === "lifetime") {
+        toast.info("Seu acesso vitalício já está ativo.");
+      } else {
+        toast.error("Não foi possível abrir o checkout. Nenhuma compra foi confirmada; tente novamente ou contate o suporte.");
+      }
     } catch (e: any) {
       toast.error("Erro ao iniciar checkout: " + (e.message || "Tente novamente"));
     } finally {
