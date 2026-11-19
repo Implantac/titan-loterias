@@ -39,7 +39,7 @@ async function computePlanForCustomer(customerId: string): Promise<"free" | "pre
   }
 
   // Lifetime one-time purchases
-  if (detected !== "professional" && detected !== "lifetime") {
+  if (detected !== "lifetime") {
     const sessions = await stripe.checkout.sessions.list({ customer: customerId, limit: 100 });
     for (const session of sessions.data) {
       if (session.payment_status !== "paid" || session.mode !== "payment") continue;
@@ -147,7 +147,13 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         const customerId = (session.customer as string) || null;
         if (!customerId || session.payment_status !== "paid") break;
-        const plan = await computePlanForCustomer(customerId);
+        let plan = await computePlanForCustomer(customerId);
+        // The just-paid session may not yet appear in the customer session list.
+        // Verify its own line items before acknowledging a lifetime purchase.
+        if (session.mode === "payment") {
+          const items = await stripe.checkout.sessions.listLineItems(session.id);
+          if (items.data.some(item => item.price?.id === LIFETIME_PRICE_ID)) plan = "lifetime";
+        }
         if ((await syncPlanByCustomer(customerId, plan, event.id)) === "error") syncFailed = true;
         break;
       }
