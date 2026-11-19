@@ -1,12 +1,12 @@
 // Titan Loterias — Notify Bet Results & ROI Tracker
 // Compara saved_bets de cada usuário contra o sorteio mais recente (ou concurso especificado),
-// dispara push notification personalizado e ATUALIZA o rastreamento de ROI Real.
+// compara jogos salvos e envia aviso sem comprovar aposta ou atualizar ROI financeiro.
 //
 // Modos:
 //   1) Autenticado (usuário logado): {lottery_id, concurso?} → analisa apenas as apostas do próprio user
 //   2) Service key (x-service-key): {lottery_id, concurso?} → fan-out para TODOS os usuários com apostas
 //
-// Idempotência: usa tag `results-{lottery}-{concurso}-{user}` para push e Unique Index no DB para ROI.
+// A tag identifica a comparação; não é recibo ou controle de entrega financeira.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -14,33 +14,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-service-key",
-};
-
-// Custos oficiais por aposta simples
-const LOTTERY_BET_COST: Record<string, number> = {
-  megasena: 6.0,
-  lotofacil: 3.5,
-  quina: 3.0,
-  lotomania: 3.0,
-  duplasena: 3.0,
-  timemania: 3.5,
-  diadesorte: 2.5,
-  supersete: 3.0,
-  maismilionaria: 6.0,
-  loteca: 4.0,
-  federal: 4.0,
-};
-
-// Mapeamento de acertos para faixa de premiação (faixa 1 = prêmio principal)
-const HITS_TO_FAIXA: Record<string, Record<number, number>> = {
-  megasena:   { 6: 1, 5: 2, 4: 3 },
-  lotofacil:  { 15: 1, 14: 2, 13: 3, 12: 4, 11: 5 },
-  quina:      { 5: 1, 4: 2, 3: 3, 2: 4 },
-  lotomania:  { 20: 1, 19: 2, 18: 3, 17: 4, 16: 5, 15: 6, 0: 7 },
-  duplasena:  { 6: 1, 5: 2, 4: 3, 3: 4 },
-  timemania:  { 7: 1, 6: 2, 5: 3, 4: 4, 3: 5 },
-  diadesorte: { 7: 1, 6: 2, 5: 3, 4: 4 },
-  supersete:  { 7: 1, 6: 2, 5: 3, 4: 4, 3: 5 },
 };
 
 const PRIZE_THRESHOLDS: Record<string, { min: number; name: string; emojiTiers: Record<number, string> }> = {
@@ -99,6 +72,7 @@ Deno.serve(async (req) => {
     const lotteryId = body?.lottery_id as string | undefined;
     let concurso = body?.concurso as number | undefined;
 
+    // Super Sete depende de posições; saved_bets.numbers não preserva colunas.
     if (!lotteryId || !PRIZE_THRESHOLDS[lotteryId]) {
       return new Response(JSON.stringify({ error: "invalid lottery_id" }), {
         status: 400,
@@ -152,7 +126,6 @@ Deno.serve(async (req) => {
     }
     concurso = draw.concurso;
     const drawSet = new Set<number>(draw.numbers as number[]);
-    const prizeTiers = (draw.prize_tiers as any)?.premiacoes || [];
 
     // Busca apostas
     let betsQuery = admin
@@ -161,10 +134,15 @@ Deno.serve(async (req) => {
       .eq("lottery_id", lotteryId);
     if (scopedUserId) betsQuery = betsQuery.eq("user_id", scopedUserId);
 
-    // Só apostas registradas ANTES do sorteio (evita pós-verificação sem sentido)
-    if (draw.draw_date) {
-      betsQuery = betsQuery.lte("created_at", `${draw.draw_date}T23:59:59`);
-    }
+    // draw_date é DD/MM/AAAA; nunca concatene diretamente com horário ISO.
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(draw.draw_date ?? "");
+    if (!match) throw new Error("Data do sorteio indisponível para conferência temporal");
+    const [, day, month, year] = match;
+    const date = new Date(`${year}-${month}-${day}T00:00:00Z`);
+    if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== `${year}-${month}-${day}`)
+      throw new Error("Data do sorteio inválida");
+    // Sem horário oficial comprovado, só jogos salvos antes do dia do sorteio.
+    betsQuery = betsQuery.lt("created_at", `${year}-${month}-${day}T00:00:00Z`);
 
     const { data: bets, error: betsErr } = await betsQuery;
     if (betsErr) throw betsErr;
@@ -176,22 +154,21 @@ Deno.serve(async (req) => {
     }
 
     const info = PRIZE_THRESHOLDS[lotteryId];
-    const hitToFaixa = HITS_TO_FAIXA[lotteryId] || {};
-    const standardCost = LOTTERY_BET_COST[lotteryId] || 3.0;
 
-    // Agrupa por usuário para processar ROI e Push
+    // Agrupa por usuário apenas para comparação e push; não grava ROI.
     const byUser = new Map<string, { 
       hits: number; 
       best: number; 
       totalWinners: number; 
       games: number; 
       bestLabel?: string;
-      totalWon: number;
       betIds: string[];
     }>();
 
     for (const bet of bets) {
       const nums = (bet.numbers || []) as number[];
+      // Sem modelo posicional ou especial: não contar jogos malformados como acertos.
+      if (!Array.isArray(nums) || nums.some(n => !Number.isInteger(n)) || new Set(nums).size !== nums.length) continue;
       const hits = nums.filter((n) => drawSet.has(n)).length;
       
       const entry = byUser.get(bet.user_id) || { 
@@ -199,22 +176,12 @@ Deno.serve(async (req) => {
         best: 0, 
         totalWinners: 0, 
         games: 0, 
-        totalWon: 0, 
         betIds: [] 
       };
       
       entry.games += 1;
       entry.betIds.push(bet.id);
       
-      // Calcula prêmio para esta aposta
-      const faixa = hitToFaixa[hits];
-      if (faixa) {
-        const tier = prizeTiers.find((t: any) => t.faixa === faixa);
-        if (tier) {
-          entry.totalWon += Number(tier.valorPremio) || 0;
-        }
-      }
-
       if (hits > entry.best) {
         entry.best = hits;
         entry.bestLabel = bet.label || undefined;
@@ -226,45 +193,19 @@ Deno.serve(async (req) => {
     }
 
     let pushed = 0;
-    let roiUpdated = 0;
-    
-    // Data do sorteio para o ROI (bet_date)
-    const betDate = draw.draw_date || new Date().toISOString().split("T")[0];
 
     for (const [userId, entry] of byUser) {
-      // 1. Atualiza ROI Real
-      const amountSpent = entry.games * standardCost;
-      const amountWon = entry.totalWon;
-
-      try {
-        const { error: roiError } = await admin
-          .from("user_roi_tracking")
-          .upsert({
-            user_id: userId,
-            lottery_id: lotteryId,
-            bet_date: betDate,
-            amount_spent: amountSpent,
-            amount_won: amountWon,
-            game_ids: entry.betIds,
-          }, { 
-            onConflict: "user_id,lottery_id,bet_date" 
-          });
-        
-        if (!roiError) roiUpdated++;
-        else console.warn(`[roi] Update failed for ${userId}:`, roiError);
-      } catch (e) {
-        console.error(`[roi] Fatal for ${userId}:`, e);
-      }
-
-      // 2. Dispara Push se houver prêmio relevante
+      // Jogos salvos não comprovam apostas, despesas ou prêmios recebidos.
+      // Não alimentar user_roi_tracking a partir deste verificador.
+      // Push de coincidência de dezenas, sem alegar prêmio ou bilhete oficial.
       if (entry.best >= info.min) {
         const emoji = info.emojiTiers[entry.best] || "🎯";
         const title = `${info.name} #${concurso}: ${entry.best} acertos! ${emoji}`;
         const winnersStr = entry.totalWinners > 1
-          ? ` Você tem ${entry.totalWinners} apostas premiadas.`
+          ? ` ${entry.totalWinners} jogos salvos atingiram a contagem de acertos.`
           : "";
         const labelStr = entry.bestLabel ? ` (${entry.bestLabel})` : "";
-        const bodyText = `Seu melhor jogo${labelStr} acertou ${entry.best} números.${winnersStr} Confira o detalhamento e o prêmio real na sua banca.`;
+        const bodyText = `Seu jogo salvo${labelStr} coincide com ${entry.best} dezenas do resultado.${winnersStr} Sem comprovante oficial, isso não demonstra aposta nem prêmio.`;
         const tag = `results-${lotteryId}-${concurso}-${userId}`;
         
         const ok = await firePush(
@@ -287,7 +228,7 @@ Deno.serve(async (req) => {
         checked: bets.length, 
         users: byUser.size, 
         pushed, 
-        roi_updated: roiUpdated 
+        roi_updated: 0 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

@@ -24,12 +24,12 @@ export function BetResultsCheckerCard() {
       } else if (!d.pushed) {
         toast({
           title: `Concurso ${d.concurso} verificado`,
-          description: `${d.checked} aposta(s) analisada(s). Nenhuma atingiu a faixa premiada — bora ajustar a estratégia?`,
+          description: `${d.checked} aposta(s) analisada(s). Nenhuma notificação foi enviada. Confira o resultado no canal oficial; jogos salvos não comprovam aposta ou prêmio.`,
         });
       } else {
         toast({
-          title: `🎉 Você acertou! Concurso ${d.concurso}`,
-          description: `Enviamos um push com o detalhamento das ${d.pushed} notificação(ões) de prêmio.`,
+          title: `Comparação de jogos salvos — concurso ${d.concurso}`,
+          description: `Enviamos um push com o detalhamento das ${d.pushed} notificação(ões) sobre coincidência de dezenas; sem comprovante oficial não há prêmio confirmado.`,
         });
       }
     } catch (e) {
@@ -51,7 +51,7 @@ export function BetResultsCheckerCard() {
           Conferir minhas apostas
         </CardTitle>
         <CardDescription>
-          Compara suas apostas salvas contra o último sorteio oficial e envia um push com os acertos e a faixa premiada.
+          Compara jogos salvos com o resultado. Não confirma aposta registrada, prêmio nem gasto real.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-3">

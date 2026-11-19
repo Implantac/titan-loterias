@@ -80,7 +80,8 @@ export default function GestaoBancaPage() {
     [config.totalBankroll, config.monthlyContribution, plan.monthlyBudget, plan.allocation, projMonths],
   );
 
-  const stats = useMemo(() => computeSessionStats(sessions), [sessions]);
+  const verifiedSessions = useMemo(() => sessions.filter(s => !s.id.startsWith("sync-")), [sessions]);
+  const stats = useMemo(() => computeSessionStats(verifiedSessions), [verifiedSessions]);
   const currentBankroll = config.totalBankroll + stats.net;
   const drawdownPct = config.totalBankroll > 0 ? Math.max(0, -stats.net / config.totalBankroll) * 100 : 0;
   const stopLossHit = -stats.net >= plan.stopLossAmount && stats.net < 0;
@@ -96,7 +97,7 @@ export default function GestaoBancaPage() {
 
   const syncRealROI = () => {
     if (!roiData || roiData.length === 0) {
-      toast.info("Nenhum dado real de ROI encontrado para sincronizar.");
+      toast.info("Sincronização indisponível: jogos salvos não comprovam gastos ou prêmios.");
       return;
     }
 
@@ -547,7 +548,8 @@ export default function GestaoBancaPage() {
             </div>
           </div>
 
-          {sessions.length === 0 ? (
+          {sessions.some(s => s.id.startsWith("sync-")) && <p className="text-xs text-amber-400 mb-2">Sessões sincronizadas antigas eram estimativas de jogos salvos. Permanecem armazenadas localmente, mas não entram nos totais nem são exibidas como gastos/prêmios comprovados.</p>}
+          {verifiedSessions.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-6">
               Nenhuma sessão registrada. Comece a rastrear ganhos e perdas para calibrar o Kelly.
             </p>
@@ -566,7 +568,7 @@ export default function GestaoBancaPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sessions.map((s) => {
+                    {verifiedSessions.map((s) => {
                       const net = s.won - s.spent;
                       const lot = LOTTERIES.find((l) => l.id === s.lotteryId);
                       return (
