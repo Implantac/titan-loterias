@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { isValidSimpleBolaoGame, normalizeGeneratedSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { useSavedBets } from "@/hooks/useSavedBets";
 import { useGenerationHistory } from "@/hooks/useGenerationHistory";
 import { runIntelligentPipeline } from "@/ai/knowledge/strategiesLibrary";
@@ -24,13 +25,18 @@ const WINDOW_OPTIONS: { value: HistoryWindow; label: string; hint: string }[] = 
   { value: "10", label: "Últimos 10", hint: "Tendência imediata" },
   { value: "20", label: "Últimos 20", hint: "Curto prazo" },
   { value: "50", label: "Últimos 50", hint: "Médio prazo" },
-  { value: "all", label: "Histórico Total", hint: "Probabilidade real" },
+  { value: "all", label: "Histórico Total", hint: "Histórico disponível" },
 ];
 
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const GeradorPage = () => {
+  const { config } = useLotteryContext();
+  return <GeradorPageForLottery key={config.id} />;
+};
+
+const GeradorPageForLottery = () => {
   const { config, stats, draws, selectedLottery, setSelectedLottery } = useLotteryContext();
   const { saveBet } = useSavedBets(selectedLottery);
   const { saveGeneration } = useGenerationHistory(selectedLottery);
@@ -125,8 +131,9 @@ const GeradorPage = () => {
         }
         const processedResults = result.games.map(bet => {
           const quality = evaluateBetQuality(bet, scopedStats, config, scopedDraws);
+          const numbers = normalizeGeneratedSimpleBolaoGame(bet, config);
           return {
-            numbers: bet,
+            numbers,
             score: quality.overall,
             strategy: STRATEGIES.find(s => s.id === strategy)?.name || "Personalizada",
             grade: quality.grade,
@@ -134,6 +141,10 @@ const GeradorPage = () => {
             pipeline: result.pipeline
           };
         });
+        if (!processedResults.every(item => isValidSimpleBolaoGame(item.numbers, config))) {
+          toast.error("A estratégia gerou jogos incompatíveis com o volante desta modalidade. Nenhum jogo foi apresentado ou salvo.");
+          return;
+        }
         setResults(processedResults);
         await saveGeneration(processedResults[0]);
         setStep(4);
@@ -147,19 +158,29 @@ const GeradorPage = () => {
   };
 
   const handleSaveAll = async () => {
+    let savedCount = 0;
     for (const res of results) {
-      await saveBet({
+      const saved = await saveBet({
         numbers: res.numbers,
         strategy: res.strategy,
         score: res.score,
         grade: res.grade
       });
+      if (saved) savedCount++;
     }
-    toast.success(`${results.length} jogos salvos no seu portfólio!`);
+    if (savedCount) toast.success(`${savedCount} jogo(s) planejado(s) salvo(s); não são apostas registradas.`);
   };
 
   const nextStep = () => setStep(s => Math.min(s + 1, 4));
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+  if (!["megasena", "lotofacil", "quina", "lotomania", "duplasena"].includes(config.id)) {
+    return <div className="max-w-3xl mx-auto p-6 space-y-4">
+      <PageHeader title={`Gerador — ${config.name}`} description="Formato de jogo não suportado por este gerador de dezenas simples" icon={Target} />
+      <p className="text-muted-foreground">Esta modalidade exige posições, trevos ou campos adicionais. Não apresentaremos uma lista incompleta de dezenas como aposta válida.</p>
+      {(config.id === "supersete" || config.id === "maismilionaria") && <Button onClick={() => navigate(`/bolao?lottery=${config.id}`)}>Abrir planejador específico</Button>}
+    </div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 px-1">
@@ -228,14 +249,14 @@ const GeradorPage = () => {
                   <Badge variant="outline" className="px-2.5 py-0.5 text-[10px] font-semibold tracking-wider uppercase border-primary/30 text-primary">Etapa 01 · Dataset</Badge>
                   <h3 className="text-2xl font-bold tracking-tight">Sincronização: {config.name}</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                    Base oficial atualizada com {draws.length} concursos. O motor está pronto para processar milhões de combinações.
+                    A base apresenta {draws.length} concursos nesta sessão. Confira o concurso e a data mais recentes nos canais oficiais antes de usar os dados.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 w-full max-w-md">
                   <div className="p-3 rounded-lg bg-muted/30 border border-border/40 text-left">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Status</p>
-                    <p className="text-sm font-semibold text-emerald-400">100% Sincronizada</p>
+                    <p className="text-sm font-semibold text-emerald-400">Conferência externa necessária</p>
                   </div>
                   <div className="p-3 rounded-lg bg-muted/30 border border-border/40 text-left">
                     <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1">Último Concurso</p>
@@ -403,9 +424,9 @@ const GeradorPage = () => {
                           <Button
                             variant="outline"
                             size="icon"
+                            disabled={!isValidSimpleBolaoGame(res.numbers, config)}
                             onClick={() => {
-                              saveBet({ numbers: res.numbers, strategy: res.strategy, score: res.score, grade: res.grade });
-                              toast.success("Jogo salvo!");
+                              void saveBet({ numbers: res.numbers, strategy: res.strategy, score: res.score, grade: res.grade });
                             }}
                           >
                             <Save className="w-4 h-4" />

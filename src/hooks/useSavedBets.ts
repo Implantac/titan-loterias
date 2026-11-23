@@ -1,3 +1,5 @@
+import { LOTTERIES } from "@/data/lotteries";
+import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -45,6 +47,10 @@ export function useSavedBets(lotteryId: string) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      const lottery = LOTTERIES.find(l => l.id === lotteryId);
+      if (!lottery || !isValidSimpleBolaoGame(bet?.numbers, lottery))
+        throw new Error("Formato de jogo simples não suportado para salvar nesta modalidade. Use o planejador específico quando disponível.");
+
       if (savedBets.length >= limit) {
         throw new Error(`Limite de ${limit} jogos atingido.`);
       }
@@ -62,7 +68,7 @@ export function useSavedBets(lotteryId: string) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Aposta salva!");
+      toast.success("Jogo planejado salvo no Titan; não é aposta registrada.");
       queryClient.invalidateQueries({ queryKey: ["saved-bets", lotteryId] });
     },
     onError: (e: any) => {
