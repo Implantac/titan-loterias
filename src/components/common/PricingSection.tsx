@@ -2,22 +2,17 @@ import { Crown, CheckCircle2, Loader2, ShieldCheck, TrendingUp, Zap, Users, Spar
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { prefetchRoute } from "@/lib/routePrefetch";
 
 export function PricingSection() {
   const { session } = useAuth();
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSelectPlan = async (planType: "annual" | "lifetime") => {
-    if (!session) {
-      navigate("/login");
-      return;
-    }
-    navigate("/planos");
+  const handleSelectPlan = (planType: "annual" | "lifetime") => {
+    const destination = `/planos?interest=${planType}`;
+    navigate(session ? destination : `/login?next=${encodeURIComponent(destination)}`);
   };
 
   const annualFeatures = [
@@ -33,7 +28,7 @@ export function PricingSection() {
     "Pagamento único, sem renovação automática",
     "Acesso às modalidades disponíveis enquanto o serviço operar",
     "Recursos para organizar concursos especiais enquanto o serviço operar",
-    "Módulo de Bolão Pro (divisão automática de cotas, recibos e WhatsApp)",
+    "Módulo de Bolão Pro (divisão automática de cotas, resumos internos e WhatsApp)",
     "Fechamentos com verificação de cobertura e condições explícitas",
     "Filtros de redução de divisão de prêmio (split-avoidance)",
     "Análises retrospectivas sem previsão de retorno",

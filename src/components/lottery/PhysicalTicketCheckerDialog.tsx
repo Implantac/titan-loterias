@@ -84,7 +84,7 @@ export function PhysicalTicketCheckerDialog({
       toast.error(`Selecione ao menos ${standardPick} dezenas para salvar.`);
       return;
     }
-    void saveBet({ numbers: selectedNumbers, label: `Bilhete Lotérica #${activeDraw?.concurso || ""}` });
+    void saveBet({ numbers: selectedNumbers, label: `Jogo informado para conferência #${activeDraw?.concurso || ""}` });
   };
 
   const handleClear = () => {

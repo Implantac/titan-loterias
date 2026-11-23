@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { createCheckoutSession } from "@/modules/subscriptions/application/subscriptionService";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PlanFAQ } from "@/components/plans/PlanFAQ";
 import { PlanTrustBar } from "@/components/plans/PlanTrustBar";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
@@ -16,6 +16,8 @@ export default function PlanosPage() {
   const { currentPlan, isAdmin, isSuperAdmin } = usePlanAccess();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const interest = searchParams.get("interest");
 
   const handleCheckout = async (planId: "lifetime" | "annual") => {
     if (!session) {
@@ -46,6 +48,7 @@ export default function PlanosPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6 pt-6 pb-20">
+      {(interest === "annual" || interest === "lifetime") && <p className="rounded-lg border border-primary/30 p-3 text-sm text-muted-foreground" role="status">Você veio para avaliar o {interest === "annual" ? "plano anual com renovação automática" : "acesso vitalício de pagamento único"}. Confira as condições abaixo antes de escolher; nenhuma compra foi iniciada.</p>}
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -15 }}
@@ -174,7 +177,7 @@ export default function PlanosPage() {
                 "Pagamento único, sem renovação automática",
                 "Acesso às modalidades disponíveis enquanto o serviço operar",
                 "Recursos para organizar concursos especiais enquanto o serviço operar",
-                "Módulo de Bolão Pro (divisão de cotas, recibos e WhatsApp)",
+                "Módulo de Bolão Pro (divisão de cotas, resumos internos e WhatsApp)",
                 "Fechamentos com verificação de cobertura e condições explícitas",
                 "Filtros de redução de divisão de prêmio (split-avoidance)",
                 "Atualizações incluídas conforme os Termos de Uso",

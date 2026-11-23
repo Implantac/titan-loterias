@@ -174,7 +174,7 @@ export default function SignupPage() {
                 Criar <span className="gradient-brand-text">Conta</span>
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Crie sua conta e ative o Acesso Vitalício
+                Crie uma conta para conhecer os recursos; a assinatura é opcional.
               </p>
             </div>
           </CardHeader>
@@ -256,6 +256,7 @@ export default function SignupPage() {
                 Criar minha conta
                 {!loading && <ArrowRight className="w-4 h-4" />}
               </Button>
+              <p className="text-xs text-center text-muted-foreground">Se o cadastro foi bloqueado em uma rede compartilhada, <Link to="/suporte" className="text-primary underline">peça revisão ao suporte</Link>. Não é necessário comprar um plano para pedir ajuda.</p>
               <p className="text-sm text-center text-muted-foreground pt-2">
                 Já tem conta?{" "}
                 <Link to="/login" className="text-primary hover:underline font-semibold">
