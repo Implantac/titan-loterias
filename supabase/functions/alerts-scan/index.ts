@@ -172,7 +172,7 @@ function detectTriggers(
     alerts.push({
       category: "results",
       title: `${uni.name}: acumulou! 💰`,
-      body: `Concurso ${newest.concurso} acumulou. Próximo sorteio com prêmio maior — bom momento para revisar suas estratégias.`,
+      body: `Concurso ${newest.concurso} acumulou segundo os dados disponíveis. Confira prêmio e próximo sorteio nos canais oficiais.`,
       url,
       tag: `${lotteryId}-acumulou-${newest.concurso}`,
     });
@@ -212,7 +212,7 @@ async function firePush(
   serviceRole: string,
   userId: string,
   alert: Alert,
-): Promise<void> {
+): Promise<boolean> {
   try {
     const res = await fetch(`${supabaseUrl}/functions/v1/send-push`, {
       method: "POST",
@@ -231,10 +231,14 @@ async function firePush(
       }),
     });
     if (!res.ok) {
-      console.warn("[alerts-scan] push failed", await res.text());
+      console.warn("[alerts-scan] push failed", res.status);
+      return false;
     }
+    const result = await res.json().catch(() => null);
+    return typeof result?.sent === "number" && result.sent > 0;
   } catch (e) {
     console.warn("[alerts-scan] push error", e);
+    return false;
   }
 }
 
@@ -302,12 +306,13 @@ Deno.serve(async (req) => {
 
       let draws = drawsCache.get(lotteryId);
       if (!draws) {
-        const { data: drawRows } = await admin
+        const { data: drawRows, error: drawError } = await admin
           .from("lottery_draws")
           .select("concurso, numbers, acumulou")
           .eq("lottery_id", lotteryId)
           .order("concurso", { ascending: false })
           .limit(120);
+        if (drawError) throw new Error("Lottery draw query failed");
         draws = (drawRows || []) as Draw[];
         drawsCache.set(lotteryId, draws);
       }
@@ -321,14 +326,20 @@ Deno.serve(async (req) => {
       );
 
       if (newestConcurso > (cfg.last_concurso ?? 0)) {
+        let allDelivered = true;
         for (const alert of alerts) {
-          await firePush(supabaseUrl, serviceRole, cfg.user_id, alert);
-          totalAlerts++;
+          const delivered = await firePush(supabaseUrl, serviceRole, cfg.user_id, alert);
+          if (delivered) totalAlerts++;
+          else allDelivered = false;
         }
-        await admin
-          .from("user_alert_configs")
-          .update({ last_concurso: newestConcurso })
-          .eq("id", cfg.id);
+        // Avoid permanently marking a draw as notified when delivery failed.
+        // No subscriptions means the user cannot receive pushes; leave cursor
+        // unchanged so enabling push later can still trigger the newest draw.
+        if (allDelivered) {
+          const { error: cursorError } = await admin.from("user_alert_configs")
+            .update({ last_concurso: newestConcurso }).eq("id", cfg.id);
+          if (cursorError) throw new Error("Alert cursor update failed");
+        }
       }
     }
 

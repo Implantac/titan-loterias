@@ -258,3 +258,13 @@ T-2h foi removida da interface (preferências antigas não foram apagadas).
 o frontend deixa o cron antigo executando. Para reativar, é necessário calendário
 futuro verificável por modalidade, fuso horário correto, idempotência de aviso
 e teste da integração entre funções. Não prometer alertas de 2h antes disso.
+
+## Contagem de alertas estatísticos
+
+A versão nova de `alerts-scan` conta apenas notificações para as quais `send-push`
+reportou `sent > 0`; falha de entrega não avança `last_concurso`. Implantar
+`alerts-scan` e `send-push` com contrato de resposta compatível e testar com
+inscrição push de staging habilitada, desabilitada e endpoint expirado.
+Em entrega parcial, repetir pode reenviar um alerta previamente entregue:
+**a tag do push não é uma trilha de idempotência no servidor**. Não anunciar
+entrega exatamente uma vez sem tabela/controle de notificações por evento.
