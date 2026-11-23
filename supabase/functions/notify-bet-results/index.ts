@@ -9,6 +9,7 @@
 // A tag identifica a comparação; não é recibo ou controle de entrega financeira.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { SIMPLE_RESULT_RULES, isSimpleResultLottery, countSavedGameMatches } from "../_shared/result-comparison.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,14 +17,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-service-key",
 };
 
-// Only modalities represented by unique plain dozens in saved_bets.numbers.
-// Positional/auxiliary selections and double draws require their own schemas.
-const SIMPLE_COMPARISONS: Record<string, { pick: number; min: number; max: number; name: string }> = {
-  megasena: { pick: 6, min: 1, max: 60, name: "Mega-Sena" },
-  lotofacil: { pick: 15, min: 1, max: 25, name: "Lotofácil" },
-  quina: { pick: 5, min: 1, max: 80, name: "Quina" },
-};
-const ALERT_MIN_HITS: Record<string, number> = { megasena: 4, lotofacil: 11, quina: 2 };
 
 async function firePush(
   supabaseUrl: string,
@@ -71,7 +64,7 @@ Deno.serve(async (req) => {
     let concurso = body?.concurso as number | undefined;
 
     // Super Sete depende de posições; saved_bets.numbers não preserva colunas.
-    if (!lotteryId || !SIMPLE_COMPARISONS[lotteryId]) {
+    if (!isSimpleResultLottery(lotteryId)) {
       return new Response(JSON.stringify({ error: "invalid lottery_id" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -123,7 +116,6 @@ Deno.serve(async (req) => {
       });
     }
     concurso = draw.concurso;
-    const drawSet = new Set<number>(draw.numbers as number[]);
 
     // Busca apostas
     let betsQuery = admin
@@ -151,8 +143,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const info = SIMPLE_COMPARISONS[lotteryId];
-    const alertMin = ALERT_MIN_HITS[lotteryId];
+    const info = SIMPLE_RESULT_RULES[lotteryId];
+    const alertMin = info.alertMin;
 
     // Agrupa por usuário apenas para comparação e push; não grava ROI.
     const byUser = new Map<string, { 
@@ -166,13 +158,9 @@ Deno.serve(async (req) => {
 
     let validCount = 0;
     for (const bet of bets) {
-      const nums = (bet.numbers || []) as number[];
-      // Não contar jogos incompletos ou malformados como acertos.
-      if (!Array.isArray(nums) || nums.length !== info.pick || new Set(nums).size !== info.pick ||
-          nums.some(n => !Number.isInteger(n) || n < info.min || n > info.max)) continue;
-      validCount++;
-      const hits = nums.filter((n) => drawSet.has(n)).length;
-      
+      const hits = countSavedGameMatches(lotteryId, bet.numbers, draw.numbers);
+      if (hits === null) continue;
+
       const entry = byUser.get(bet.user_id) || { 
         hits: 0, 
         best: 0, 

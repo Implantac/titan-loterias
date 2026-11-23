@@ -7,7 +7,7 @@ describe("ROI automático suspenso", () => {
     expect(source).not.toContain('.from("user_roi_tracking")');
     expect(source).toContain('roi_updated: 0');
     expect(source).not.toMatch(/\bsupersete\s*:/);
-    expect(source).toContain('nums.length !== info.pick');
+    expect(source).toContain('countSavedGameMatches(lotteryId, bet.numbers, draw.numbers)');
   });
   it("não alimenta dimensionamento de banca com estimativas antigas", () => {
     const source = readFileSync("src/hooks/useROIByLottery.ts", "utf8");
