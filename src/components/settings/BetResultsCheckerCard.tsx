@@ -51,7 +51,7 @@ export function BetResultsCheckerCard() {
           Conferir minhas apostas
         </CardTitle>
         <CardDescription>
-          Compara jogos salvos com o resultado. Não confirma aposta registrada, prêmio nem gasto real.
+          Compara jogos simples salvos da Mega-Sena, Lotofácil ou Quina com dezenas sorteadas. Não confirma aposta registrada, prêmio nem gasto real.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-3">
@@ -60,7 +60,7 @@ export function BetResultsCheckerCard() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {AVAILABLE_LOTTERIES.map((l) => (
+            {AVAILABLE_LOTTERIES.filter(l => ["megasena", "lotofacil", "quina"].includes(l.id)).map((l) => (
               <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
             ))}
           </SelectContent>

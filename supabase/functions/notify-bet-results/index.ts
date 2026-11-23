@@ -16,16 +16,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-service-key",
 };
 
-const PRIZE_THRESHOLDS: Record<string, { min: number; name: string; emojiTiers: Record<number, string> }> = {
-  megasena:   { min: 4,  name: "Mega-Sena",  emojiTiers: { 4: "🎯", 5: "🏆", 6: "💰👑" } },
-  lotofacil:  { min: 11, name: "Lotofácil",  emojiTiers: { 11: "🎯", 12: "🥉", 13: "🥈", 14: "🥇", 15: "💰👑" } },
-  quina:      { min: 2,  name: "Quina",      emojiTiers: { 2: "🎯", 3: "🥉", 4: "🥇", 5: "💰👑" } },
-  lotomania:  { min: 15, name: "Lotomania",  emojiTiers: { 15: "🎯", 16: "🥉", 17: "🥈", 18: "🥇", 19: "🏆", 20: "💰👑" } },
-  duplasena:  { min: 3,  name: "Dupla Sena", emojiTiers: { 3: "🎯", 4: "🥉", 5: "🥇", 6: "💰👑" } },
-  timemania:  { min: 3,  name: "Timemania",  emojiTiers: { 3: "🎯", 4: "🥉", 5: "🥈", 6: "🥇", 7: "💰👑" } },
-  diadesorte: { min: 4,  name: "Dia de Sorte", emojiTiers: { 4: "🎯", 5: "🥉", 6: "🥇", 7: "💰👑" } },
-  supersete:  { min: 3,  name: "Super Sete", emojiTiers: { 3: "🎯", 4: "🥉", 5: "🥈", 6: "🥇", 7: "💰👑" } },
+// Only modalities represented by unique plain dozens in saved_bets.numbers.
+// Positional/auxiliary selections and double draws require their own schemas.
+const SIMPLE_COMPARISONS: Record<string, { pick: number; min: number; max: number; name: string }> = {
+  megasena: { pick: 6, min: 1, max: 60, name: "Mega-Sena" },
+  lotofacil: { pick: 15, min: 1, max: 25, name: "Lotofácil" },
+  quina: { pick: 5, min: 1, max: 80, name: "Quina" },
 };
+const ALERT_MIN_HITS: Record<string, number> = { megasena: 4, lotofacil: 11, quina: 2 };
 
 async function firePush(
   supabaseUrl: string,
@@ -73,7 +71,7 @@ Deno.serve(async (req) => {
     let concurso = body?.concurso as number | undefined;
 
     // Super Sete depende de posições; saved_bets.numbers não preserva colunas.
-    if (!lotteryId || !PRIZE_THRESHOLDS[lotteryId]) {
+    if (!lotteryId || !SIMPLE_COMPARISONS[lotteryId]) {
       return new Response(JSON.stringify({ error: "invalid lottery_id" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -153,7 +151,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const info = PRIZE_THRESHOLDS[lotteryId];
+    const info = SIMPLE_COMPARISONS[lotteryId];
+    const alertMin = ALERT_MIN_HITS[lotteryId];
 
     // Agrupa por usuário apenas para comparação e push; não grava ROI.
     const byUser = new Map<string, { 
@@ -165,10 +164,13 @@ Deno.serve(async (req) => {
       betIds: string[];
     }>();
 
+    let validCount = 0;
     for (const bet of bets) {
       const nums = (bet.numbers || []) as number[];
-      // Sem modelo posicional ou especial: não contar jogos malformados como acertos.
-      if (!Array.isArray(nums) || nums.some(n => !Number.isInteger(n)) || new Set(nums).size !== nums.length) continue;
+      // Não contar jogos incompletos ou malformados como acertos.
+      if (!Array.isArray(nums) || nums.length !== info.pick || new Set(nums).size !== info.pick ||
+          nums.some(n => !Number.isInteger(n) || n < info.min || n > info.max)) continue;
+      validCount++;
       const hits = nums.filter((n) => drawSet.has(n)).length;
       
       const entry = byUser.get(bet.user_id) || { 
@@ -187,7 +189,7 @@ Deno.serve(async (req) => {
         entry.bestLabel = bet.label || undefined;
       }
       
-      if (hits >= info.min) entry.totalWinners += 1;
+      if (hits >= alertMin) entry.totalWinners += 1;
       
       byUser.set(bet.user_id, entry);
     }
@@ -198,8 +200,8 @@ Deno.serve(async (req) => {
       // Jogos salvos não comprovam apostas, despesas ou prêmios recebidos.
       // Não alimentar user_roi_tracking a partir deste verificador.
       // Push de coincidência de dezenas, sem alegar prêmio ou bilhete oficial.
-      if (entry.best >= info.min) {
-        const emoji = info.emojiTiers[entry.best] || "🎯";
+      if (entry.best >= alertMin) {
+        const emoji = "🎯";
         const title = `${info.name} #${concurso}: ${entry.best} acertos! ${emoji}`;
         const winnersStr = entry.totalWinners > 1
           ? ` ${entry.totalWinners} jogos salvos atingiram a contagem de acertos.`
@@ -225,7 +227,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         ok: true, 
         concurso, 
-        checked: bets.length, 
+        checked: validCount, 
         users: byUser.size, 
         pushed, 
         roi_updated: 0 
