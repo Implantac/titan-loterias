@@ -68,7 +68,7 @@ export function HeroSection({
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-semibold text-primary tracking-wide">
-                Lote Fundador Liberado • Acesso Vitalício por R$ 99,90
+                Acesso Vitalício • R$ 99,90 (confirme no checkout)
               </span>
             </div>
           </motion.div>
@@ -145,7 +145,7 @@ export function HeroSection({
             </div>
             <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
               <Users className="w-4 h-4 text-primary shrink-0" />
-              <span>Módulo de Bolão com Recibo WhatsApp</span>
+              <span>Bolão com resumo interno por WhatsApp</span>
             </div>
           </motion.div>
         </div>

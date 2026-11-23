@@ -72,7 +72,7 @@ export default function SignupPage() {
         setLoading(false);
         toast({
           title: "Limite de Contas Atingido",
-          description: "Detectamos múltiplas contas gratuitas associadas a esta conexão de rede. Para garantir a segurança e sustentabilidade da plataforma, limite o número de contas por IP ou assine um plano Vitalício.",
+          description: "Esta conexão atingiu o limite preventivo de contas gratuitas. Redes compartilhadas podem afetar pessoas diferentes; se for seu caso, contate o suporte para revisão antes de contratar.",
           variant: "destructive",
         });
         return;
@@ -83,7 +83,7 @@ export default function SignupPage() {
         setLoading(false);
         toast({
           title: "Proteção contra Abuso",
-          description: "Seu endereço IP foi temporariamente sinalizado pelo nosso sistema de segurança. Tente novamente mais tarde ou mude sua conexão.",
+          description: "Seu endereço IP foi temporariamente sinalizado pelo nosso sistema de segurança. Tente novamente mais tarde ou contate o suporte se o bloqueio afetou uma conta legítima.",
           variant: "destructive",
         });
         return;

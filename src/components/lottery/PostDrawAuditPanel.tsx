@@ -61,7 +61,7 @@ export function PostDrawAuditPanel({ bets, draws, config }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-primary" />
-            Auditoria do último sorteio
+            Comparação retrospectiva do último sorteio
           </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export function PostDrawAuditPanel({ bets, draws, config }: Props) {
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
           <ClipboardList className="h-5 w-5 text-primary" />
-          Auditoria do último sorteio
+          Comparação retrospectiva do último sorteio
           <Badge variant="outline" className="ml-auto font-mono text-xs">
             Concurso {last.concurso}
           </Badge>
@@ -97,10 +97,11 @@ export function PostDrawAuditPanel({ bets, draws, config }: Props) {
       </CardHeader>
 
       <CardContent className="relative space-y-5">
+        <p className="text-xs text-muted-foreground">Comparação numérica de jogos salvos, inclusive com sorteios anteriores ao salvamento. Não comprova aposta registrada, acerto em bilhete oficial ou prêmio recebido.</p>
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <KPI icon={Target} label="Média de acertos" value={avgHits.toFixed(2)} />
-          <KPI icon={Trophy} label="Melhor jogo" value={`${best.hits.length} acertos`} />
+          <KPI icon={Target} label="Média de coincidências" value={avgHits.toFixed(2)} />
+          <KPI icon={Trophy} label="Maior coincidência" value={`${best.hits.length} dezenas`} />
           <KPI icon={TrendingUp} label="Jogos analisados" value={perBet.length.toString()} />
         </div>
 
@@ -109,7 +110,7 @@ export function PostDrawAuditPanel({ bets, draws, config }: Props) {
             numbers={best.bet.numbers}
             config={config}
             draws={draws}
-            title={`Diagnóstico do melhor jogo (${best.hits.length} acertos)`}
+            title={`Comparação histórica (${best.hits.length} dezenas)`}
           />
         )}
 
@@ -159,7 +160,7 @@ export function PostDrawAuditPanel({ bets, draws, config }: Props) {
                           : "border-border/40 text-muted-foreground",
                       )}
                     >
-                      {hits.length} acertos
+                      {hits.length} coincidências
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1">

@@ -107,7 +107,7 @@ export default function PlanosPage() {
                 "Gerador com modelos estatísticos e heurísticos",
                 "Módulo de Bolão com divisão de cotas e rateio",
                 "Fechamentos matemáticos e conferência de jogos",
-                "Exportação de bilhetes em PDF e planilhas",
+                "Exportação de fichas internas em PDF e planilhas",
                 "Renovação anual recorrente",
               ].map((feat, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-muted-foreground">

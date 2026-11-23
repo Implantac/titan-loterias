@@ -17,16 +17,21 @@ describe("retorno do checkout", () => {
     expect(await screen.findByText("Ativação ainda não confirmada")).toBeTruthy();
     expect(screen.queryByText("Pagamento confirmado!")).toBeNull();
   });
-  it("mostra somente plano verificado, não o plano da URL", async () => {
+  it("não confunde plano premium antigo com compra vitalícia confirmada", async () => {
     mockSync.mockResolvedValue({ plan: "premium", subscribed: true });
     render(<MemoryRouter initialEntries={["/payment-success?plan=lifetime"]}><PaymentSuccessPage /></MemoryRouter>);
+    expect(await screen.findByText("Ativação ainda não confirmada")).toBeTruthy();
+    expect(screen.queryByText(/Plano Vitalício informado/)).toBeNull();
+  });
+  it("confirma apenas o plano efetivamente verificado", async () => {
+    mockSync.mockResolvedValue({ plan: "premium", subscribed: true });
+    render(<MemoryRouter initialEntries={["/payment-success?plan=annual"]}><PaymentSuccessPage /></MemoryRouter>);
     expect(await screen.findByText("Acesso verificado")).toBeTruthy();
     expect(screen.getByText(/Plano Premium informado/)).toBeTruthy();
-    expect(screen.queryByText(/Plano Vitalício informado/)).toBeNull();
   });
   it("permite verificar novamente após resposta pendente", async () => {
     mockSync.mockResolvedValueOnce({ plan: "free", subscribed: false }).mockResolvedValueOnce({ plan: "professional", subscribed: true });
-    render(<MemoryRouter><PaymentSuccessPage /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={["/payment-success?plan=professional"]}><PaymentSuccessPage /></MemoryRouter>);
     fireEvent.click(await screen.findByText("Verificar novamente"));
     await waitFor(() => expect(screen.getByText("Acesso verificado")).toBeTruthy());
   });

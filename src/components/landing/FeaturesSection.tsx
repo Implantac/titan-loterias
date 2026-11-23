@@ -31,7 +31,7 @@ export function FeaturesSection({ featuresRef, fadeUp }: FeaturesSectionProps) {
       icon: Box,
       title: "Fechamentos & Cobertura",
       description: "Matrizes combinatórias com indicação das condições e do método de verificação. A cobertura não garante prêmio nem prevê o sorteio.",
-      tag: "Garantia Comprovada",
+      tag: "Cobertura sob condições",
     },
     {
       icon: BarChart3,

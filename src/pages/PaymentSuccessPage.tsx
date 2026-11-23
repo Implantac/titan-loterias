@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,8 @@ type Verification = { status: "checking" | "verified" | "pending"; plan?: PlanTy
 
 /** Stripe return URL is not proof of payment: only a verified server response may confirm access. */
 export default function PaymentSuccessPage() {
+  const [params] = useSearchParams();
+  const requested = params.get("plan");
   const [verification, setVerification] = useState<Verification>({ status: "checking" });
   const verify = useCallback(async () => {
     setVerification({ status: "checking" });
@@ -23,12 +25,15 @@ export default function PaymentSuccessPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setVerification({ status: "pending" }); return; }
       const result = await syncSubscription(session.access_token);
-      setVerification(result?.subscribed && result.plan !== "free"
+      // The URL is not proof; use it only to avoid confirming a different,
+      // already-active plan as the newly purchased one.
+      const expectedPlan = requested === "annual" || requested === "premium_annual" ? "premium" : requested;
+      setVerification(result?.subscribed && result.plan !== "free" && result.plan === expectedPlan
         ? { status: "verified", plan: result.plan } : { status: "pending" });
     } catch {
       setVerification({ status: "pending" });
     }
-  }, []);
+  }, [requested]);
 
   useEffect(() => { void verify(); }, [verify]);
 

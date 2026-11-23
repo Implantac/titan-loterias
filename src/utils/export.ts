@@ -1,47 +1,44 @@
-/**
- * Titan Loterias - Professional Export Utilities
- */
+import * as XLSX from "xlsx";
 
-export function exportToCsv(filename: string, data: any[][]) {
-  const csvContent = data.map(row => row.join(",")).join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.csv`);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+/** Prevent user-supplied labels from becoming formulas when opened in a spreadsheet. */
+export function safeSpreadsheetCell(value: unknown): string | number | boolean {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "boolean") return value;
+  const text = String(value ?? "");
+  return /^[\s\u0000-\u001f]*[=+\-@]/u.test(text) ? `'${text}` : text;
 }
 
-export function exportToExcel(filename: string, data: any[][]) {
-  // Simple XML-based Excel export (works in Excel and Sheets)
-  let excelContent = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Titan Loterias</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
-    <body><table>
-  `;
-  
-  data.forEach(row => {
-    excelContent += "<tr>";
-    row.forEach(cell => {
-      excelContent += `<td>${cell}</td>`;
-    });
-    excelContent += "</tr>";
-  });
-  
-  excelContent += "</table></body></html>";
-  
-  const blob = new Blob([excelContent], { type: "application/vnd.ms-excel" });
-  const link = document.createElement("a");
+export function serializeCsv(rows: unknown[][]): string {
+  return "\uFEFF" + rows.map(row => row.map(value => {
+    const text = String(safeSpreadsheetCell(value));
+    return `"${text.replace(/"/g, '""')}"`;
+  }).join(",")).join("\r\n");
+}
+
+export function safeSpreadsheetRows(rows: unknown[][]): (string | number | boolean)[][] {
+  return rows.map(row => row.map(safeSpreadsheetCell));
+}
+
+function download(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
-  
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.xls`);
-  link.style.visibility = "hidden";
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function exportToCsv(filename: string, data: unknown[][]): void {
+  download(`${filename}.csv`, new Blob([serializeCsv(data)], { type: "text/csv;charset=utf-8" }));
+}
+
+/** Real OOXML workbook, not HTML mislabelled as a legacy .xls file. */
+export function exportToExcel(filename: string, data: unknown[][]): void {
+  const workbook = XLSX.utils.book_new();
+  const sheet = XLSX.utils.aoa_to_sheet(safeSpreadsheetRows(data));
+  XLSX.utils.book_append_sheet(workbook, sheet, "Jogos salvos");
+  const bytes = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  download(`${filename}.xlsx`, new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
 }

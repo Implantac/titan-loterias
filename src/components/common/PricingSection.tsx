@@ -55,13 +55,13 @@ export function PricingSection() {
         >
           <Badge variant="outline" className="px-4 py-1.5 text-xs font-semibold tracking-wide bg-primary/10 text-primary border-primary/20 rounded-full inline-flex items-center gap-1.5">
             <Crown className="w-3.5 h-3.5" />
-            Lote Promocional de Lançamento
+            Planos de acesso Titan
           </Badge>
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
             Escolha o Plano Ideal para as <span className="gradient-brand-text">Suas Apostas</span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg font-normal leading-relaxed">
-            Economize com a compra definitiva ou teste pela temporada. Sem pegadinhas, sem contratos ocultos.
+            Compare o plano anual recorrente e o acesso vitalício. Confira valor e condições antes de pagar.
           </p>
         </motion.div>
 
@@ -211,14 +211,14 @@ export function PricingSection() {
             <TrendingUp className="w-5 h-5 text-primary shrink-0" />
             <div className="text-xs">
               <p className="font-semibold text-foreground">Estatística Oficial</p>
-              <p className="text-[11px] text-muted-foreground">Dados Caixa auditados</p>
+              <p className="text-[11px] text-muted-foreground">Confira fonte e concurso</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-xl bg-card/20 border border-white/5">
             <Zap className="w-5 h-5 text-primary shrink-0" />
             <div className="text-xs">
-              <p className="font-semibold text-foreground">Garantia Exaustiva</p>
-              <p className="text-[11px] text-muted-foreground">Menor acerto provado</p>
+              <p className="font-semibold text-foreground">Cobertura Condicional</p>
+              <p className="text-[11px] text-muted-foreground">Confira matriz e hipóteses</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-xl bg-card/20 border border-white/5">
@@ -231,8 +231,8 @@ export function PricingSection() {
           <div className="flex items-center gap-3 p-3 rounded-xl bg-card/20 border border-white/5">
             <Sparkles className="w-5 h-5 text-primary shrink-0" />
             <div className="text-xs">
-              <p className="font-semibold text-foreground">Pix Imediato</p>
-              <p className="text-[11px] text-muted-foreground">Acesso em 30 segundos</p>
+              <p className="font-semibold text-foreground">Pagamento no checkout</p>
+              <p className="text-[11px] text-muted-foreground">Ativação após confirmação</p>
             </div>
           </div>
         </div>

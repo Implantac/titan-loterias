@@ -102,9 +102,9 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden antialiased selection:bg-primary selection:text-white">
       <Helmet>
         <title>Titan Loterias | Estatística Avançada, Fechamentos Matemáticos e Bolão</title>
-        <meta name="description" content="Plataforma de inteligência quantitativa aplicada às loterias brasileiras: fechamentos matemáticos com garantia exaustiva, split-avoidance, análise estatística oficial e gestão profissional de bolão." />
+        <meta name="description" content="Plataforma de inteligência quantitativa aplicada às loterias brasileiras: fechamentos matemáticos com cobertura condicional verificável, filtros de padrões populares e análise de resultados históricos e gestão profissional de bolão." />
         <meta property="og:title" content="Titan Loterias | Estatística Avançada e Fechamentos" />
-        <meta property="og:description" content="Fechamentos matemáticos com garantia comprovada, split-avoidance e gestão profissional de bolão para loterias da Caixa." />
+        <meta property="og:description" content="Fechamentos com cobertura sob condições explícitas e filtros de padrões populares e gestão profissional de bolão para loterias da Caixa." />
         <meta property="og:type" content="website" />
         <meta name="keywords" content="Mega-Sena, Lotofácil, Quina, Fechamento Matemático, Bolão, Gerador de Apostas, Probabilidade, Estatística, Análise de Dados" />
       </Helmet>

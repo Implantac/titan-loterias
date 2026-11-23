@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { LOTTERIES, LotteryConfig } from "@/data/lotteries";
-import { getPrizeTiers } from "@/services/api/lottery";;
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Bookmark, Loader2, Trash2, Target, Download, FileSpreadsheet, Zap, Ticket, Repeat } from "lucide-react";
+import { isSimpleResultLottery, countSavedGameMatches } from "../../supabase/functions/_shared/result-comparison";
 import { useSavedBets, SavedBet } from "@/hooks/useSavedBets";
 import { useLotteryContext } from "@/contexts/LotteryContext";
 import { StatsCard } from "@/components/common/StatsCard";
@@ -40,26 +40,13 @@ const JogosSalvosPage = () => {
 
   const rangeNum = parseInt(drawRange);
 
+  // Retrospective numerical comparison only; no ticket, payment or prize proof.
   const computePerformance = (bet: SavedBet) => {
-    const recentDraws = draws.slice(0, rangeNum);
-    const prizeTiers = getPrizeTiers(bet.lottery_id);
-
-    const results = recentDraws.map(draw => {
-      const drawSet = new Set(draw.numbers);
-      const matched = bet.numbers.filter(n => drawSet.has(n));
-      const tier = prizeTiers.find(t => t.hits === matched.length);
-      return {
-        concurso: draw.concurso,
-        hits: matched.length,
-        isPrize: !!tier,
-        tierLabel: tier?.label,
-      };
-    });
-
-    const bestHits = results.reduce((max, r) => Math.max(max, r.hits), 0);
-    const totalPrizes = results.filter(r => r.isPrize).length;
-
-    return { results, bestHits, totalPrizes };
+    if (!isSimpleResultLottery(bet.lottery_id)) return { bestHits: null, comparisons: 0 };
+    const matches = draws.slice(0, rangeNum)
+      .map(draw => countSavedGameMatches(bet.lottery_id as "megasena" | "lotofacil" | "quina", bet.numbers, draw.numbers))
+      .filter((hits): hits is number => hits !== null);
+    return { bestHits: matches.length ? Math.max(...matches) : null, comparisons: matches.length };
   };
 
   if (loading) {
@@ -71,7 +58,7 @@ const JogosSalvosPage = () => {
   }
 
   const buildExportRows = () => {
-    const header = ["Loteria", "Criado em", "Estratégia", "Score", "Grade", "Rótulo", "Números", "Premiações Recentes", "Melhor Acerto"];
+    const header = ["Loteria", "Criado em", "Estratégia", "Score", "Grade", "Rótulo", "Números", "Comparações retrospectivas", "Maior coincidência retrospectiva"];
     const rows = savedBets.map((bet) => {
       const perf = computePerformance(bet);
       return [
@@ -82,8 +69,8 @@ const JogosSalvosPage = () => {
         bet.grade ?? "",
         bet.label ?? "",
         bet.numbers.map((n) => String(n).padStart(2, "0")).join(" "),
-        perf.totalPrizes,
-        perf.bestHits,
+        perf.comparisons,
+        perf.bestHits ?? "",
       ];
     });
     return [header, ...rows];
@@ -95,15 +82,15 @@ const JogosSalvosPage = () => {
       return;
     }
     const rows = buildExportRows();
-    const filename = `titan-jogos-salvos-${selectedLottery}-${new Date().toISOString().slice(0, 10)}`;
+    const filename = `titan-jogos-salvos-simulacao-${selectedLottery}-${new Date().toISOString().slice(0, 10)}`;
     if (kind === "csv") exportToCsv(filename, rows);
     else exportToExcel(filename, rows);
-    toast.success(`Exportado: ${filename}.${kind === "csv" ? "csv" : "xls"}`);
+    toast.success(`Exportado: ${filename}.${kind === "csv" ? "csv" : "xlsx"}`);
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Jogos Salvos" description="Desempenho dos seus jogos salvos" icon={Bookmark} />
+      <PageHeader title="Jogos Salvos" description="Planejamento e comparação retrospectiva; não comprova apostas nem prêmios" icon={Bookmark} />
 
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted-foreground">Analisar contra:</span>
@@ -156,19 +143,21 @@ const JogosSalvosPage = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatsCard title="Total de Jogos" value={savedBets.length} />
-        <StatsCard title="Premiações Recentes" value={savedBets.reduce((s, b) => s + computePerformance(b).totalPrizes, 0)} />
+        <StatsCard title="Jogos comparáveis" value={savedBets.filter(b => computePerformance(b).comparisons > 0).length} />
       </div>
 
-      <PostDrawAuditPanel bets={savedBets} draws={draws} config={config} />
+      {isSimpleResultLottery(config.id) && <PostDrawAuditPanel bets={savedBets.filter(b =>
+        countSavedGameMatches(config.id as "megasena" | "lotofacil" | "quina", b.numbers, draws[0]?.numbers) !== null
+      )} draws={draws} config={config} />}
 
       <div className="space-y-3">
         {savedBets.map((bet) => {
           const perf = computePerformance(bet);
-          const hasPrize = perf.totalPrizes > 0;
+          const hasMatches = perf.bestHits !== null && perf.bestHits > 0;
           return (
             <Card
               key={bet.id}
-              className={hasPrize ? "border-primary/30 bg-primary/[0.03]" : ""}
+              className={hasMatches ? "border-primary/30 bg-primary/[0.03]" : ""}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -184,10 +173,10 @@ const JogosSalvosPage = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className={`text-sm font-mono tabular-nums font-semibold ${hasPrize ? "text-primary" : "text-foreground"}`}>
-                        {perf.totalPrizes} <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-sans">Premiações</span>
+                      <p className={`text-sm font-mono tabular-nums font-semibold ${hasMatches ? "text-primary" : "text-foreground"}`}>
+                        {perf.bestHits ?? "—"} <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-sans">Maior coincidência histórica</span>
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">Melhor: {perf.bestHits} acertos</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{perf.comparisons} comparações retrospectivas; não comprova bilhete</p>
                     </div>
                     <DrawTestDialog
                       numbers={bet.numbers}
