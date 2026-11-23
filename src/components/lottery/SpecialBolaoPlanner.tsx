@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,9 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
   const [shares, setShares] = useState(2);
   const [priceInput, setPriceInput] = useState("");
   const [priceSource, setPriceSource] = useState("");
+  const [checks, setChecks] = useState([false, false, false]);
+  // A checkbox is only a local reminder, never evidence of a Caixa transaction.
+  useEffect(() => setChecks([false, false, false]), [games, shares, priceInput, priceSource]);
   const name = kind === "supersete" ? "Super Sete" : "+Milionária";
   const internalPrice = kind === "supersete" ? 3 : 6;
   const manualPriceValid = !priceInput || (/^\d+(?:[.,]\d{1,2})?$/.test(priceInput) && Number(priceInput.replace(",", ".")) >= 0.01 && Number(priceInput.replace(",", ".")) <= 1000);
@@ -105,6 +108,18 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
     <p className="text-sm">Custo estimado: {formatCurrency(total)} · cota aproximada: {formatCurrency(total / shares)}. Valores de referência sujeitos a conferência na Caixa.</p>
     {allocation && <div className="text-sm"><p className="font-semibold">Rateio interno exato, por cota (não comprova pagamento):</p>
       <ol className="grid grid-cols-2 sm:grid-cols-4 gap-1 max-h-32 overflow-auto">{allocation.map((cents, i) => <li key={i}>Cota {i + 1}: {formatCurrency(cents / 100)}</li>)}</ol></div>}
+    <div className="rounded-lg border border-border p-3 space-y-2 text-sm" aria-label="Checklist privado de conferência externa">
+      <h3 className="font-semibold">Checklist externo (temporário)</h3>
+      <p className="text-xs text-muted-foreground">Marque apenas depois de conferir fora do Titan. As marcações não são salvas, exportadas ou prova de aposta, cota ou pagamento. Alterações no planejamento limpam o checklist.</p>
+      {[
+        "Conferi regras, preço e modalidade no canal oficial da Caixa.",
+        "Comparei cada jogo planejado com o volante ou bilhete que pretendo registrar.",
+        "Se houver aposta registrada, conferi separadamente o comprovante oficial e os valores combinados com o grupo.",
+      ].map((text, i) => <label key={i} className="flex gap-2 items-start cursor-pointer">
+        <input type="checkbox" checked={checks[i]} onChange={e => setChecks(prev => prev.map((v, index) => index === i ? e.target.checked : v))} />
+        <span>{text}</span>
+      </label>)}
+    </div>
     {!!priceInput && !manualPriceValid && <p role="alert" className="text-xs text-destructive">Preço inválido: informe de R$ 0,01 a R$ 1.000,00 com até duas casas decimais.</p>}
     {!!priceInput && manualPriceValid && !priceSource.trim() && <p role="alert" className="text-xs text-destructive">Informe a fonte/data do preço manual antes de exportar.</p>}
     <div className="flex gap-2 flex-wrap"><Button disabled={!canExport} onClick={exportText}>Baixar TXT interno</Button>
