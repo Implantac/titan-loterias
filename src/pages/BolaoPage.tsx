@@ -86,6 +86,12 @@ function IndividualPix({ payload, amount, onCopy }: { payload: string; amount: n
 }
 
 export default function BolaoPage() {
+  const { config } = useLotteryContext();
+  // Reinitialize games and financial draft whenever the selected modality changes.
+  return <BolaoPageForLottery key={config.id} />;
+}
+
+function BolaoPageForLottery() {
   const location = useLocation();
   const navigate = useNavigate();
   const { config: activeConfig, stats, draws, setSelectedLottery } = useLotteryContext();
@@ -107,15 +113,17 @@ export default function BolaoPage() {
     }
   }, [location.search, activeConfig.id, setSelectedLottery]);
 
+  const incomingGames = isRestorableBolaoDraft(locationState, activeConfig.id, activeConfig.pick, activeConfig.numbers)
+    ? locationState.games : null;
   const [bolaoTitle, setBolaoTitle] = useState(
-    locationState?.title ?? `Bolão ${activeConfig.name} #${draws?.[0]?.concurso ? draws[0].concurso + 1 : 1}`
+    (incomingGames ? locationState?.title : null) ?? `Bolão ${activeConfig.name} #${draws?.[0]?.concurso ? draws[0].concurso + 1 : 1}`
   );
 
   const [adminFeePercent, setAdminFeePercent] = useState<number>(0);
   const [customTicketPrice, setCustomTicketPrice] = useState<number | null>(null);
   const [priceSource, setPriceSource] = useState("");
   const [externalChecklist, setExternalChecklist] = useState([false, false, false, false]);
-  const [games, setGames] = useState<number[][]>(locationState?.games ?? []);
+  const [games, setGames] = useState<number[][]>(incomingGames ?? []);
 
   // Creation mode
   const [creationMode, setCreationMode] = useState<"closing" | "split_avoidance" | "saved">("closing");
@@ -155,7 +163,7 @@ export default function BolaoPage() {
     try { scrubLegacyBolaoStorage(localStorage); } catch { /* storage indisponível */ }
     const requested = new URLSearchParams(location.search).get("lottery");
     if (requested && requested !== activeConfig.id) return;
-    if (!locationState?.games || locationState.games.length === 0) {
+    if (!incomingGames) {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -168,7 +176,7 @@ export default function BolaoPage() {
         /* ignore */
       }
     }
-  }, [locationState, location.search, activeConfig.id]);
+  }, [incomingGames, location.search, activeConfig.id]);
 
   useEffect(() => {
     const requested = new URLSearchParams(location.search).get("lottery");
