@@ -31,7 +31,7 @@ export function AlertsConfigCard() {
     }));
   }, [configs]);
 
-  const activeCount = configs.filter((c) => c.enabled).length;
+  const activeCount = byLottery.filter(({ cfg }) => cfg?.enabled).length;
 
   return (
     <Card className="border-primary/20">
@@ -44,7 +44,7 @@ export function AlertsConfigCard() {
               {activeCount > 0 && <Badge variant="default">{activeCount} ativa(s)</Badge>}
             </CardTitle>
             <CardDescription>
-              Receba um push automaticamente quando o sistema detectar gatilhos importantes: líder quente, retorno de frias, atraso crítico, acúmulo ou ciclo fechado. Requer as notificações push ativas acima.
+              Alertas descritivos de sorteios anteriores (frequência, atrasos, acúmulo e ciclos); não preveem resultados. Super Sete e Lotomania exigem análise própria e não estão disponíveis aqui. Requer notificações push ativas.
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={runScan} disabled={scanning || activeCount === 0}>

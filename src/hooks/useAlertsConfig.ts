@@ -22,11 +22,9 @@ export const AVAILABLE_LOTTERIES: Array<{ id: string; name: string }> = [
   { id: "megasena", name: "Mega-Sena" },
   { id: "lotofacil", name: "Lotofácil" },
   { id: "quina", name: "Quina" },
-  { id: "lotomania", name: "Lotomania" },
   { id: "duplasena", name: "Dupla Sena" },
   { id: "timemania", name: "Timemania" },
   { id: "diadesorte", name: "Dia de Sorte" },
-  { id: "supersete", name: "Super Sete" },
 ];
 
 export const DEFAULT_TRIGGERS: AlertTriggers = {

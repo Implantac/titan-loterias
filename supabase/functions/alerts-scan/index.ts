@@ -34,16 +34,15 @@ type Draw = {
   prize_tiers?: Record<string, unknown> | null;
 };
 
-// Total de dezenas do volante por loteria (para stats).
+// Apenas universos 1..N de dezenas simples; Lotomania (00..99) e Super Sete
+// (colunas posicionais) exigem modelos distintos e ficam fora desta análise.
 const LOTTERY_UNIVERSE: Record<string, { total: number; pick: number; name: string }> = {
   megasena: { total: 60, pick: 6, name: "Mega-Sena" },
   lotofacil: { total: 25, pick: 15, name: "Lotofácil" },
   quina: { total: 80, pick: 5, name: "Quina" },
-  lotomania: { total: 100, pick: 20, name: "Lotomania" },
   duplasena: { total: 50, pick: 6, name: "Dupla Sena" },
   timemania: { total: 80, pick: 7, name: "Timemania" },
   diadesorte: { total: 31, pick: 7, name: "Dia de Sorte" },
-  supersete: { total: 10, pick: 7, name: "Super Sete" },
 };
 
 type Alert = {
