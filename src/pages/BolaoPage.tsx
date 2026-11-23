@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import { isRestorableBolaoDraft } from "@/utils/bolaoDraft";
-import { isValidSimpleBolaoGame } from "@/utils/bolaoGameValidation";
+import { isValidSimpleBolaoGame, normalizeGeneratedSimpleBolaoGame } from "@/utils/bolaoGameValidation";
 import { hasExactShareAmount } from "@/utils/bolaoShares";
 import { allocateBolaoCents } from "@/utils/bolaoAllocation";
 import { bolaoWhatsAppUrl } from "@/utils/bolaoWhatsApp";
@@ -273,7 +273,7 @@ export default function BolaoPage() {
     if (res.error) {
       toast.error(res.error);
     } else {
-      setGames(res.games);
+      setGames(res.games.map(g => normalizeGeneratedSimpleBolaoGame(g, activeConfig)));
       toast.success(`${res.games.length} jogos gerados via fechamento "${matrix.name}"!`);
     }
   };
@@ -286,7 +286,7 @@ export default function BolaoPage() {
         seed: Date.now() + i * 997,
         lastDraw,
       });
-      newGames.push(res.bet);
+      newGames.push(normalizeGeneratedSimpleBolaoGame(res.bet, activeConfig));
     }
     setGames(newGames);
     toast.success(`${quickGameCount} jogos gerados com filtro de padrões populares. Isso não garante prêmio nem evita divisão.`);
