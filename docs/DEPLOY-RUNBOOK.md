@@ -246,3 +246,15 @@ de checkout, pagamento teste, webhook assinado, portal e consulta do plano em
 e-mail. Confirmar se o webhook de teste efetivamente entregou o evento e se o
 plano foi atualizado no perfil correto. Testar também estorno/cancelamento.
 Sem estas verificações, checkout e billing permanecem **não homologados**.
+
+## Aviso pré-sorteio suspenso (até calendário futuro verificável)
+
+A função `pre-draw-alert` anterior assumia uma janela fixa de 17h BRT em todos
+os dias, dizia "sorteio em 2h" sem confirmar o próximo horário oficial e enviava
+um payload que `send-push` não reconhecia. A versão do código agora exige chave
+de serviço e responde `suspended: true`, `notified: 0`, sem enviar push. A opção
+T-2h foi removida da interface (preferências antigas não foram apagadas).
+**A suspensão só vale após deploy da Edge Function e do frontend**; publicar só
+o frontend deixa o cron antigo executando. Para reativar, é necessário calendário
+futuro verificável por modalidade, fuso horário correto, idempotência de aviso
+e teste da integração entre funções. Não prometer alertas de 2h antes disso.

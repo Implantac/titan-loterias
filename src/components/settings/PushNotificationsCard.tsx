@@ -63,10 +63,10 @@ export function PushNotificationsCard() {
             {isSubscribed && (
               <div className="space-y-3 pt-2 border-t">
                 <p className="text-sm font-medium">Quais alertas você quer receber?</p>
+                <p className="text-xs text-muted-foreground">Avisos T-2h suspensos: ainda não há horário oficial futuro verificado para garantir o momento do alerta.</p>
                 {[
                   { key: "draws" as const, label: "Novos sorteios oficiais", desc: "Quando um novo concurso é sorteado" },
-                  { key: "pre_draw" as const, label: "Alertas T-2h", desc: "Sinais críticos antes do sorteio oficial" },
-                  { key: "results" as const, label: "Resultado das suas apostas", desc: "Acertos e prêmios das apostas salvas" },
+                  { key: "results" as const, label: "Comparação de jogos salvos", desc: "Coincidências de dezenas; não comprova aposta ou prêmio" },
                   { key: "closings" as const, label: "Fechamentos e otimizações", desc: "Sugestões e melhorias dos seus fechamentos" },
                   { key: "system" as const, label: "Sistema e atualizações", desc: "Novidades da plataforma" },
                 ].map((it) => (
