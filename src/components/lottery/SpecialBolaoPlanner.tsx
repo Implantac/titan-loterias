@@ -16,12 +16,14 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
   const [columns, setColumns] = useState<string[]>(Array(7).fill(""));
   const [numbers, setNumbers] = useState<string[]>(Array(6).fill(""));
   const [trevos, setTrevos] = useState<string[]>(Array(2).fill(""));
-  const [shares, setShares] = useState(2);
+  const [sharesInput, setSharesInput] = useState("2");
   const [priceInput, setPriceInput] = useState("");
   const [priceSource, setPriceSource] = useState("");
   const [checks, setChecks] = useState([false, false, false]);
   // A checkbox is only a local reminder, never evidence of a Caixa transaction.
-  useEffect(() => setChecks([false, false, false]), [games, shares, priceInput, priceSource]);
+  useEffect(() => setChecks([false, false, false]), [games, sharesInput, priceInput, priceSource]);
+  const parsedShares = Number(sharesInput);
+  const shares = /^\d+$/.test(sharesInput) && Number.isInteger(parsedShares) && parsedShares >= 2 && parsedShares <= 100 ? parsedShares : null;
   const name = kind === "supersete" ? "Super Sete" : "+Milionária";
   const internalPrice = kind === "supersete" ? 3 : 6;
   const manualPriceValid = !priceInput || (/^\d+(?:[.,]\d{1,2})?$/.test(priceInput) && Number(priceInput.replace(",", ".")) >= 0.01 && Number(priceInput.replace(",", ".")) <= 1000);
@@ -29,7 +31,7 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
   const price = customPrice ?? internalPrice;
   const selectedGames = games.filter(g => g.kind === kind);
   const total = selectedGames.length * price;
-  const allocation = allocateBolaoCents(total, Array(shares).fill(1));
+  const allocation = shares && manualPriceValid ? allocateBolaoCents(total, Array(shares).fill(1)) : null;
   const canExport = selectedGames.length > 0 && selectedGames.every(isValidSpecialBolaoGame) &&
     !!allocation && manualPriceValid && (!priceInput || !!priceSource.trim());
 
@@ -98,14 +100,16 @@ export function SpecialBolaoPlanner({ kind }: { kind: Kind }) {
       </div>)}</div>
     <div className="grid sm:grid-cols-3 gap-3">
       <label className="text-xs">Cotas privadas de planejamento (2 a 100)
-        <Input type="number" min={2} max={100} step={1} value={shares} onChange={e => { const n = Number(e.target.value); if (Number.isInteger(n) && n >= 2 && n <= 100) setShares(n); }} /></label>
+        <Input type="number" min={2} max={100} step={1} value={sharesInput} onChange={e => setSharesInput(e.target.value)} /></label>
       <label className="text-xs">Preço manual por jogo (R$; opcional)
         <Input type="number" min="0.01" max="1000" step="0.01" value={priceInput} placeholder={String(internalPrice)}
           onChange={e => setPriceInput(e.target.value)} /></label>
       <label className="text-xs">Fonte/data do preço manual
         <Input maxLength={120} value={priceSource} placeholder="Ex.: Caixa em DD/MM/AAAA" onChange={e => setPriceSource(e.target.value)} /></label>
     </div>
-    <p className="text-sm">Custo estimado: {formatCurrency(total)} · cota aproximada: {formatCurrency(total / shares)}. Valores de referência sujeitos a conferência na Caixa.</p>
+    {manualPriceValid && shares ? <p className="text-sm">Custo estimado: {formatCurrency(total)} · cota aproximada: {formatCurrency(total / shares)}. Valores de referência sujeitos a conferência na Caixa.</p>
+      : <p className="text-sm text-muted-foreground">Custo e rateio indisponíveis até corrigir preço e quantidade de cotas.</p>}
+    {!shares && <p role="alert" className="text-xs text-destructive">Informe de 2 a 100 cotas inteiras para calcular e exportar.</p>}
     {allocation && <div className="text-sm"><p className="font-semibold">Rateio interno exato, por cota (não comprova pagamento):</p>
       <ol className="grid grid-cols-2 sm:grid-cols-4 gap-1 max-h-32 overflow-auto">{allocation.map((cents, i) => <li key={i}>Cota {i + 1}: {formatCurrency(cents / 100)}</li>)}</ol></div>}
     <div className="rounded-lg border border-border p-3 space-y-2 text-sm" aria-label="Checklist privado de conferência externa">
