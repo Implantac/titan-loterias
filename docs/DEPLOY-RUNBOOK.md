@@ -268,3 +268,16 @@ inscrição push de staging habilitada, desabilitada e endpoint expirado.
 Em entrega parcial, repetir pode reenviar um alerta previamente entregue:
 **a tag do push não é uma trilha de idempotência no servidor**. Não anunciar
 entrega exatamente uma vez sem tabela/controle de notificações por evento.
+
+## Cadastro sem bloqueio por IP (decisão do proprietário)
+
+O limite antigo de uma conta gratuita por IP foi suspenso: redes domésticas,
+corporativas e móveis compartilham endereços, e a antiga função pública podia
+pré-reservar uma vaga sem cadastro concluído. A interface nova não consulta
+`signup-guard`; a função nova responde `{allowed:true,suspended:true}` sem usar
+`service_role` nem escrever no registry, por compatibilidade com clientes antigos.
+**Publicar o frontend e a função juntos**; verificar em staging dois usuários
+legítimos da mesma rede. Registros históricos no `signup_ip_registry` não foram
+apagados. Não afirmar que há proteção efetiva contra contas múltiplas até
+configurar e testar rate limiting/CAPTCHA no provedor. A consulta separada
+`check_phone_exists` permanece, mas não prova titularidade do telefone.

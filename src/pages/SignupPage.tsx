@@ -52,42 +52,17 @@ export default function SignupPage() {
     setLoading(true);
 
     // Check if phone is already in use
-    const { data: phoneExists } = await supabase.rpc("check_phone_exists", { _phone: cleanPhone });
+    const { data: phoneExists, error: phoneError } = await supabase.rpc("check_phone_exists", { _phone: cleanPhone });
+    if (phoneError) {
+      setLoading(false);
+      toast({ title: "Não foi possível verificar o telefone", description: "Tente novamente em instantes ou contate o suporte. Nenhuma conta foi criada.", variant: "destructive" });
+      return;
+    }
 
     if (phoneExists) {
       setLoading(false);
       toast({ title: "Telefone já cadastrado", description: "Este número de telefone já está vinculado a outra conta.", variant: "destructive" });
       return;
-    }
-
-    // IP guard: bloqueia múltiplas contas gratuitas do mesmo IP
-    try {
-      const { data: guard, error: guardError } = await supabase.functions.invoke("signup-guard", {
-        body: { email, mode: "check" },
-      });
-      
-      if (guardError) throw guardError;
-
-      if (guard && guard.allowed === false) {
-        setLoading(false);
-        toast({
-          title: "Limite de Contas Atingido",
-          description: "Esta conexão atingiu o limite preventivo de contas gratuitas. Redes compartilhadas podem afetar pessoas diferentes; se for seu caso, contate o suporte para revisão antes de contratar.",
-          variant: "destructive",
-        });
-        return;
-      }
-    } catch (err: any) {
-      console.warn("signup-guard falhou ou bloqueou:", err);
-      if (err.status === 403 || err.status === 429 || err.message?.includes("IP")) {
-        setLoading(false);
-        toast({
-          title: "Proteção contra Abuso",
-          description: "Seu endereço IP foi temporariamente sinalizado pelo nosso sistema de segurança. Tente novamente mais tarde ou contate o suporte se o bloqueio afetou uma conta legítima.",
-          variant: "destructive",
-        });
-        return;
-      }
     }
 
     const { data: signUpData, error } = await supabase.auth.signUp({
@@ -256,7 +231,7 @@ export default function SignupPage() {
                 Criar minha conta
                 {!loading && <ArrowRight className="w-4 h-4" />}
               </Button>
-              <p className="text-xs text-center text-muted-foreground">Se o cadastro foi bloqueado em uma rede compartilhada, <Link to="/suporte" className="text-primary underline">peça revisão ao suporte</Link>. Não é necessário comprar um plano para pedir ajuda.</p>
+              <p className="text-xs text-center text-muted-foreground">Precisa de ajuda com o cadastro? <Link to="/suporte" className="text-primary underline">Fale com o suporte</Link>. A criação de conta não exige contratar um plano.</p>
               <p className="text-sm text-center text-muted-foreground pt-2">
                 Já tem conta?{" "}
                 <Link to="/login" className="text-primary hover:underline font-semibold">
