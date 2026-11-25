@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Crown, CheckCircle2, Loader2, ShieldCheck, Clock, Sparkles, ArrowRight, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -67,6 +68,8 @@ export default function PlanosPage() {
           Garanta o Acesso Vitalício com pagamento único ou assine pela temporada de 12 meses. Confira valor final e meios de pagamento no checkout. Direito de arrependimento de 7 dias conforme os Termos.
         </p>
       </motion.div>
+
+      <p className="text-center text-sm text-muted-foreground mb-8">Antes de escolher: <Link to="/" className="text-primary underline">veja o exemplo e a tabela de recursos por modalidade</Link>. O Titan não registra apostas nem emite comprovantes da Caixa.</p>
 
       {/* Plans Comparison Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-16">

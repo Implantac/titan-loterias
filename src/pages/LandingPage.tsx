@@ -8,6 +8,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { MegaViradaBanner } from "@/components/landing/MegaViradaBanner";
 import { ComplianceDisclaimer } from "@/components/common/ComplianceDisclaimer";
 import { LOTTERIES } from "@/data/lotteries";
+import { TransparentDemo } from "@/components/landing/TransparentDemo";
 
 import { burstConfetti } from "@/lib/confetti";
 import { prefetchRoute } from "@/lib/routePrefetch";
@@ -126,6 +127,7 @@ export default function LandingPage() {
       />
 
       <MegaViradaBanner />
+      <TransparentDemo />
 
       {/* Stats Section */}
       <section className="py-16 md:py-24 border-y border-border/40 bg-card/20 relative overflow-hidden">
